@@ -56,60 +56,53 @@ class SWADEHPSystem {
     }
 
     waitForSWADE() {
-        // Check if SWADE is already ready
-        if (game.swade && game.swade.CharacterSheet) {
-            console.log('SWADE HP Module: SWADE already available, registering immediately...');
+        // Check if SWADE CharacterSheet is already available (it's a global class, not game.swade.CharacterSheet)
+        if (typeof CharacterSheet !== 'undefined') {
+            console.log('SWADE HP Module: CharacterSheet already available, registering immediately...');
             this.registerCustomSheet();
             return;
         }
 
         // If not ready, wait and check periodically
-        console.log('SWADE HP Module: SWADE not ready, waiting...');
+        console.log('SWADE HP Module: CharacterSheet not ready, waiting...');
         const checkInterval = setInterval(() => {
-            console.log('SWADE HP Module: Checking if SWADE is ready...');
-            if (game.swade && game.swade.CharacterSheet) {
-                console.log('SWADE HP Module: SWADE is now ready!');
+            console.log('SWADE HP Module: Checking if CharacterSheet is ready...');
+            if (typeof CharacterSheet !== 'undefined') {
+                console.log('SWADE HP Module: CharacterSheet is now ready!');
                 clearInterval(checkInterval);
                 this.registerCustomSheet();
             }
         }, 100);
 
-        // Also listen for the swadeReady hook as backup
-        Hooks.once('swadeReady', () => {
-            console.log('SWADE HP Module: swadeReady hook fired!');
-            clearInterval(checkInterval);
-            this.registerCustomSheet();
+        // Also listen for the ready hook as backup
+        Hooks.once('ready', () => {
+            console.log('SWADE HP Module: ready hook fired!');
+            if (typeof CharacterSheet !== 'undefined') {
+                clearInterval(checkInterval);
+                this.registerCustomSheet();
+            }
         });
 
         // Fallback: stop checking after 10 seconds
         setTimeout(() => {
             clearInterval(checkInterval);
-            console.error('SWADE HP Module: SWADE did not become available within 10 seconds');
+            console.error('SWADE HP Module: CharacterSheet did not become available within 10 seconds');
         }, 10000);
     }
 
     registerCustomSheet() {
         console.log('SWADE HP Module: Starting custom sheet registration...');
         
-        // Debug: Check if SWADE is available
-        if (!game.swade) {
-            console.error('SWADE HP Module: game.swade is not available!');
+        // Debug: Check if CharacterSheet is available
+        if (typeof CharacterSheet === 'undefined') {
+            console.error('SWADE HP Module: CharacterSheet class is not available!');
             return;
         }
         
-        console.log('SWADE HP Module: game.swade found, checking available properties...');
-        console.log('SWADE HP Module: game.swade properties:', Object.keys(game.swade));
-        
-        if (!game.swade.CharacterSheet) {
-            console.error('SWADE HP Module: game.swade.CharacterSheet is not available!');
-            console.log('SWADE HP Module: Available SWADE classes:', Object.keys(game.swade).filter(key => key.includes('Sheet')));
-            return;
-        }
-        
-        console.log('SWADE HP Module: SWADE system found, proceeding with registration...');
+        console.log('SWADE HP Module: CharacterSheet class found, proceeding with registration...');
         
         // Create a custom character sheet class that extends SWADE's character sheet
-        class SWADEHPCharacterSheet extends game.swade.CharacterSheet {
+        class SWADEHPCharacterSheet extends CharacterSheet {
             static get defaultOptions() {
                 console.log('SWADE HP Module: Setting default options for custom sheet');
                 return mergeObject(super.defaultOptions, {
@@ -205,37 +198,24 @@ class SWADEHPSystem {
         console.log('- foundry.documents.collections.Actors.registerSheet:', typeof foundry?.documents?.collections?.Actors?.registerSheet);
 
         try {
-            // Try the standard registration method
-            console.log('SWADE HP Module: Attempting to register with Actors.registerSheet...');
-            Actors.registerSheet('swade', SWADEHPCharacterSheet, {
+            // Use the same registration method as SWADE (foundry.documents.collections.Actors.registerSheet)
+            console.log('SWADE HP Module: Attempting to register with foundry.documents.collections.Actors.registerSheet...');
+            foundry.documents.collections.Actors.registerSheet('swade', SWADEHPCharacterSheet, {
                 types: ['character'],
                 makeDefault: false,
                 label: 'SWADE HP Module Sheet'
             });
-            console.log('SWADE HP Module: Registration successful with Actors.registerSheet');
+            console.log('SWADE HP Module: Registration successful!');
         } catch (error) {
-            console.error('SWADE HP Module: Actors.registerSheet failed:', error);
+            console.error('SWADE HP Module: Registration failed:', error);
             
+            // Try fallback method
             try {
-                // Try alternative registration method
-                console.log('SWADE HP Module: Trying alternative registration method...');
-                foundry.documents.collections.Actors.registerSheet('swade', SWADEHPCharacterSheet, {
-                    types: ['character'],
-                    makeDefault: false,
-                    label: 'SWADE HP Module Sheet'
-                });
-                console.log('SWADE HP Module: Registration successful with foundry.documents.collections.Actors.registerSheet');
+                console.log('SWADE HP Module: Trying CONFIG.Actor.sheetClasses fallback...');
+                CONFIG.Actor.sheetClasses.character['swade-hp-module'] = SWADEHPCharacterSheet;
+                console.log('SWADE HP Module: Fallback registration successful!');
             } catch (error2) {
-                console.error('SWADE HP Module: Alternative registration also failed:', error2);
-                
-                // Try the old method as fallback
-                try {
-                    console.log('SWADE HP Module: Trying CONFIG.Actor.sheetClasses method...');
-                    CONFIG.Actor.sheetClasses.character['swade-hp-module'] = SWADEHPCharacterSheet;
-                    console.log('SWADE HP Module: Registration successful with CONFIG.Actor.sheetClasses');
-                } catch (error3) {
-                    console.error('SWADE HP Module: All registration methods failed:', error3);
-                }
+                console.error('SWADE HP Module: All registration methods failed:', error2);
             }
         }
 
