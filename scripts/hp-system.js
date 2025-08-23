@@ -516,7 +516,8 @@ class SWADEHPSystem {
 // Initialize the module when Foundry is ready
 Hooks.once('ready', () => {
     console.log('SWADE HP Module: Ready hook fired, initializing module...');
-    new SWADEHPSystem();
+    const system = new SWADEHPSystem();
+    system.init();
 });
 
 // Export for potential use by other modules
