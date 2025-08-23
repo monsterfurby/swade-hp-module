@@ -41,6 +41,6 @@
   ],
   "socket": true,
   "url": "https://github.com/monsterfurby/swade-hp-module",
-  "manifest": "https://github.com/monsterfurby/swade-hp-module/releases/latest/download/module.json",
-  "download": "https://github.com/monsterfurby/swade-hp-module/releases/latest/download/swade-hp-module.zip"
+  "manifest": "https://raw.githubusercontent.com/monsterfurby/swade-hp-module/main/module.json",
+  "download": "https://github.com/monsterfurby/swade-hp-module/releases/latest/download/swade-hp-module-v1.0.0.zip"
 }
