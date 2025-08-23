@@ -9,9 +9,10 @@ console.log('SWADE HP Module: Script file loaded!');
 class SWADEHPSystem {
     constructor() {
         this.id = 'swade-hp-module';
+        this.init();
     }
 
-    async init() {
+    init() {
         console.log('SWADE HP Module: Initializing...');
         
         // Register module settings
@@ -19,7 +20,7 @@ class SWADEHPSystem {
         console.log('SWADE HP Module: Settings registered');
         
         // Hook into SWADE system
-        await this.setupHooks();
+        this.setupHooks();
         console.log('SWADE HP Module: Hooks set up');
         
         // Initialize HP for existing actors
@@ -38,11 +39,11 @@ class SWADEHPSystem {
         });
     }
 
-    async setupHooks() {
+    setupHooks() {
         console.log('SWADE HP Module: Setting up hooks...');
         
-        // Register Handlebars partials first
-        await this.registerPartials();
+        // Register Handlebars partials
+        this.registerPartials();
         
         // Hook into actor creation and updates
         Hooks.on('preCreateActor', this.onPreCreateActor.bind(this));
@@ -61,31 +62,30 @@ class SWADEHPSystem {
         this.initializeExistingActors();
     }
 
-    async registerPartials() {
+    registerPartials() {
         console.log('SWADE HP Module: Registering Handlebars partials...');
         
-        try {
-            // Load and register the summary tab partial synchronously
-            const templatePath = 'modules/swade-hp-module/templates/actors/character/tabs/summary.hbs';
-            console.log('SWADE HP Module: Loading partial from:', templatePath);
-            
-            const response = await fetch(templatePath);
-            if (!response.ok) {
-                throw new Error(`Failed to fetch template: ${response.status} ${response.statusText}`);
-            }
-            
-            const template = await response.text();
-            console.log('SWADE HP Module: Template content length:', template.length);
-            
-            Handlebars.registerPartial('swade-hp-module.character-tab-summary', template);
-            console.log('SWADE HP Module: Successfully registered character-tab-summary partial');
-            
-            // Verify registration
-            const registered = Handlebars.partials['swade-hp-module.character-tab-summary'];
-            console.log('SWADE HP Module: Partial registration verified:', !!registered);
-        } catch (error) {
-            console.error('SWADE HP Module: Failed to register partial:', error);
-        }
+        // Load and register the summary tab partial
+        fetch('modules/swade-hp-module/templates/actors/character/tabs/summary.hbs')
+            .then(response => {
+                console.log('SWADE HP Module: Partial fetch response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch partial: ${response.status} ${response.statusText}`);
+                }
+                return response.text();
+            })
+            .then(template => {
+                console.log('SWADE HP Module: Partial template content length:', template.length);
+                Handlebars.registerPartial('swade-hp-module.character-tab-summary', template);
+                console.log('SWADE HP Module: Successfully registered character-tab-summary partial');
+                
+                // Verify registration
+                const registered = Handlebars.partials['swade-hp-module.character-tab-summary'];
+                console.log('SWADE HP Module: Partial registration verified:', !!registered);
+            })
+            .catch(error => {
+                console.error('SWADE HP Module: Failed to register partial:', error);
+            });
     }
 
     waitForSWADE() {
@@ -214,7 +214,7 @@ class SWADEHPSystem {
         
         // Create a custom character sheet class that extends SWADE's character sheet
         class SWADEHPCharacterSheet extends BaseCharacterSheet {
-            static get defaultOptions() {
+                static get defaultOptions() {
                 console.log('SWADE HP Module: Setting default options for custom sheet');
                 const options = foundry.utils.mergeObject(super.defaultOptions, {
                     template: 'modules/swade-hp-module/templates/actors/character/sheet.hbs'
@@ -225,6 +225,7 @@ class SWADEHPSystem {
 
             getData() {
                 console.log('SWADE HP Module: Getting data for custom sheet');
+                console.log('SWADE HP Module: Template being used:', this.options.template);
                 const data = super.getData();
                 
                 // Ensure actor and system data exist before accessing
@@ -233,8 +234,10 @@ class SWADEHPSystem {
                     if (!data.actor.system.hitPoints) {
                         data.actor.system.hitPoints = { current: 0, max: 0, hitDie: 0 };
                     }
+                    console.log('SWADE HP Module: HP data available:', data.actor.system.hitPoints);
                 } else {
                     console.warn('SWADE HP Module: Actor or system data not available in getData()');
+                    console.log('SWADE HP Module: Data structure:', data);
                 }
                 
                 return data;
@@ -511,10 +514,9 @@ class SWADEHPSystem {
 }
 
 // Initialize the module when Foundry is ready
-Hooks.once('ready', async () => {
+Hooks.once('ready', () => {
     console.log('SWADE HP Module: Ready hook fired, initializing module...');
-    const system = new SWADEHPSystem();
-    await system.init();
+    new SWADEHPSystem();
 });
 
 // Export for potential use by other modules
