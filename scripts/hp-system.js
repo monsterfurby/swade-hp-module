@@ -214,25 +214,35 @@ class SWADEHPSystem {
         
         // Register the partial before creating the sheet class
         console.log('SWADE HP Module: Registering partial before sheet creation...');
-        fetch('modules/swade-hp-module/templates/actors/character/tabs/summary.hbs')
+        const partialPath = 'modules/swade-hp-module/templates/actors/character/tabs/summary.hbs';
+        console.log('SWADE HP Module: Attempting to fetch partial from:', partialPath);
+        
+        fetch(partialPath)
             .then(response => {
                 console.log('SWADE HP Module: Partial fetch response status:', response.status);
+                console.log('SWADE HP Module: Partial fetch response ok:', response.ok);
+                console.log('SWADE HP Module: Partial fetch response url:', response.url);
                 if (!response.ok) {
-                    throw new Error(`Failed to fetch partial: ${response.status} ${response.statusText}`);
+                    throw new Error(`Failed to fetch partial: ${response.status} ${response.statusText} from ${response.url}`);
                 }
                 return response.text();
             })
             .then(template => {
                 console.log('SWADE HP Module: Partial template content length:', template.length);
+                console.log('SWADE HP Module: Partial template preview:', template.substring(0, 200));
                 Handlebars.registerPartial('swade-hp-module.character-tab-summary', template);
                 console.log('SWADE HP Module: Successfully registered character-tab-summary partial');
                 
                 // Verify registration
                 const registered = Handlebars.partials['swade-hp-module.character-tab-summary'];
                 console.log('SWADE HP Module: Partial registration verified:', !!registered);
+                console.log('SWADE HP Module: Registered partial type:', typeof registered);
             })
             .catch(error => {
-                console.error('SWADE HP Module: Failed to register partial:', error);
+                console.error('SWADE HP Module: Failed to register partial - Error details:', error);
+                console.error('SWADE HP Module: Error name:', error.name);
+                console.error('SWADE HP Module: Error message:', error.message);
+                console.error('SWADE HP Module: Error stack:', error.stack);
             });
 
         // Create a custom character sheet class that extends SWADE's character sheet
