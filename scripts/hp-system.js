@@ -4,6 +4,8 @@
  * Compatible with Foundry VTT v13 ApplicationV2 framework
  */
 
+console.log('SWADE HP Module: Script file loaded!');
+
 class SWADEHPSystem {
     constructor() {
         this.id = 'swade-hp-module';
@@ -47,13 +49,11 @@ class SWADEHPSystem {
         // Hook into advance system
         Hooks.on('preUpdateActor', this.onAdvanceCheck.bind(this));
         
-        // Register custom sheet on ready hook (simpler approach)
-        Hooks.once('ready', () => {
-            console.log('SWADE HP Module: Ready hook fired, attempting registration...');
-            setTimeout(() => {
-                this.registerCustomSheet();
-            }, 1000); // Wait 1 second after ready to ensure everything is loaded
-        });
+        // Register custom sheet after a delay (since we're already in the ready hook)
+        setTimeout(() => {
+            console.log('SWADE HP Module: Attempting to register custom sheet...');
+            this.registerCustomSheet();
+        }, 1000); // Wait 1 second to ensure everything is loaded
         
         // Initialize HP for existing characters
         this.initializeExistingActors();
@@ -440,6 +440,7 @@ class SWADEHPSystem {
 
 // Initialize the module when Foundry is ready
 Hooks.once('ready', () => {
+    console.log('SWADE HP Module: Ready hook fired, initializing module...');
     new SWADEHPSystem();
 });
 
