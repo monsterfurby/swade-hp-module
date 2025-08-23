@@ -131,70 +131,13 @@ class SWADEHPSystem {
     onRenderActorSheet(app, html, data) {
         if (!game.settings.get(this.id, 'enableHP')) return;
         
-        // Add HP display to character sheets
-        if (data.actor.type === 'character') {
-            this.addCharacterHPDisplay(html, data);
-        }
-        // Add HP display to NPC sheets
-        else if (data.actor.type === 'npc') {
+        // Add HP display to NPC sheets (characters use template override)
+        if (data.actor.type === 'npc') {
             this.addNPCHPDisplay(html, data);
         }
         
         // Add event listeners for HP controls
         this.addHPControls(app, html, data);
-    }
-
-    addCharacterHPDisplay(html, data) {
-        // Check if HP display already exists
-        if (html.find('.hp-wrapper').length > 0) return;
-        
-        const hpData = data.actor.system.hitPoints || { current: 0, max: 0 };
-        
-        // Find the wounds section to insert HP after it
-        const woundsSection = html.find('.wounds-wrapper');
-        if (woundsSection.length > 0) {
-            const hpHTML = `
-                <div class='hp-wrapper'>
-                    <header class='counter-header'>
-                        <button type='button' class='adjust-counter' data-action='hp-minus'>
-                            <i class='fa-solid fa-minus fa-lg'></i>
-                        </button>
-                        <span class='label'>${game.i18n.localize('SWADE_HP.HitPoints')}</span>
-                        <button type='button' class='adjust-counter' data-action='hp-plus'>
-                            <i class='fa-solid fa-plus fa-lg'></i>
-                        </button>
-                    </header>
-                    <div class='hp-values'>
-                        <span class='values'>
-                            <input
-                                type='number'
-                                min='0'
-                                name='system.hitPoints.current'
-                                value='${hpData.current}'
-                                data-dtype='Number'
-                                class='hp-input'
-                                placeholder='Current'
-                            />/
-                            <input
-                                type='number'
-                                min='0'
-                                name='system.hitPoints.max'
-                                value='${hpData.max}'
-                                data-dtype='Number'
-                                class='hp-input'
-                                placeholder='Max'
-                            />
-                        </span>
-                    </div>
-                    <button type='button' class='hp-advance-button' data-action='roll-hp-advance' 
-                            title="${game.i18n.localize('SWADE_HP.AdvanceButtonTooltip')}">
-                        ${game.i18n.localize('SWADE_HP.AdvanceButton')}
-                    </button>
-                </div>
-            `;
-            
-            woundsSection.after(hpHTML);
-        }
     }
 
     addNPCHPDisplay(html, data) {

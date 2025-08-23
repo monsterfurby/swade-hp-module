@@ -21,8 +21,29 @@
     </span>
   </div>
 </div>
-
-{{!-- HP Module: HP Counter (Primary) --}}
+<div class='wounds-wrapper'>
+  <header class='counter-header'>
+    <button type='button' class='adjust-counter' data-action='wounds-minus'>
+      <i class='fa-solid fa-minus fa-lg'></i>
+    </button>
+    <span class='label'>{{localize 'SWADE.Wounds'}}</span>
+    <button type='button' class='adjust-counter' data-action='wounds-plus'>
+      <i class='fa-solid fa-plus fa-lg'></i>
+    </button>
+  </header>
+  <div class='wounds'>
+    <span class='values'>
+      <input
+        type='number'
+        min='0'
+        name='system.wounds.value'
+        value='{{actor.system.wounds.value}}'
+        data-dtype='Number'
+      />/{{actor.system.wounds.max}}
+    </span>
+  </div>
+</div>
+{{#if (and actor.system.hitPoints (eq actor.type "character"))}}
 <div class='hp-wrapper'>
   <header class='counter-header'>
     <button type='button' class='adjust-counter' data-action='hp-minus'>
@@ -42,7 +63,17 @@
         value='{{actor.system.hitPoints.current}}'
         data-dtype='Number'
         class='hp-input'
-      />/{{actor.system.hitPoints.max}}
+        placeholder='Current'
+      />/
+      <input
+        type='number'
+        min='0'
+        name='system.hitPoints.max'
+        value='{{actor.system.hitPoints.max}}'
+        data-dtype='Number'
+        class='hp-input'
+        placeholder='Max'
+      />
     </span>
   </div>
   <button type='button' class='hp-advance-button' data-action='roll-hp-advance' 
@@ -50,31 +81,7 @@
     {{localize 'SWADE_HP.AdvanceButton'}}
   </button>
 </div>
-
-{{!-- HP Module: Smaller Wounds Display --}}
-<div class='wounds-wrapper wounds-compact'>
-  <header class='counter-header'>
-    <button type='button' class='adjust-counter' data-action='wounds-minus'>
-      <i class='fa-solid fa-minus'></i>
-    </button>
-    <span class='label'>{{localize 'SWADE.Wounds'}}</span>
-    <button type='button' class='adjust-counter' data-action='wounds-plus'>
-      <i class='fa-solid fa-plus'></i>
-    </button>
-  </header>
-  <div class='wounds'>
-    <span class='values'>
-      <input
-        type='number'
-        min='0'
-        name='system.wounds.value'
-        value='{{actor.system.wounds.value}}'
-        data-dtype='Number'
-      />/{{actor.system.wounds.max}}
-    </span>
-  </div>
-</div>
-
+{{/if}}
 <div class='status'>
   <label class='check-container'>
     {{localize 'SWADE.Shaken'}}
