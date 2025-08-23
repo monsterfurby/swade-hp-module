@@ -132,8 +132,8 @@ class SWADEHPSystem {
         // Hook into advance system
         Hooks.on('preUpdateActor', this.onAdvanceCheck.bind(this));
         
-        // Register custom character sheet template
-        this.registerCustomSheet();
+        // Register custom character sheet template - wait for SWADE to be ready
+        Hooks.once('swadeReady', this.registerCustomSheet.bind(this));
         
         // Add HP display and controls to character sheets
         Hooks.on('renderActorSheet', this.onRenderActorSheet.bind(this));
