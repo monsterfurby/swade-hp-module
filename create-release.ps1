@@ -2,7 +2,7 @@
 # Run this script from the swade-hp-module directory
 
 $version = "1.0.0"
-$zipName = "swade-hp-module-v$version.zip"
+$zipName = "swade-hp-module.zip"
 
 Write-Host "Creating Foundry VTT module release: $zipName" -ForegroundColor Green
 
