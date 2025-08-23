@@ -47,24 +47,45 @@ class SWADEHPSystem {
         // Hook into advance system
         Hooks.on('preUpdateActor', this.onAdvanceCheck.bind(this));
         
-        // Register custom character sheet for v13 ApplicationV2
-        console.log('SWADE HP Module: Registering swadeReady hook...');
-        Hooks.once('swadeReady', this.registerCustomSheet.bind(this));
-        
-        // Also try registering on ready as fallback
-        console.log('SWADE HP Module: Registering ready hook as fallback...');
-        Hooks.once('ready', () => {
-            console.log('SWADE HP Module: Ready hook fired, checking if SWADE is available...');
-            if (game.swade && game.swade.CharacterSheet) {
-                console.log('SWADE HP Module: SWADE available on ready, registering sheet...');
-                this.registerCustomSheet();
-            } else {
-                console.log('SWADE HP Module: SWADE not available on ready, will wait for swadeReady...');
-            }
-        });
+        // Wait for SWADE to be completely ready before registering custom sheet
+        console.log('SWADE HP Module: Setting up delayed registration...');
+        this.waitForSWADE();
         
         // Initialize HP for existing characters
         this.initializeExistingActors();
+    }
+
+    waitForSWADE() {
+        // Check if SWADE is already ready
+        if (game.swade && game.swade.CharacterSheet) {
+            console.log('SWADE HP Module: SWADE already available, registering immediately...');
+            this.registerCustomSheet();
+            return;
+        }
+
+        // If not ready, wait and check periodically
+        console.log('SWADE HP Module: SWADE not ready, waiting...');
+        const checkInterval = setInterval(() => {
+            console.log('SWADE HP Module: Checking if SWADE is ready...');
+            if (game.swade && game.swade.CharacterSheet) {
+                console.log('SWADE HP Module: SWADE is now ready!');
+                clearInterval(checkInterval);
+                this.registerCustomSheet();
+            }
+        }, 100);
+
+        // Also listen for the swadeReady hook as backup
+        Hooks.once('swadeReady', () => {
+            console.log('SWADE HP Module: swadeReady hook fired!');
+            clearInterval(checkInterval);
+            this.registerCustomSheet();
+        });
+
+        // Fallback: stop checking after 10 seconds
+        setTimeout(() => {
+            clearInterval(checkInterval);
+            console.error('SWADE HP Module: SWADE did not become available within 10 seconds');
+        }, 10000);
     }
 
     registerCustomSheet() {
@@ -76,8 +97,12 @@ class SWADEHPSystem {
             return;
         }
         
+        console.log('SWADE HP Module: game.swade found, checking available properties...');
+        console.log('SWADE HP Module: game.swade properties:', Object.keys(game.swade));
+        
         if (!game.swade.CharacterSheet) {
             console.error('SWADE HP Module: game.swade.CharacterSheet is not available!');
+            console.log('SWADE HP Module: Available SWADE classes:', Object.keys(game.swade).filter(key => key.includes('Sheet')));
             return;
         }
         
