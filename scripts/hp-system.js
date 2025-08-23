@@ -48,197 +48,14 @@ class SWADEHPSystem {
         // Hook into advance system
         Hooks.on('preUpdateActor', this.onAdvanceCheck.bind(this));
         
-        // Add custom buttons and handlers
-        Hooks.on('renderActorSheet', this.addHPControls.bind(this));
-        
-        // Override templates
-        this.setupTemplateOverrides();
+        // Add HP display and controls to character sheets
+        Hooks.on('renderActorSheet', this.onRenderActorSheet.bind(this));
         
         // Initialize HP for existing characters
         this.initializeExistingActors();
     }
 
-    setupTemplateOverrides() {
-        // Override the character summary template to include HP
-        const originalSummaryTemplate = Handlebars.partials['swade.character-summary'];
-        if (originalSummaryTemplate) {
-            Handlebars.registerPartial('swade.character-summary', this.getCharacterSummaryTemplate());
-        }
-        
-        // Override NPC sheet template to include HP
-        this.overrideNPCTemplate();
-    }
 
-    getCharacterSummaryTemplate() {
-        return `
-            <div class='fatigue-wrapper'>
-              <header class='counter-header'>
-                <button type='button' class='adjust-counter' data-action='fatigue-minus'>
-                  <i class='fa-solid fa-minus fa-lg'></i>
-                </button>
-                <span class='label'>{{localize 'SWADE.Fatigue'}}</span>
-                <button type='button' class='adjust-counter' data-action='fatigue-plus'>
-                  <i class='fa-solid fa-plus fa-lg'></i>
-                </button>
-              </header>
-              <div class='fatigue'>
-                <span class='values'>
-                  <input
-                    type='number'
-                    min='0'
-                    name='system.fatigue.value'
-                    value='{{actor.system.fatigue.value}}'
-                    data-dtype='Number'
-                  />/{{actor.system.fatigue.max}}
-                </span>
-              </div>
-            </div>
-            <div class='wounds-wrapper'>
-              <header class='counter-header'>
-                <button type='button' class='adjust-counter' data-action='wounds-minus'>
-                  <i class='fa-solid fa-minus fa-lg'></i>
-                </button>
-                <span class='label'>{{localize 'SWADE.Wounds'}}</span>
-                <button type='button' class='adjust-counter' data-action='wounds-plus'>
-                  <i class='fa-solid fa-plus fa-lg'></i>
-                </button>
-              </header>
-              <div class='wounds'>
-                <span class='values'>
-                  <input
-                    type='number'
-                    min='0'
-                    name='system.wounds.value'
-                    value='{{actor.system.wounds.value}}'
-                    data-dtype='Number'
-                  />/{{actor.system.wounds.max}}
-                </span>
-              </div>
-            </div>
-            {{#if (and (eq actor.type "character") (or actor.system.hitPoints (eq actor.system.hitPoints undefined)))}}
-            <div class='hp-wrapper'>
-              <header class='counter-header'>
-                <button type='button' class='adjust-counter' data-action='hp-minus'>
-                  <i class='fa-solid fa-minus fa-lg'></i>
-                </button>
-                <span class='label'>{{localize 'SWADE_HP.HitPoints'}}</span>
-                <button type='button' class='adjust-counter' data-action='hp-plus'>
-                  <i class='fa-solid fa-plus fa-lg'></i>
-                </button>
-              </header>
-              <div class='hp-values'>
-                <span class='values'>
-                  <input
-                    type='number'
-                    min='0'
-                    name='system.hitPoints.current'
-                    value='{{actor.system.hitPoints.current}}'
-                    data-dtype='Number'
-                    class='hp-input'
-                  />/{{actor.system.hitPoints.max}}
-                </span>
-              </div>
-              <button type='button' class='hp-advance-button' data-action='roll-hp-advance' 
-                      title="{{localize 'SWADE_HP.AdvanceButtonTooltip'}}">
-                {{localize 'SWADE_HP.AdvanceButton'}}
-              </button>
-            </div>
-            {{/if}}
-            <div class='status'>
-              <label class='check-container'>
-                {{localize 'SWADE.Shaken'}}
-                <input
-                  type='checkbox'
-                  data-id='shaken'
-                  data-key='isShaken'
-                  {{checked actor.system.status.isShaken}}
-                />
-                <span class='checkmark'></span>
-              </label>
-              <label class='check-container'>
-                {{localize 'SWADE.Distr'}}
-                <input
-                  type='checkbox'
-                  data-id='distracted'
-                  data-key='isDistracted'
-                  {{checked actor.system.status.isDistracted}}
-                />
-                <span class='checkmark'></span>
-              </label>
-              <label class='check-container'>
-                {{localize 'SWADE.Vuln'}}
-                <input
-                  type='checkbox'
-                  data-id='vulnerable'
-                  data-key='isVulnerable'
-                  {{checked actor.system.status.isVulnerable}}
-                />
-                <span class='checkmark'></span>
-              </label>
-            </div>
-            <div class='status'>
-              <label class='check-container'>
-                {{localize 'SWADE.Stunned'}}
-                <input
-                  type='checkbox'
-                  data-id='stunned'
-                  data-key='isStunned'
-                  {{checked actor.system.status.isStunned}}
-                />
-                <span class='checkmark'></span>
-              </label>
-              <label class='check-container'>
-                {{localize 'SWADE.Entangled'}}
-                <input
-                  type='checkbox'
-                  data-id='entangled'
-                  data-key='isEntangled'
-                  {{checked actor.system.status.isEntangled}}
-                />
-                <span class='checkmark'></span>
-              </label>
-              <label class='check-container'>
-                {{localize 'SWADE.Bound'}}
-                <input
-                  type='checkbox'
-                  data-id='bound'
-                  data-key='isBound'
-                  {{checked actor.system.status.isBound}}
-                />
-                <span class='checkmark'></span>
-              </label>
-            </div>
-            {{#if actor.isWildcard}}
-              <div class='bennies'>
-                <header class='counter-header'>
-                  <button type='button' class='adjust-counter' data-action='spend-benny'>
-                    <i class='fa-solid fa-minus fa-lg'></i>
-                  </button>
-                  <span class='label'>{{actor.system.bennies.value}}
-                    {{localize 'SWADE.Bennies'}}</span>
-                  <button type='button' class='adjust-counter' data-action='get-benny'>
-                    <i class='fa-solid fa-plus fa-lg'></i>
-                  </button>
-                </header>
-                {{#each currentBennies as |benny|}}
-                  {{#unless (gte @index 5)}}
-                    <span
-                      title='{{localize "SWADE.BenniesSpend"}}'
-                      class='benny adjust-counter'
-                      data-action='spend-benny'
-                      style='z-index: {{@index}}; grid-column: {{benny}} / span 8; background-image: url({{@root.bennyImageURL}});'
-                    ></span>
-                  {{/unless}}
-                {{/each}}
-              </div>
-            {{/if}}
-        `;
-    }
-
-    overrideNPCTemplate() {
-        // This would require more complex template manipulation
-        // For now, we'll use the dynamic injection approach for NPCs
-    }
 
     onPreCreateActor(actor, createData, options, userId) {
         if (!game.settings.get(this.id, 'enableHP')) return;
@@ -339,6 +156,9 @@ class SWADEHPSystem {
         else if (data.actor.type === 'npc') {
             this.addNPCHPDisplay(html, data);
         }
+        
+        // Add event listeners for HP controls
+        this.addHPControls(app, html, data);
     }
 
     addCharacterHPDisplay(html, data) {
