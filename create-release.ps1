@@ -1,6 +1,12 @@
 # PowerShell script to create a Foundry VTT module release ZIP
 # Run this script from the swade-hp-module directory
 
+# Check if we're in the right directory
+if (-not (Test-Path "module.json")) {
+    Write-Host "❌ Error: module.json not found. Please run this script from the swade-hp-module directory." -ForegroundColor Red
+    exit 1
+}
+
 $version = "1.0.0"
 $zipName = "swade-hp-module.zip"
 
