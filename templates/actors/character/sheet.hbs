@@ -1,0 +1,144 @@
+<form
+  class="main-grid {{cssClass}}{{#if settingrules.conviction}} conviction-enabled{{/if}}"
+  autocomplete="off"
+>
+  <figure class="grid-under gu-1"></figure>
+  <figure class="grid-under gu-2"></figure>
+  <figure class="grid-under gu-3"></figure>
+  <figure class="grid-under gu-4"></figure>
+  <div class="char-img-container">
+	  <img class="profile-img" src="{{actor.img}}" data-edit="img" alt="{{actor.name}}" title="{{localize 'SWADE.RightClickZoom'}}">
+	</div>
+  {{!-- Sheet Header --}}
+  <label class="gridcell charname-container">
+    <span class="sr-only">{{localize 'Name'}}</span>
+    <input
+      type="text"
+      name="name"
+      class="charname"
+      value="{{actor.name}}"
+      placeholder="{{localize 'Name'}}"
+      data-tooltip="{{actor.name}}"
+    />
+  </label>
+  <figure class="gridcell branding"></figure>
+  {{#if (and settingrules.conviction actor.isWildcard)}}
+  <div id="conviction" class="gridcell">
+    <button type="button" class="conviction-toggle">
+      <strong class="{{#if actor.system.details.conviction.active}}pulse{{/if}}">
+        {{~#if actor.system.details.conviction.active~}} {{localize
+        "SWADE.ConvictionActive"}} {{~else~}} {{localize "SWADE.Conv"}} {{/if}}
+      </strong>
+    </button>
+    <div>
+      <input
+        type="Number"
+        class="conviction-counter"
+        name="system.details.conviction.value"
+        value="{{actor.system.details.conviction.value}}"
+        class="character-detail"
+        data-dtype="Number"
+      />
+    </div>
+  </div>
+  {{/if}}
+  <span class="gridcell character-detail ancestry" data-tooltip="{{localize 'SWADE.Ancestry'}}">
+    <label class="sr-only">{{localize 'SWADE.Ancestry'}}</label>
+    {{#if actor.ancestry}}
+      <button type="button" data-item-id="{{actor.ancestry.id}}">{{actor.ancestry.name}}</button>
+   {{else}}
+      <input
+        type="text"
+        name="system.details.species.name"
+        value="{{actor.system.details.species.name}}"
+        placeholder="{{localize 'SWADE.Ancestry'}}"
+        data-tooltip="{{localize 'SWADE.Ancestry'}}"
+      >
+   {{/if}}
+  </span>
+  <span class="gridcell character-detail archetype" data-tooltip="SWADE.Archetype">
+    <label class="sr-only">{{localize 'SWADE.Archetype'}}</label>
+   {{#if actor.archetype}}
+      <button  type="button" data-item-id="{{actor.archetype.id}}" >{{actor.archetype.name}}</button>
+   {{else}}
+      <input
+        type="text"
+        name="system.details.archetype"
+        value="{{actor.system.details.archetype}}"
+        placeholder="{{localize 'SWADE.Archetype'}}"
+        data-tooltip="{{localize 'SWADE.Archetype'}}"
+      >
+   {{/if}}
+  </span>
+  <span class="gridcell character-detail rank" data-tooltip="SWADE.Rank">
+    <label class="sr-only">{{localize 'SWADE.Rank'}}</label>
+    <input
+      type="text"
+      name="system.advances.rank"
+      value="{{actor.system.advances.rank}}"
+      placeholder="{{localize 'SWADE.Rank'}}"
+      {{disabled advances.expanded}}
+    />
+  </span>
+  <span class="gridcell character-detail advances" data-tooltip="SWADE.Adv">
+    <a>{{localize 'SWADE.Adv'}}</a>
+    <input
+      type="number"
+      name="system.advances.value"
+      value="{{actor.system.advances.value}}"
+      {{disabled advances.expanded}}
+    />
+  </span>
+
+  {{!-- Sheet Tab Navigation --}}
+  <nav class="gridcell tabs" data-group="primary">
+    <a class="item" data-tab="summary" data-group="primary">{{localize "SWADE.Summary"}}</a>
+    <a class="item" data-tab="edges" data-group="primary">{{localize "SWADE.EdgesHindrances"}}</a>
+    <a class="item" data-tab="inventory" data-group="primary">{{localize "SWADE.Inv"}}</a>
+    {{#if (or actor.hasPowers actor.hasArcaneBackground)}}
+      <a class="item" data-tab="powers" data-group="primary">{{localize "SWADE.Pow"}}</a>
+    {{/if}}
+    <a class="item" data-tab="effects" data-group="primary">{{localize "SWADE.Effects"}}</a>
+    <a class="item" data-tab="actions" data-group="primary">{{localize "SWADE.Actions.Name"}}</a>
+    <a class="item" data-tab="about" data-group="primary">{{localize "SWADE.About"}}</a>
+  </nav>
+
+  {{!-- Sheet Body --}}
+  <main class="gridcell sheet-body">
+    {{!-- Summary Tab --}}
+    <section class="tab summary active" data-group="primary" data-tab="summary">
+      {{> "swade-hp-module.character-tab-summary"}}
+    </section>
+    {{!-- Edges/Hindrances Tab --}}
+    <section class="tab edges" data-group="primary" data-tab="edges">
+      {{> "swade.character-tab-edges"}}
+    </section>
+    {{!-- Inventory Tab --}}
+    <section class="tab inventory" data-group="primary" data-tab="inventory">
+      {{> "swade.character-tab-inventory"}}
+    </section>
+    {{!-- Powers Tab --}}
+    {{#if (or actor.hasPowers actor.hasArcaneBackground)}}
+      <section class="tab powers" data-group="primary" data-tab="powers">
+        {{> "swade.character-tab-powers"}}
+      </section>
+    {{/if}}
+    {{!-- Effects Tab --}}
+    <section class="tab effects" data-group="primary" data-tab="effects">
+      {{> "swade.character-tab-effects"}}
+    </section>
+    {{!-- Actions Tab --}}
+    <section class="tab edges" data-group="primary" data-tab="actions">
+      {{> "swade.character-tab-actions"}}
+    </section>
+    {{!-- Biography Tab --}}
+    <section class="tab about" data-group="primary" data-tab="about">
+      {{> "swade.character-tab-about"}}
+    </section>
+  </main>
+
+  <figure class="grid-cover gc-1"></figure>
+  <figure class="grid-cover gc-2"></figure>
+  <figure class="grid-cover gc-3"></figure>
+  <figure class="grid-cover gc-4"></figure>
+</form>

@@ -11,9 +11,11 @@ A Foundry VTT module that adds classic Hit Points to the Savage Worlds Adventure
 - **Automatic Calculation**: New characters automatically get HP based on their Vigor
 
 ### User Interface
-- **Character Sheets**: HP display with current/max values and +/- buttons
-- **NPC Sheets**: HP input fields for easy GM management
+- **Custom Character Sheet**: Modified SWADE character sheet with integrated HP tracking
+- **HP Counter**: Prominent HP display with current/max values and +/- buttons
+- **Smaller Wounds**: Compact wounds display to make room for HP
 - **Advance Button**: Manual HP advancement for characters
+- **NPC Sheets**: HP input fields for easy GM management
 - **Visual Integration**: Matches SWADE's existing UI style
 
 ### Game Master Tools
@@ -73,6 +75,7 @@ git clone https://github.com/monsterfurby/swade-hp-module.git
 2. **HP Management**: Use +/- buttons or type directly in the HP field
 3. **Advancement**: When you advance, HP automatically increases with a hit die roll
 4. **Manual Advancement**: Use the "Roll HP for Advance" button for manual HP rolls
+5. **Character Sheet**: The module provides a modified character sheet with integrated HP tracking
 
 ### For Game Masters
 1. **NPC Management**: Set arbitrary HP values for NPCs using the input fields
