@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            ## What's Changed
+            
+            See the [CHANGELOG.md](CHANGELOG.md) for detailed information about this release.
+            
+            ## Installation
+            
+            ### Manual Installation
+            1. Download the module files from this release
+            2. Place the `swade-hp-module` folder in your Foundry VTT `modules` directory
+            3. Enable the module in your world's module settings
+            4. Configure the module settings as desired
+            
+            ### Foundry VTT Module Browser
+            This module will be available in the Foundry VTT Module Browser once approved.
+            
+            ## Support
+            
+            If you encounter any issues, please create an issue on GitHub with the following information:
+            - Foundry VTT Version
+            - SWADE System Version
+            - HP Module Version
+            - Browser and OS
+            - Console errors (if any)
+          draft: false
+          prerelease: false
+
+      - name: Create Module ZIP
+        run: |
+          zip -r swade-hp-module-${{ github.ref_name }}.zip . -x "*.git*" "*.github*" "test.html" "*.md" "*.yml" "*.yaml"
+          
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./swade-hp-module-${{ github.ref_name }}.zip
+          asset_name: swade-hp-module-${{ github.ref_name }}.zip
+          asset_content_type: application/zip

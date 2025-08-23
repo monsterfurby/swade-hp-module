@@ -1,0 +1,19 @@
+{
+  "SWADE_HP": {
+    "HitPoints": "Hit Points",
+    "HitPointsShort": "HP",
+    "MaxHitPoints": "Max Hit Points",
+    "CurrentHitPoints": "Current Hit Points",
+    "HitDie": "Hit Die",
+    "RollHitDie": "Roll Hit Die",
+    "AdvanceHitPoints": "Advance Hit Points",
+    "AdvanceHitPointsMessage": "Rolling hit die for advance. Vigor die: d{0}, Result: {1}",
+    "AdvanceHitPointsTotal": "New total HP: {0}",
+    "NPCSetHitPoints": "Set NPC Hit Points",
+    "NPCSetHitPointsMessage": "Set hit points for {0} to {1}",
+    "HitPointsTooltip": "Hit Points: {0}/{1}",
+    "HitPointsDescription": "Classic hit points based on Vigor die. Starts at max Vigor roll and increases with each advance.",
+    "AdvanceButton": "Roll HP for Advance",
+    "AdvanceButtonTooltip": "Roll a hit die (current Vigor value) and add to max HP"
+  }
+}

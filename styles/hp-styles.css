@@ -1,0 +1,114 @@
+/* HP Module Styles */
+.hp-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.hp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-border-high);
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.hp-values {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: var(--color-bg-secondary);
+  border-radius: 3px;
+}
+
+.hp-input {
+  width: 3rem;
+  text-align: center;
+  border: 1px solid var(--color-border-base);
+  border-radius: 2px;
+  padding: 0.25rem;
+  background: var(--color-bg-input);
+  color: var(--color-text-primary);
+}
+
+.hp-separator {
+  font-weight: bold;
+  color: var(--color-text-secondary);
+}
+
+.hp-max {
+  font-weight: bold;
+  color: var(--color-text-secondary);
+}
+
+.hp-advance-button {
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  border: none;
+  border-radius: 3px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.hp-advance-button:hover {
+  background: var(--color-primary-highlight);
+}
+
+.hp-advance-button:disabled {
+  background: var(--color-border-base);
+  cursor: not-allowed;
+}
+
+/* NPC HP specific styles */
+.npc-hp-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.npc-hp-label {
+  font-weight: bold;
+  min-width: 80px;
+}
+
+.npc-hp-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Character sheet integration */
+.character .hp-wrapper {
+  grid-area: hp;
+}
+
+.character .hp-wrapper .hp-header {
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+}
+
+/* NPC sheet integration */
+.npc .npc-hp-container {
+  margin: 0.25rem 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hp-values {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .npc-hp-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
