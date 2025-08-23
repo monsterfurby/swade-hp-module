@@ -4,14 +4,10 @@
  */
 
 // Custom Character Sheet Class
-class SWADEHPCharacterSheet extends ActorSheet {
+class SWADEHPCharacterSheet extends game.swade.CharacterSheet {
     static get defaultOptions() {
         return mergeObject(super.defaultOptions, {
-            classes: ['swade', 'sheet', 'actor', 'character'],
-            template: 'modules/swade-hp-module/templates/actors/character/sheet.hbs',
-            width: 800,
-            height: 600,
-            tabs: [{ navSelector: '.tabs', contentSelector: '.sheet-body', initial: 'summary' }]
+            template: 'modules/swade-hp-module/templates/actors/character/sheet.hbs'
         });
     }
 
@@ -148,13 +144,10 @@ class SWADEHPSystem {
 
     registerCustomSheet() {
         // Register the custom character sheet class
-        CONFIG.Actor.sheetClasses.character['swade-hp-module'] = {
+        Actors.registerSheet('swade', SWADEHPCharacterSheet, {
             label: 'SWADE HP Module Sheet',
-            cls: SWADEHPCharacterSheet,
-            options: {
-                template: 'modules/swade-hp-module/templates/actors/character/sheet.hbs'
-            }
-        };
+            makeDefault: false
+        });
     }
 
 
