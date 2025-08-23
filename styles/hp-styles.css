@@ -1,14 +1,6 @@
-/* HP Module Styles */
+/* HP Module Styles - Match SWADE's fatigue/wounds layout exactly */
 .hp-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  border: 2px solid #d4af37;
-  border-radius: 6px;
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(212, 175, 55, 0.05));
-  margin: 0.75rem 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* Let SWADE's grid layout handle positioning - no custom positioning */
 }
 
 .hp-wrapper .hp {
