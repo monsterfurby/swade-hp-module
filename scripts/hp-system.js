@@ -42,6 +42,9 @@ class SWADEHPSystem {
     setupHooks() {
         console.log('SWADE HP Module: Setting up hooks...');
         
+        // Register Handlebars partials
+        this.registerPartials();
+        
         // Hook into actor creation and updates
         Hooks.on('preCreateActor', this.onPreCreateActor.bind(this));
         Hooks.on('preUpdateActor', this.onPreUpdateActor.bind(this));
@@ -57,6 +60,21 @@ class SWADEHPSystem {
         
         // Initialize HP for existing characters
         this.initializeExistingActors();
+    }
+
+    registerPartials() {
+        console.log('SWADE HP Module: Registering Handlebars partials...');
+        
+        // Load and register the summary tab partial
+        fetch('modules/swade-hp-module/templates/actors/character/tabs/summary.hbs')
+            .then(response => response.text())
+            .then(template => {
+                Handlebars.registerPartial('swade-hp-module.character-tab-summary', template);
+                console.log('SWADE HP Module: Successfully registered character-tab-summary partial');
+            })
+            .catch(error => {
+                console.error('SWADE HP Module: Failed to register partial:', error);
+            });
     }
 
     waitForSWADE() {
@@ -185,12 +203,12 @@ class SWADEHPSystem {
         
         // Create a custom character sheet class that extends SWADE's character sheet
         class SWADEHPCharacterSheet extends BaseCharacterSheet {
-            static get defaultOptions() {
-                console.log('SWADE HP Module: Setting default options for custom sheet');
-                return mergeObject(super.defaultOptions, {
-                    template: 'modules/swade-hp-module/templates/actors/character/sheet.hbs'
-                });
-            }
+                static get defaultOptions() {
+        console.log('SWADE HP Module: Setting default options for custom sheet');
+        return foundry.utils.mergeObject(super.defaultOptions, {
+            template: 'modules/swade-hp-module/templates/actors/character/sheet.hbs'
+        });
+    }
 
             getData() {
                 console.log('SWADE HP Module: Getting data for custom sheet');

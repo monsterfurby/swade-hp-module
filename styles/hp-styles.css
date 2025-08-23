@@ -11,6 +11,58 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.hp-wrapper .hp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hp-wrapper .hp .values {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.hp-wrapper .hp .values input {
+  width: 70px;
+  text-align: center;
+  font-size: 1.2em;
+  font-weight: bold;
+  padding: 0.25rem;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.hp-advance-btn {
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #4a90e2, #357abd);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  margin-top: 0.5rem;
+}
+
+.hp-advance-btn:hover {
+  background: linear-gradient(135deg, #357abd, #2c5aa0);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.hp-advance-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 .hp-wrapper .counter-header {
   display: flex;
   align-items: center;
