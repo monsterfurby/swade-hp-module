@@ -111,6 +111,31 @@
       <div style="background: lime; color: black; padding: 10px; font-weight: bold; border: 3px solid red;">
         🟢 CUSTOM TEMPLATE IS LOADING! 🟢
       </div>
+      
+      <div class='fatigue-wrapper'>
+        <header class='counter-header'>
+          <button type='button' class='adjust-counter' data-action='fatigue-minus'>
+            <i class='fa-solid fa-minus fa-lg'></i>
+          </button>
+          <span class='label'>{{localize 'SWADE.Fatigue'}}</span>
+          <button type='button' class='adjust-counter' data-action='fatigue-plus'>
+            <i class='fa-solid fa-plus fa-lg'></i>
+          </button>
+        </header>
+        <div class='fatigue'>
+          <span class='values'>
+            <input
+              type='number'
+              min='0'
+              name='system.fatigue.value'
+              value='{{actor.system.fatigue.value}}'
+              data-dtype='Number'
+            />/{{actor.system.fatigue.max}}
+          </span>
+        </div>
+      </div>
+      
+      {{!-- HP System - inserted between Fatigue and Wounds --}}
       <div class='hp-wrapper'>
         <header class='counter-header'>
           <button type='button' class='adjust-counter' data-action='hp-minus'>
@@ -139,33 +164,8 @@
           </span>
         </div>
       </div>
-
-      {{!-- Original SWADE Fatigue System --}}
-      <div class='fatigue-wrapper'>
-        <header class='counter-header'>
-          <button type='button' class='adjust-counter' data-action='fatigue-minus'>
-            <i class='fa-solid fa-minus fa-lg'></i>
-          </button>
-          <span class='label'>{{localize 'SWADE.Fatigue'}}</span>
-          <button type='button' class='adjust-counter' data-action='fatigue-plus'>
-            <i class='fa-solid fa-plus fa-lg'></i>
-          </button>
-        </header>
-        <div class='fatigue'>
-          <span class='values'>
-            <input
-              type='number'
-              min='0'
-              name='system.fatigue.value'
-              value='{{actor.system.fatigue.value}}'
-              data-dtype='Number'
-            />/{{actor.system.fatigue.max}}
-          </span>
-        </div>
-      </div>
-
-      {{!-- Original SWADE Wounds System (Compact) --}}
-      <div class='wounds-wrapper compact'>
+      
+      <div class='wounds-wrapper'>
         <header class='counter-header'>
           <button type='button' class='adjust-counter' data-action='wounds-minus'>
             <i class='fa-solid fa-minus fa-lg'></i>
