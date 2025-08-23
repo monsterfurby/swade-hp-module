@@ -30,14 +30,7 @@ class SWADEHPSystem {
             default: true
         });
 
-        game.settings.register(this.id, 'autoCalculateHP', {
-            name: 'Auto-calculate HP on creation',
-            hint: 'Automatically calculate HP for new characters based on Vigor',
-            scope: 'world',
-            config: true,
-            type: Boolean,
-            default: true
-        });
+
     }
 
     setupHooks() {
@@ -65,14 +58,6 @@ class SWADEHPSystem {
                 max: 0,
                 hitDie: 0
             };
-        }
-
-        // Auto-calculate initial HP if enabled
-        if (game.settings.get(this.id, 'autoCalculateHP') && actor.type === 'character') {
-            const vigorDie = createData.system.attributes?.vigor?.die?.sides || 6;
-            createData.system.hitPoints.max = vigorDie;
-            createData.system.hitPoints.current = vigorDie;
-            createData.system.hitPoints.hitDie = vigorDie;
         }
     }
 
@@ -188,7 +173,17 @@ class SWADEHPSystem {
                                 value='${hpData.current}'
                                 data-dtype='Number'
                                 class='hp-input'
-                            />/${hpData.max}
+                                placeholder='Current'
+                            />/
+                            <input
+                                type='number'
+                                min='0'
+                                name='system.hitPoints.max'
+                                value='${hpData.max}'
+                                data-dtype='Number'
+                                class='hp-input'
+                                placeholder='Max'
+                            />
                         </span>
                     </div>
                     <button type='button' class='hp-advance-button' data-action='roll-hp-advance' 
@@ -278,21 +273,18 @@ class SWADEHPSystem {
     initializeExistingActors() {
         if (!game.settings.get(this.id, 'enableHP')) return;
         
-        // Initialize HP for existing characters that don't have it
+        // Initialize HP data structure for existing characters that don't have it
         game.actors.forEach(actor => {
             if (actor.type === 'character' && !actor.system.hitPoints) {
-                const vigorDie = actor.system.attributes?.vigor?.die?.sides || 6;
-                const initialHP = vigorDie;
-                
                 actor.update({
                     'system.hitPoints': {
-                        current: initialHP,
-                        max: initialHP,
-                        hitDie: vigorDie
+                        current: 0,
+                        max: 0,
+                        hitDie: 0
                     }
                 });
                 
-                console.log(`SWADE HP Module: Initialized HP for ${actor.name} (${initialHP} HP)`);
+                console.log(`SWADE HP Module: Initialized HP data structure for ${actor.name}`);
             }
         });
     }
