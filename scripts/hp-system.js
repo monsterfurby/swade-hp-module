@@ -47,62 +47,110 @@ class SWADEHPSystem {
         // Hook into advance system
         Hooks.on('preUpdateActor', this.onAdvanceCheck.bind(this));
         
-        // Wait for SWADE to be completely ready before registering custom sheet
-        console.log('SWADE HP Module: Setting up delayed registration...');
-        this.waitForSWADE();
+        // Register custom sheet on ready hook (simpler approach)
+        Hooks.once('ready', () => {
+            console.log('SWADE HP Module: Ready hook fired, attempting registration...');
+            setTimeout(() => {
+                this.registerCustomSheet();
+            }, 1000); // Wait 1 second after ready to ensure everything is loaded
+        });
         
         // Initialize HP for existing characters
         this.initializeExistingActors();
     }
 
     waitForSWADE() {
-        // Check if SWADE CharacterSheet is already available (it's a global class, not game.swade.CharacterSheet)
-        if (typeof CharacterSheet !== 'undefined') {
+        // Enhanced detection - check multiple ways to find CharacterSheet
+        const detectCharacterSheet = () => {
+            // Method 1: Global CharacterSheet
+            if (typeof CharacterSheet !== 'undefined') {
+                console.log('SWADE HP Module: Found global CharacterSheet');
+                return CharacterSheet;
+            }
+            
+            // Method 2: Check CONFIG.Actor.sheetClasses.character
+            if (CONFIG.Actor?.sheetClasses?.character) {
+                const sheets = CONFIG.Actor.sheetClasses.character;
+                console.log('SWADE HP Module: Available character sheets:', Object.keys(sheets));
+                
+                // Look for SWADE's character sheet
+                for (const [key, sheetClass] of Object.entries(sheets)) {
+                    if (key.includes('swade') || key.includes('character') || sheetClass.name === 'CharacterSheet') {
+                        console.log('SWADE HP Module: Found SWADE character sheet:', key, sheetClass.name);
+                        return sheetClass;
+                    }
+                }
+            }
+            
+            // Method 3: Check window object
+            if (window.CharacterSheet) {
+                console.log('SWADE HP Module: Found CharacterSheet on window');
+                return window.CharacterSheet;
+            }
+            
+            return null;
+        };
+
+        // Check if CharacterSheet is already available
+        const existingSheet = detectCharacterSheet();
+        if (existingSheet) {
             console.log('SWADE HP Module: CharacterSheet already available, registering immediately...');
-            this.registerCustomSheet();
+            this.registerCustomSheet(existingSheet);
             return;
         }
 
         // If not ready, wait and check periodically
         console.log('SWADE HP Module: CharacterSheet not ready, waiting...');
+        let checkCount = 0;
         const checkInterval = setInterval(() => {
-            console.log('SWADE HP Module: Checking if CharacterSheet is ready...');
-            if (typeof CharacterSheet !== 'undefined') {
+            checkCount++;
+            console.log(`SWADE HP Module: Checking if CharacterSheet is ready... (attempt ${checkCount})`);
+            
+            const foundSheet = detectCharacterSheet();
+            if (foundSheet) {
                 console.log('SWADE HP Module: CharacterSheet is now ready!');
                 clearInterval(checkInterval);
-                this.registerCustomSheet();
+                this.registerCustomSheet(foundSheet);
             }
-        }, 100);
+        }, 500); // Check every 500ms instead of 100ms
 
         // Also listen for the ready hook as backup
         Hooks.once('ready', () => {
             console.log('SWADE HP Module: ready hook fired!');
-            if (typeof CharacterSheet !== 'undefined') {
+            const foundSheet = detectCharacterSheet();
+            if (foundSheet) {
                 clearInterval(checkInterval);
-                this.registerCustomSheet();
+                this.registerCustomSheet(foundSheet);
             }
         });
 
-        // Fallback: stop checking after 10 seconds
+        // Fallback: stop checking after 15 seconds
         setTimeout(() => {
             clearInterval(checkInterval);
-            console.error('SWADE HP Module: CharacterSheet did not become available within 10 seconds');
-        }, 10000);
+            console.error('SWADE HP Module: CharacterSheet did not become available within 15 seconds');
+            console.log('SWADE HP Module: Final debug info:');
+            console.log('- typeof CharacterSheet:', typeof CharacterSheet);
+            console.log('- CONFIG.Actor.sheetClasses:', CONFIG.Actor?.sheetClasses);
+            console.log('- window.CharacterSheet:', window.CharacterSheet);
+        }, 15000);
     }
 
-    registerCustomSheet() {
+    registerCustomSheet(CharacterSheetClass = null) {
         console.log('SWADE HP Module: Starting custom sheet registration...');
         
-        // Debug: Check if CharacterSheet is available
-        if (typeof CharacterSheet === 'undefined') {
+        // Use provided class or try to find it
+        const BaseCharacterSheet = CharacterSheetClass || 
+            (typeof CharacterSheet !== 'undefined' ? CharacterSheet : null);
+        
+        if (!BaseCharacterSheet) {
             console.error('SWADE HP Module: CharacterSheet class is not available!');
             return;
         }
         
-        console.log('SWADE HP Module: CharacterSheet class found, proceeding with registration...');
+        console.log('SWADE HP Module: Using CharacterSheet class:', BaseCharacterSheet.name);
         
         // Create a custom character sheet class that extends SWADE's character sheet
-        class SWADEHPCharacterSheet extends CharacterSheet {
+        class SWADEHPCharacterSheet extends BaseCharacterSheet {
             static get defaultOptions() {
                 console.log('SWADE HP Module: Setting default options for custom sheet');
                 return mergeObject(super.defaultOptions, {
