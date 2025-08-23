@@ -1,42 +1,83 @@
-# Installation Guide
+# Manual Installation Guide
 
-## Quick Installation
+Since automatic installation from GitHub may not work properly, here's how to install the module manually:
 
-1. **Download the Module**
-   - Download all files from the `swade-hp-module` folder
-   - Ensure the folder structure is maintained
+## Method 1: Direct Download from GitHub
 
-2. **Install in Foundry VTT**
-   - Place the entire `swade-hp-module` folder in your Foundry VTT `modules` directory
-   - The path should be: `[Foundry Data]/modules/swade-hp-module/`
+1. **Download the module files:**
+   - Go to: https://github.com/monsterfurby/swade-hp-module
+   - Click the green "Code" button
+   - Select "Download ZIP"
+   - Extract the ZIP file
 
-3. **Enable the Module**
-   - Start or restart Foundry VTT
+2. **Install in Foundry VTT:**
+   - Copy the `swade-hp-module` folder (not the ZIP file)
+   - Paste it into your Foundry VTT modules directory:
+     - Windows: `%APPDATA%/FoundryVTT/Data/modules/`
+     - macOS: `~/Library/Application Support/FoundryVTT/Data/modules/`
+     - Linux: `~/.local/share/FoundryVTT/Data/modules/`
+
+3. **Enable the module:**
+   - Start/restart Foundry VTT
    - Go to your world settings
-   - Navigate to the "Add-on Modules" tab
+   - Navigate to "Add-on Modules"
    - Find "SWADE Classic HP System" and enable it
    - Click "Save Changes"
 
-4. **Configure Settings**
-   - Go to "Configure Settings" in the Game Settings menu
-   - Find "SWADE Classic HP System" in the module settings
-   - Configure the following options:
-     - **Enable Classic HP System**: Set to true (default)
-     - **Auto-calculate HP on creation**: Set to true (default)
+## Method 2: Clone from GitHub
 
-5. **Initialize Existing Characters**
-   - The module will automatically initialize HP for existing characters
-   - New characters will get HP automatically
-   - NPCs will need manual HP entry
+If you have Git installed:
 
-## File Structure
+```bash
+# Navigate to your Foundry VTT modules directory
+cd "path/to/FoundryVTT/Data/modules/"
+
+# Clone the repository
+git clone https://github.com/monsterfurby/swade-hp-module.git
+
+# Enable the module in Foundry VTT as described above
+```
+
+## Method 3: Manual File Copy
+
+1. **Download individual files:**
+   - Download each file from the GitHub repository
+   - Create a folder named `swade-hp-module` in your modules directory
+   - Copy the files maintaining the folder structure:
+     ```
+     swade-hp-module/
+     ├── module.json
+     ├── scripts/hp-system.js
+     ├── styles/hp-styles.css
+     ├── lang/en.json
+     └── templates/character-summary-override.hbs
+     ```
+
+2. **Enable the module as described above**
+
+## Troubleshooting
+
+### Module Not Appearing
+- Check that the folder is named exactly `swade-hp-module`
+- Ensure `module.json` is in the root of the folder
+- Restart Foundry VTT after installation
+
+### HP Not Showing
+- Verify the module is enabled in world settings
+- Check that "Enable Classic HP System" is turned on in module settings
+- Refresh character sheets after enabling
+
+### Console Errors
+- Check the browser console for any JavaScript errors
+- Ensure all files are present and properly named
+- Verify Foundry VTT and SWADE system versions are compatible
+
+## File Structure Verification
 
 Your module folder should look like this:
 ```
 swade-hp-module/
 ├── module.json
-├── README.md
-├── install.md
 ├── scripts/
 │   └── hp-system.js
 ├── styles/
@@ -47,56 +88,10 @@ swade-hp-module/
     └── character-summary-override.hbs
 ```
 
-## Troubleshooting
-
-### Module Not Appearing
-- Check that the folder is in the correct `modules` directory
-- Ensure `module.json` is in the root of the module folder
-- Restart Foundry VTT after installation
-
-### HP Not Showing
-- Verify the module is enabled in world settings
-- Check that "Enable Classic HP System" is turned on
-- Refresh character sheets after enabling
-
-### Template Issues
-- Clear your browser cache
-- Restart Foundry VTT
-- Check the browser console for any JavaScript errors
-
-## Updating the Module
-
-1. **Backup Your Data**
-   - Always backup your world data before updating modules
-
-2. **Replace Files**
-   - Replace the old module folder with the new one
-   - Keep the same folder name: `swade-hp-module`
-
-3. **Restart Foundry**
-   - Restart Foundry VTT to load the updated module
-
-4. **Check Settings**
-   - Verify module settings are still configured as desired
-
-## Uninstalling
-
-1. **Disable the Module**
-   - Go to world settings
-   - Disable "SWADE Classic HP System"
-   - Save changes
-
-2. **Remove Files**
-   - Delete the `swade-hp-module` folder from your modules directory
-
-3. **Clean Up Data**
-   - The module doesn't modify core SWADE data
-   - HP data will remain but won't be functional without the module
-
 ## Support
 
-If you encounter issues:
-1. Check this installation guide
-2. Review the README.md file
-3. Check the browser console for error messages
-4. Verify Foundry VTT and SWADE system versions are compatible
+If you continue to have issues:
+1. Check the browser console for error messages
+2. Verify all files are present and properly named
+3. Try a fresh installation by removing the module folder and reinstalling
+4. Create an issue on GitHub with your Foundry VTT and SWADE system versions
