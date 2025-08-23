@@ -143,10 +143,11 @@ class SWADEHPSystem {
     }
 
     registerCustomSheet() {
-        // Register the custom character sheet class
-        Actors.registerSheet('swade', SWADEHPCharacterSheet, {
-            label: 'SWADE HP Module Sheet',
-            makeDefault: false
+        // Register the custom character sheet class using the exact SWADE pattern
+        foundry.documents.collections.Actors.registerSheet('swade', SWADEHPCharacterSheet, {
+            types: ['character'],
+            makeDefault: false,
+            label: 'SWADE HP Module Sheet'
         });
     }
 
