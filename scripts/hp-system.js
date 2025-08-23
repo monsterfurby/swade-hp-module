@@ -212,6 +212,29 @@ class SWADEHPSystem {
         
         console.log('SWADE HP Module: Using CharacterSheet class:', BaseCharacterSheet.name);
         
+        // Register the partial before creating the sheet class
+        console.log('SWADE HP Module: Registering partial before sheet creation...');
+        fetch('modules/swade-hp-module/templates/actors/character/tabs/summary.hbs')
+            .then(response => {
+                console.log('SWADE HP Module: Partial fetch response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch partial: ${response.status} ${response.statusText}`);
+                }
+                return response.text();
+            })
+            .then(template => {
+                console.log('SWADE HP Module: Partial template content length:', template.length);
+                Handlebars.registerPartial('swade-hp-module.character-tab-summary', template);
+                console.log('SWADE HP Module: Successfully registered character-tab-summary partial');
+                
+                // Verify registration
+                const registered = Handlebars.partials['swade-hp-module.character-tab-summary'];
+                console.log('SWADE HP Module: Partial registration verified:', !!registered);
+            })
+            .catch(error => {
+                console.error('SWADE HP Module: Failed to register partial:', error);
+            });
+
         // Create a custom character sheet class that extends SWADE's character sheet
         class SWADEHPCharacterSheet extends BaseCharacterSheet {
                 static get defaultOptions() {
