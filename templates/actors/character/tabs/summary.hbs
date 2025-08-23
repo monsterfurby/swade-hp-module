@@ -20,6 +20,37 @@
     </span>
   </div>
 </div>
+
+{{!-- HP System - inserted between Fatigue and Wounds --}}
+<div class='hp-wrapper'>
+  <header class='counter-header'>
+    <button type='button' class='adjust-counter' data-action='hp-minus'>
+      <i class='fa-solid fa-minus fa-lg'></i>
+    </button>
+    <span class='label'>Hit Points</span>
+    <button type='button' class='adjust-counter' data-action='hp-plus'>
+      <i class='fa-solid fa-plus fa-lg'></i>
+    </button>
+  </header>
+  <div class='hp'>
+    <span class='values'>
+      <input
+        type='number'
+        min='0'
+        name='system.hitPoints.current'
+        value='{{actor.system.hitPoints.current}}'
+        data-dtype='Number'
+      />/<input
+        type='number'
+        min='0'
+        name='system.hitPoints.max'
+        value='{{actor.system.hitPoints.max}}'
+        data-dtype='Number'
+      />
+    </span>
+  </div>
+</div>
+
 <div class='wounds-wrapper'>
   <header class='counter-header'>
     <button type='button' class='adjust-counter' data-action='wounds-minus'>

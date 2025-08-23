@@ -109,84 +109,11 @@
     {{!-- Summary Tab --}}
     <section class="tab summary active" data-group="primary" data-tab="summary">
       <div style="background: lime; color: black; padding: 10px; font-weight: bold; border: 3px solid red;">
-        🟢 CUSTOM TEMPLATE IS LOADING! 🟢
+        🟢 CUSTOM TEMPLATE WITH HP IS LOADING! 🟢
       </div>
       
-      <div class='fatigue-wrapper'>
-        <header class='counter-header'>
-          <button type='button' class='adjust-counter' data-action='fatigue-minus'>
-            <i class='fa-solid fa-minus fa-lg'></i>
-          </button>
-          <span class='label'>{{localize 'SWADE.Fatigue'}}</span>
-          <button type='button' class='adjust-counter' data-action='fatigue-plus'>
-            <i class='fa-solid fa-plus fa-lg'></i>
-          </button>
-        </header>
-        <div class='fatigue'>
-          <span class='values'>
-            <input
-              type='number'
-              min='0'
-              name='system.fatigue.value'
-              value='{{actor.system.fatigue.value}}'
-              data-dtype='Number'
-            />/{{actor.system.fatigue.max}}
-          </span>
-        </div>
-      </div>
-      
-      {{!-- HP System - inserted between Fatigue and Wounds --}}
-      <div class='hp-wrapper'>
-        <header class='counter-header'>
-          <button type='button' class='adjust-counter' data-action='hp-minus'>
-            <i class='fa-solid fa-minus fa-lg'></i>
-          </button>
-          <span class='label'>Hit Points</span>
-          <button type='button' class='adjust-counter' data-action='hp-plus'>
-            <i class='fa-solid fa-plus fa-lg'></i>
-          </button>
-        </header>
-        <div class='hp'>
-          <span class='values'>
-            <input
-              type='number'
-              min='0'
-              name='system.hitPoints.current'
-              value='{{actor.system.hitPoints.current}}'
-              data-dtype='Number'
-            />/<input
-              type='number'
-              min='0'
-              name='system.hitPoints.max'
-              value='{{actor.system.hitPoints.max}}'
-              data-dtype='Number'
-            />
-          </span>
-        </div>
-      </div>
-      
-      <div class='wounds-wrapper'>
-        <header class='counter-header'>
-          <button type='button' class='adjust-counter' data-action='wounds-minus'>
-            <i class='fa-solid fa-minus fa-lg'></i>
-          </button>
-          <span class='label'>{{localize 'SWADE.Wounds'}}</span>
-          <button type='button' class='adjust-counter' data-action='wounds-plus'>
-            <i class='fa-solid fa-plus fa-lg'></i>
-          </button>
-        </header>
-        <div class='wounds'>
-          <span class='values'>
-            <input
-              type='number'
-              min='0'
-              name='system.wounds.value'
-              value='{{actor.system.wounds.value}}'
-              data-dtype='Number'
-            />/{{actor.system.wounds.max}}
-          </span>
-        </div>
-      </div>
+      {{!-- Use our custom summary partial that includes HP counter --}}
+      {{> "swade-hp-module.character-tab-summary"}}
 
       {{!-- Status Effects --}}
       <div class='status'>
