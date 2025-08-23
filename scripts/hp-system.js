@@ -11,14 +11,19 @@ class SWADEHPSystem {
     }
 
     init() {
+        console.log('SWADE HP Module: Initializing...');
+        
         // Register module settings
         this.registerSettings();
+        console.log('SWADE HP Module: Settings registered');
         
         // Hook into SWADE system
         this.setupHooks();
+        console.log('SWADE HP Module: Hooks set up');
         
         // Initialize HP for existing actors
         this.initializeExistingActors();
+        console.log('SWADE HP Module: Initialization complete');
     }
 
     registerSettings() {
@@ -33,6 +38,8 @@ class SWADEHPSystem {
     }
 
     setupHooks() {
+        console.log('SWADE HP Module: Setting up hooks...');
+        
         // Hook into actor creation and updates
         Hooks.on('preCreateActor', this.onPreCreateActor.bind(this));
         Hooks.on('preUpdateActor', this.onPreUpdateActor.bind(this));
@@ -41,22 +48,52 @@ class SWADEHPSystem {
         Hooks.on('preUpdateActor', this.onAdvanceCheck.bind(this));
         
         // Register custom character sheet for v13 ApplicationV2
+        console.log('SWADE HP Module: Registering swadeReady hook...');
         Hooks.once('swadeReady', this.registerCustomSheet.bind(this));
+        
+        // Also try registering on ready as fallback
+        console.log('SWADE HP Module: Registering ready hook as fallback...');
+        Hooks.once('ready', () => {
+            console.log('SWADE HP Module: Ready hook fired, checking if SWADE is available...');
+            if (game.swade && game.swade.CharacterSheet) {
+                console.log('SWADE HP Module: SWADE available on ready, registering sheet...');
+                this.registerCustomSheet();
+            } else {
+                console.log('SWADE HP Module: SWADE not available on ready, will wait for swadeReady...');
+            }
+        });
         
         // Initialize HP for existing characters
         this.initializeExistingActors();
     }
 
     registerCustomSheet() {
+        console.log('SWADE HP Module: Starting custom sheet registration...');
+        
+        // Debug: Check if SWADE is available
+        if (!game.swade) {
+            console.error('SWADE HP Module: game.swade is not available!');
+            return;
+        }
+        
+        if (!game.swade.CharacterSheet) {
+            console.error('SWADE HP Module: game.swade.CharacterSheet is not available!');
+            return;
+        }
+        
+        console.log('SWADE HP Module: SWADE system found, proceeding with registration...');
+        
         // Create a custom character sheet class that extends SWADE's character sheet
         class SWADEHPCharacterSheet extends game.swade.CharacterSheet {
             static get defaultOptions() {
+                console.log('SWADE HP Module: Setting default options for custom sheet');
                 return mergeObject(super.defaultOptions, {
                     template: 'modules/swade-hp-module/templates/actors/character/sheet.hbs'
                 });
             }
 
             getData() {
+                console.log('SWADE HP Module: Getting data for custom sheet');
                 const data = super.getData();
                 // Ensure HP data is available
                 if (!data.actor.system.hitPoints) {
@@ -66,6 +103,7 @@ class SWADEHPSystem {
             }
 
             activateListeners(html) {
+                console.log('SWADE HP Module: Activating listeners for custom sheet');
                 super.activateListeners(html);
                 
                 // Add HP-specific event listeners
@@ -135,14 +173,54 @@ class SWADEHPSystem {
             }
         }
 
-        // Register the custom character sheet
-        Actors.registerSheet('swade', SWADEHPCharacterSheet, {
-            types: ['character'],
-            makeDefault: false,
-            label: 'SWADE HP Module Sheet'
-        });
+        // Debug: Check available registration methods
+        console.log('SWADE HP Module: Available registration methods:');
+        console.log('- Actors.registerSheet:', typeof Actors.registerSheet);
+        console.log('- CONFIG.Actor.sheetClasses:', CONFIG.Actor.sheetClasses);
+        console.log('- foundry.documents.collections.Actors.registerSheet:', typeof foundry?.documents?.collections?.Actors?.registerSheet);
 
-        console.log('SWADE HP Module: Custom character sheet registered');
+        try {
+            // Try the standard registration method
+            console.log('SWADE HP Module: Attempting to register with Actors.registerSheet...');
+            Actors.registerSheet('swade', SWADEHPCharacterSheet, {
+                types: ['character'],
+                makeDefault: false,
+                label: 'SWADE HP Module Sheet'
+            });
+            console.log('SWADE HP Module: Registration successful with Actors.registerSheet');
+        } catch (error) {
+            console.error('SWADE HP Module: Actors.registerSheet failed:', error);
+            
+            try {
+                // Try alternative registration method
+                console.log('SWADE HP Module: Trying alternative registration method...');
+                foundry.documents.collections.Actors.registerSheet('swade', SWADEHPCharacterSheet, {
+                    types: ['character'],
+                    makeDefault: false,
+                    label: 'SWADE HP Module Sheet'
+                });
+                console.log('SWADE HP Module: Registration successful with foundry.documents.collections.Actors.registerSheet');
+            } catch (error2) {
+                console.error('SWADE HP Module: Alternative registration also failed:', error2);
+                
+                // Try the old method as fallback
+                try {
+                    console.log('SWADE HP Module: Trying CONFIG.Actor.sheetClasses method...');
+                    CONFIG.Actor.sheetClasses.character['swade-hp-module'] = SWADEHPCharacterSheet;
+                    console.log('SWADE HP Module: Registration successful with CONFIG.Actor.sheetClasses');
+                } catch (error3) {
+                    console.error('SWADE HP Module: All registration methods failed:', error3);
+                }
+            }
+        }
+
+        // Debug: List all registered sheets
+        console.log('SWADE HP Module: Current registered sheets for character type:');
+        if (CONFIG.Actor.sheetClasses.character) {
+            Object.keys(CONFIG.Actor.sheetClasses.character).forEach(key => {
+                console.log(`- ${key}:`, CONFIG.Actor.sheetClasses.character[key]);
+            });
+        }
     }
 
     onPreCreateActor(actor, createData, options, userId) {
