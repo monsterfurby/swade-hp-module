@@ -23,11 +23,22 @@ A Foundry VTT module that adds classic Hit Points to the Savage Worlds Adventure
 
 ## Installation
 
-**⚠️ Manual Installation Required**
+### Automatic Installation (Recommended)
 
-This module requires manual installation. Automatic installation from GitHub is not supported.
+1. **Open Foundry VTT** and go to your world
+2. **Go to Module Management** in your world settings
+3. **Click "Install Module"**
+4. **Enter the Manifest URL:**
+   ```
+   https://raw.githubusercontent.com/monsterfurby/swade-hp-module/main/module.json
+   ```
+5. **Click "Install"**
+6. **Enable the module** in your world's Add-on Modules list
+7. **Click "Save Changes"**
 
-### Step-by-Step Installation
+### Manual Installation (Alternative)
+
+If automatic installation doesn't work:
 
 1. **Download from GitHub:**
    - Go to: https://github.com/monsterfurby/swade-hp-module
@@ -42,14 +53,7 @@ This module requires manual installation. Automatic installation from GitHub is 
      - macOS: `~/Library/Application Support/FoundryVTT/Data/modules/`
      - Linux: `~/.local/share/FoundryVTT/Data/modules/`
 
-3. **Enable the module:**
-   - Start/restart Foundry VTT
-   - Go to your world settings
-   - Navigate to "Add-on Modules"
-   - Find "SWADE Classic HP System" and enable it
-   - Click "Save Changes"
-
-**Important:** Do not try to install this module using the "Install Module" feature in Foundry VTT. It will not work and may cause errors.
+3. **Enable the module** as described above
 
 ### Alternative: Git Clone
 If you have Git installed:
