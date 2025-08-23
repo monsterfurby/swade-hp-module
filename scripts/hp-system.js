@@ -195,10 +195,17 @@ class SWADEHPSystem {
             getData() {
                 console.log('SWADE HP Module: Getting data for custom sheet');
                 const data = super.getData();
-                // Ensure HP data is available
-                if (!data.actor.system.hitPoints) {
-                    data.actor.system.hitPoints = { current: 0, max: 0, hitDie: 0 };
+                
+                // Ensure actor and system data exist before accessing
+                if (data.actor && data.actor.system) {
+                    // Ensure HP data is available
+                    if (!data.actor.system.hitPoints) {
+                        data.actor.system.hitPoints = { current: 0, max: 0, hitDie: 0 };
+                    }
+                } else {
+                    console.warn('SWADE HP Module: Actor or system data not available in getData()');
                 }
+                
                 return data;
             }
 
