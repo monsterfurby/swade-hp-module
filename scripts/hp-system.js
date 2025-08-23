@@ -3,90 +3,6 @@
  * Adds classic hit points to the SWADE system using Vigor as the hit die
  */
 
-// Custom Character Sheet Class
-class SWADEHPCharacterSheet extends game.swade.CharacterSheet {
-    static get defaultOptions() {
-        return mergeObject(super.defaultOptions, {
-            template: 'modules/swade-hp-module/templates/actors/character/sheet.hbs'
-        });
-    }
-
-    getData() {
-        const data = super.getData();
-        // Add any additional data needed for the template
-        return data;
-    }
-
-    activateListeners(html) {
-        super.activateListeners(html);
-        
-        // Add HP-specific event listeners
-        html.on('click', '[data-action="hp-minus"]', this._onHPDecrease.bind(this));
-        html.on('click', '[data-action="hp-plus"]', this._onHPIncrease.bind(this));
-        html.on('click', '[data-action="roll-hp-advance"]', this._onManualHPAdvance.bind(this));
-    }
-
-    async _onHPDecrease(event) {
-        event.preventDefault();
-        const currentHP = this.actor.system.hitPoints?.current || 0;
-        const newHP = Math.max(0, currentHP - 1);
-        await this.actor.update({ 'system.hitPoints.current': newHP });
-    }
-
-    async _onHPIncrease(event) {
-        event.preventDefault();
-        const currentHP = this.actor.system.hitPoints?.current || 0;
-        const maxHP = this.actor.system.hitPoints?.max || 0;
-        const newHP = Math.min(maxHP, currentHP + 1);
-        await this.actor.update({ 'system.hitPoints.current': newHP });
-    }
-
-    async _onManualHPAdvance(event) {
-        event.preventDefault();
-        
-        if (!this.actor.system.hitPoints) {
-            ui.notifications.error('HP system not initialized for this character.');
-            return;
-        }
-        
-        const vigorDie = this.actor.system.attributes.vigor.die.sides;
-        const roll = new Roll(`1d${vigorDie}`);
-        const result = await roll.evaluate();
-        
-        const newMaxHP = this.actor.system.hitPoints.max + result.total;
-        const newCurrentHP = Math.min(this.actor.system.hitPoints.current + result.total, newMaxHP);
-        
-        await this.actor.update({
-            'system.hitPoints.max': newMaxHP,
-            'system.hitPoints.current': newCurrentHP
-        });
-        
-        // Show roll result
-        const message = game.i18n.format('SWADE_HP.AdvanceHitPointsMessage', [vigorDie, result.total]);
-        const totalMessage = game.i18n.format('SWADE_HP.AdvanceHitPointsTotal', [newMaxHP]);
-        
-        ui.notifications.info(`${message} ${totalMessage}`);
-        
-        // Create chat message with roll
-        const chatData = {
-            user: game.user.id,
-            speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-            content: `<div class="hp-advance-roll">
-                <h3>${game.i18n.localize('SWADE_HP.AdvanceHitPoints')}</h3>
-                <p>${message}</p>
-                <p><strong>${totalMessage}</strong></p>
-                <div class="dice-roll">
-                    <div class="dice-result">
-                        <h4 class="dice-total">${result.total}</h4>
-                    </div>
-                </div>
-            </div>`
-        };
-        
-        ChatMessage.create(chatData);
-    }
-}
-
 class SWADEHPSystem {
     constructor() {
         this.id = 'swade-hp-module';
@@ -132,28 +48,12 @@ class SWADEHPSystem {
         // Hook into advance system
         Hooks.on('preUpdateActor', this.onAdvanceCheck.bind(this));
         
-        // Register custom character sheet template - wait for SWADE to be ready
-        Hooks.once('swadeReady', this.registerCustomSheet.bind(this));
-        
         // Add HP display and controls to character sheets
         Hooks.on('renderActorSheet', this.onRenderActorSheet.bind(this));
         
         // Initialize HP for existing characters
         this.initializeExistingActors();
     }
-
-    registerCustomSheet() {
-        // Register the custom character sheet class using the exact SWADE pattern
-        foundry.documents.collections.Actors.registerSheet('swade', SWADEHPCharacterSheet, {
-            types: ['character'],
-            makeDefault: false,
-            label: 'SWADE HP Module Sheet'
-        });
-    }
-
-
-
-
 
     onPreCreateActor(actor, createData, options, userId) {
         if (!game.settings.get(this.id, 'enableHP')) return;
@@ -246,9 +146,59 @@ class SWADEHPSystem {
     onRenderActorSheet(app, html, data) {
         if (!game.settings.get(this.id, 'enableHP')) return;
         
-        // Only add HP display to NPC sheets (characters use custom sheet)
-        if (data.actor.type === 'npc') {
+        // Add HP display to character sheets
+        if (data.actor.type === 'character') {
+            this.addCharacterHPDisplay(html, data);
+        }
+        // Add HP display to NPC sheets
+        else if (data.actor.type === 'npc') {
             this.addNPCHPDisplay(html, data);
+        }
+        
+        // Add event listeners for HP controls
+        this.addHPControls(app, html, data);
+    }
+
+    addCharacterHPDisplay(html, data) {
+        // Check if HP display already exists
+        if (html.find('.hp-wrapper').length > 0) return;
+        
+        const hpData = data.actor.system.hitPoints || { current: 0, max: 0 };
+        
+        // Find the wounds section to insert HP after it
+        const woundsSection = html.find('.wounds-wrapper');
+        if (woundsSection.length > 0) {
+            const hpHTML = `
+                <div class='hp-wrapper'>
+                    <header class='counter-header'>
+                        <button type='button' class='adjust-counter' data-action='hp-minus'>
+                            <i class='fa-solid fa-minus fa-lg'></i>
+                        </button>
+                        <span class='label'>${game.i18n.localize('SWADE_HP.HitPoints')}</span>
+                        <button type='button' class='adjust-counter' data-action='hp-plus'>
+                            <i class='fa-solid fa-plus fa-lg'></i>
+                        </button>
+                    </header>
+                    <div class='hp-values'>
+                        <span class='values'>
+                            <input
+                                type='number'
+                                min='0'
+                                name='system.hitPoints.current'
+                                value='${hpData.current}'
+                                data-dtype='Number'
+                                class='hp-input'
+                            />/${hpData.max}
+                        </span>
+                    </div>
+                    <button type='button' class='hp-advance-button' data-action='roll-hp-advance' 
+                            title="${game.i18n.localize('SWADE_HP.AdvanceButtonTooltip')}">
+                        ${game.i18n.localize('SWADE_HP.AdvanceButton')}
+                    </button>
+                </div>
+            `;
+            
+            woundsSection.after(hpHTML);
         }
     }
 
@@ -283,6 +233,46 @@ class SWADEHPSystem {
             
             vitalsSection.append(hpHTML);
         }
+    }
+
+    addHPControls(app, html, data) {
+        if (!game.settings.get(this.id, 'enableHP')) return;
+        
+        // Add event listeners for HP controls
+        html.on('click', '[data-action="hp-minus"]', this.onHPDecrease.bind(this, app));
+        html.on('click', '[data-action="hp-plus"]', this.onHPIncrease.bind(this, app));
+        html.on('click', '[data-action="roll-hp-advance"]', this.onManualHPAdvance.bind(this, app));
+    }
+
+    onHPDecrease(app, event) {
+        event.preventDefault();
+        const actor = app.actor;
+        const currentHP = actor.system.hitPoints?.current || 0;
+        const newHP = Math.max(0, currentHP - 1);
+        
+        actor.update({ 'system.hitPoints.current': newHP });
+    }
+
+    onHPIncrease(app, event) {
+        event.preventDefault();
+        const actor = app.actor;
+        const currentHP = actor.system.hitPoints?.current || 0;
+        const maxHP = actor.system.hitPoints?.max || 0;
+        const newHP = Math.min(maxHP, currentHP + 1);
+        
+        actor.update({ 'system.hitPoints.current': newHP });
+    }
+
+    async onManualHPAdvance(app, event) {
+        event.preventDefault();
+        
+        const actor = app.actor;
+        if (!actor.system.hitPoints) {
+            ui.notifications.error('HP system not initialized for this character.');
+            return;
+        }
+        
+        await this.rollHPForAdvance(actor);
     }
 
     initializeExistingActors() {

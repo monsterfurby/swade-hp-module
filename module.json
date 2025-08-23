@@ -40,10 +40,6 @@
     }
   ],
   "socket": true,
-  "templates": [
-    "templates/actors/character/sheet.hbs",
-    "templates/actors/character/tabs/summary.hbs"
-  ],
   "url": "https://github.com/monsterfurby/swade-hp-module",
   "manifest": "https://raw.githubusercontent.com/monsterfurby/swade-hp-module/main/module.json",
   "download": "https://github.com/monsterfurby/swade-hp-module/releases/latest/download/swade-hp-module.zip"
