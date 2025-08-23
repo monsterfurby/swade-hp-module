@@ -13,6 +13,9 @@ class SWADEHPSystem {
         // Register module settings
         this.registerSettings();
         
+        // Register Handlebars partials
+        this.registerPartials();
+        
         // Hook into SWADE system
         this.setupHooks();
         
@@ -29,8 +32,51 @@ class SWADEHPSystem {
             type: Boolean,
             default: true
         });
+    }
 
-
+    registerPartials() {
+        // Register a partial for the HP display
+        Handlebars.registerPartial('hp-display', `
+            {{#if (and actor.system.hitPoints (eq actor.type "character"))}}
+            <div class='hp-wrapper'>
+                <header class='counter-header'>
+                    <button type='button' class='adjust-counter' data-action='hp-minus'>
+                        <i class='fa-solid fa-minus fa-lg'></i>
+                    </button>
+                    <span class='label'>{{localize 'SWADE_HP.HitPoints'}}</span>
+                    <button type='button' class='adjust-counter' data-action='hp-plus'>
+                        <i class='fa-solid fa-plus fa-lg'></i>
+                    </button>
+                </header>
+                <div class='hp-values'>
+                    <span class='values'>
+                        <input
+                            type='number'
+                            min='0'
+                            name='system.hitPoints.current'
+                            value='{{actor.system.hitPoints.current}}'
+                            data-dtype='Number'
+                            class='hp-input'
+                            placeholder='Current'
+                        />/
+                        <input
+                            type='number'
+                            min='0'
+                            name='system.hitPoints.max'
+                            value='{{actor.system.hitPoints.max}}'
+                            data-dtype='Number'
+                            class='hp-input'
+                            placeholder='Max'
+                        />
+                    </span>
+                </div>
+                <button type='button' class='hp-advance-button' data-action='roll-hp-advance' 
+                        title="{{localize 'SWADE_HP.AdvanceButtonTooltip'}}">
+                    {{localize 'SWADE_HP.AdvanceButton'}}
+                </button>
+            </div>
+            {{/if}}
+        `);
     }
 
     setupHooks() {
@@ -131,13 +177,30 @@ class SWADEHPSystem {
     onRenderActorSheet(app, html, data) {
         if (!game.settings.get(this.id, 'enableHP')) return;
         
-        // Add HP display to NPC sheets (characters use template override)
-        if (data.actor.type === 'npc') {
+        // Add HP display to character sheets using partial injection
+        if (data.actor.type === 'character') {
+            this.injectHPDisplay(html, data);
+        }
+        // Add HP display to NPC sheets
+        else if (data.actor.type === 'npc') {
             this.addNPCHPDisplay(html, data);
         }
         
         // Add event listeners for HP controls
         this.addHPControls(app, html, data);
+    }
+
+    injectHPDisplay(html, data) {
+        // Check if HP display already exists
+        if (html.find('.hp-wrapper').length > 0) return;
+        
+        // Find the wounds section to insert HP after it
+        const woundsSection = html.find('.wounds-wrapper');
+        if (woundsSection.length > 0) {
+            // Render the HP partial
+            const hpHTML = Handlebars.compile('{{> hp-display}}')(data);
+            woundsSection.after(hpHTML);
+        }
     }
 
     addNPCHPDisplay(html, data) {
