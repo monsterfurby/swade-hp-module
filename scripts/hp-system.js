@@ -60,15 +60,21 @@ class SWADEHPSystem {
     }
 
     waitForSWADE() {
-        // Enhanced detection - check multiple ways to find CharacterSheet
+        // Enhanced detection - check multiple ways to find CharacterSheet (V13 + SWADE compatible)
         const detectCharacterSheet = () => {
-            // Method 1: Global CharacterSheet
+            // Method 1: Check game.swade.sheets.CharacterSheet (SWADE v13 proper way)
+            if (game.swade?.sheets?.CharacterSheet) {
+                console.log('SWADE HP Module: Found CharacterSheet via game.swade.sheets.CharacterSheet');
+                return game.swade.sheets.CharacterSheet;
+            }
+            
+            // Method 2: Global CharacterSheet
             if (typeof CharacterSheet !== 'undefined') {
                 console.log('SWADE HP Module: Found global CharacterSheet');
                 return CharacterSheet;
             }
             
-            // Method 2: Check CONFIG.Actor.sheetClasses.character
+            // Method 3: Check CONFIG.Actor.sheetClasses.character
             if (CONFIG.Actor?.sheetClasses?.character) {
                 const sheets = CONFIG.Actor.sheetClasses.character;
                 console.log('SWADE HP Module: Available character sheets:', Object.keys(sheets));
@@ -82,7 +88,7 @@ class SWADEHPSystem {
                 }
             }
             
-            // Method 3: Check window object
+            // Method 4: Check window object
             if (window.CharacterSheet) {
                 console.log('SWADE HP Module: Found CharacterSheet on window');
                 return window.CharacterSheet;
@@ -138,12 +144,40 @@ class SWADEHPSystem {
     registerCustomSheet(CharacterSheetClass = null) {
         console.log('SWADE HP Module: Starting custom sheet registration...');
         
-        // Use provided class or try to find it
-        const BaseCharacterSheet = CharacterSheetClass || 
-            (typeof CharacterSheet !== 'undefined' ? CharacterSheet : null);
+        // Use provided class or try to find it using V13 + SWADE proper method
+        let BaseCharacterSheet = CharacterSheetClass;
+        
+        if (!BaseCharacterSheet) {
+            // Method 1: Check game.swade.sheets.CharacterSheet (SWADE v13 proper way)
+            if (game.swade?.sheets?.CharacterSheet) {
+                BaseCharacterSheet = game.swade.sheets.CharacterSheet;
+                console.log('SWADE HP Module: Found CharacterSheet via game.swade.sheets.CharacterSheet');
+            }
+            // Method 2: Check global CharacterSheet (fallback)
+            else if (typeof CharacterSheet !== 'undefined') {
+                BaseCharacterSheet = CharacterSheet;
+                console.log('SWADE HP Module: Found CharacterSheet via global CharacterSheet');
+            }
+            // Method 3: Check CONFIG.Actor.sheetClasses (last resort)
+            else if (CONFIG.Actor?.sheetClasses?.character) {
+                const sheets = CONFIG.Actor.sheetClasses.character;
+                for (const [key, sheetClass] of Object.entries(sheets)) {
+                    if (sheetClass.name === 'CharacterSheet' || key.includes('swade')) {
+                        BaseCharacterSheet = sheetClass;
+                        console.log('SWADE HP Module: Found CharacterSheet via CONFIG.Actor.sheetClasses:', key);
+                        break;
+                    }
+                }
+            }
+        }
         
         if (!BaseCharacterSheet) {
             console.error('SWADE HP Module: CharacterSheet class is not available!');
+            console.log('SWADE HP Module: Debug info:');
+            console.log('- game.swade:', game.swade);
+            console.log('- game.swade?.sheets:', game.swade?.sheets);
+            console.log('- typeof CharacterSheet:', typeof CharacterSheet);
+            console.log('- CONFIG.Actor.sheetClasses.character:', CONFIG.Actor?.sheetClasses?.character);
             return;
         }
         
