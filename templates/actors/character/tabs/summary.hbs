@@ -43,7 +43,7 @@
     </span>
   </div>
 </div>
-{{#if (and actor.system.hitPoints (eq actor.type "character"))}}
+{{#if actor.system.hitPoints}}
 <div class='hp-wrapper'>
   <header class='counter-header'>
     <button type='button' class='adjust-counter' data-action='hp-minus'>
