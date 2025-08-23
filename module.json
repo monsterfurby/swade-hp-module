@@ -40,6 +40,5 @@
     }
   ],
   "socket": true,
-  "url": "https://github.com/monsterfurby/swade-hp-module",
-  "manifest": "https://raw.githubusercontent.com/monsterfurby/swade-hp-module/main/module.json"
+  "url": "https://github.com/monsterfurby/swade-hp-module"
 }
