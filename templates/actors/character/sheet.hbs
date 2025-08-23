@@ -109,9 +109,11 @@
     {{!-- Summary Tab --}}
     <section class="tab summary active" data-group="primary" data-tab="summary">
       {{!-- DEBUG: HP MODULE TEMPLATE IS LOADING --}}
-      <div style="background-color: red; color: white; padding: 5px; margin: 5px;">
-        DEBUG: SWADE HP MODULE CUSTOM TEMPLATE IS ACTIVE!
-        HP Data: {{actor.system.hitPoints.current}}/{{actor.system.hitPoints.max}}
+      <div style="background-color: red; color: white; padding: 10px; margin: 10px; border: 3px solid yellow; font-size: 16px; font-weight: bold; z-index: 9999; position: relative;">
+        🔴 DEBUG: SWADE HP MODULE CUSTOM TEMPLATE IS ACTIVE! 🔴
+        <br>HP Data: {{actor.system.hitPoints.current}}/{{actor.system.hitPoints.max}}
+        <br>Actor Type: {{actor.type}}
+        <br>Template Path: modules/swade-hp-module/templates/actors/character/sheet.hbs
       </div>
       
       {{!-- HP System --}}
