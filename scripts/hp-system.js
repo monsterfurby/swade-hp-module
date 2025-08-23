@@ -273,6 +273,16 @@ class SWADEHPSystem {
 
             activateListeners(html) {
                 console.log('SWADE HP Module: Activating listeners for custom sheet');
+                
+                // FORCE DEBUG: Add a visible marker to prove our sheet class is running
+                const debugDiv = $(`
+                    <div style="background-color: lime; color: black; padding: 15px; margin: 10px; border: 5px solid red; font-size: 18px; font-weight: bold; z-index: 10000; position: absolute; top: 10px; left: 10px; width: 300px;">
+                        🟢 JAVASCRIPT DEBUG: SWADE HP MODULE SHEET CLASS IS ACTIVE! 🟢
+                        <br>This proves our custom sheet class is running!
+                    </div>
+                `);
+                html.prepend(debugDiv);
+                
                 super.activateListeners(html);
                 
                 // Add HP-specific event listeners
