@@ -5,11 +5,11 @@
  */
 
 console.log('SWADE HP Module: Script file loaded!');
+console.log('SWADE HP Module: About to register ready hook');
 
 class SWADEHPSystem {
     constructor() {
         this.id = 'swade-hp-module';
-        this.init();
     }
 
     init() {
@@ -223,10 +223,35 @@ class SWADEHPSystem {
                 return options;
             }
 
-            getData() {
+            get template() {
+                console.log('SWADE HP Module: Template getter called');
+                const templatePath = 'modules/swade-hp-module/templates/actors/character/sheet.hbs';
+                console.log('SWADE HP Module: Forcing template path to:', templatePath);
+                return templatePath;
+            }
+
+            async _renderInner(data) {
+                console.log('SWADE HP Module: _renderInner called');
+                console.log('SWADE HP Module: Template path in _renderInner:', this.template);
+                
+                // Force the template path
+                const originalTemplate = this.options.template;
+                this.options.template = 'modules/swade-hp-module/templates/actors/character/sheet.hbs';
+                console.log('SWADE HP Module: Forced template to:', this.options.template);
+                
+                const result = await super._renderInner(data);
+                
+                // Restore original template
+                this.options.template = originalTemplate;
+                
+                return result;
+            }
+
+            async getData() {
                 console.log('SWADE HP Module: Getting data for custom sheet');
                 console.log('SWADE HP Module: Template being used:', this.options.template);
-                const data = super.getData();
+                console.log('SWADE HP Module: Default options template:', this.constructor.defaultOptions.template);
+                const data = await super.getData();
                 
                 // Ensure actor and system data exist before accessing
                 if (data.actor && data.actor.system) {
