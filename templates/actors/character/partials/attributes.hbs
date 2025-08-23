@@ -1,0 +1,130 @@
+<header class='section-header'>
+  <span class='name'>{{localize 'SWADE.Attributes'}}</span>
+  <button
+    type='button'
+    class='attribute-manager'
+    title='{{localize "SWADE.AttributeManager.Open"}}'
+  >
+    <i class='fa-solid fa-gear'></i>
+  </button>
+</header>
+<div class='attribute-list'>
+  <div class='attribute'>
+    <span class='attribute-label'>
+      {{#if useAttributeShorts}}
+        {{localize 'SWADE.AttrAgiShort'}}
+      {{else}}
+        {{localize 'SWADE.AttrAgi'}}
+      {{/if}}
+    </span>
+    <button
+      type='button'
+      class='attribute-value rollable'
+      data-tooltip='{{attributes.agility.tooltip}}'
+      data-attribute='agility'
+    >
+      <img
+        class='die'
+        src='systems/swade/assets/official/dice/d{{attributes.agility.die}}.svg'
+      />
+      <span class='modifier'>
+        {{signedString attributes.agility.modifier}}
+      </span>
+    </button>
+  </div>
+  <div class='attribute'>
+    <span class='attribute-label'>
+      {{#if useAttributeShorts}}
+        {{localize 'SWADE.AttrSmaShort'}}
+      {{else}}
+        {{localize 'SWADE.AttrSma'}}
+      {{/if}}
+      {{#if actor.system.attributes.smarts.animal}}
+        ({{localize 'SWADE.AnimalSmartsMarker'}})
+      {{/if}}
+    </span>
+    <button
+      type='button'
+      class='attribute-value rollable'
+      data-tooltip='{{attributes.smarts.tooltip}}'
+      data-attribute='smarts'
+    >
+      <img
+        class='die'
+        src='systems/swade/assets/official/dice/d{{attributes.smarts.die}}.svg'
+      />
+      <span class='modifier'>
+        {{signedString attributes.smarts.modifier}}
+      </span>
+    </button>
+  </div>
+  <div class='attribute'>
+    <span class='attribute-label'>
+      {{#if useAttributeShorts}}
+        {{localize 'SWADE.AttrSprShort'}}
+      {{else}}
+        {{localize 'SWADE.AttrSpr'}}
+      {{/if}}
+    </span>
+    <button
+      type='button'
+      class='attribute-value rollable'
+      data-tooltip='{{attributes.spirit.tooltip}}'
+      data-attribute='spirit'
+    >
+      <img
+        class='die'
+        src='systems/swade/assets/official/dice/d{{attributes.spirit.die}}.svg'
+      />
+      <span class='modifier'>
+        {{signedString attributes.spirit.modifier}}
+      </span>
+    </button>
+  </div>
+  <div class='attribute'>
+    <span class='attribute-label'>
+      {{#if useAttributeShorts}}
+        {{localize 'SWADE.AttrStrShort'}}
+      {{else}}
+        {{localize 'SWADE.AttrStr'}}
+      {{/if}}
+    </span>
+    <button
+      type='button'
+      class='attribute-value rollable'
+      data-tooltip='{{attributes.strength.tooltip}}'
+      data-attribute='strength'
+    >
+      <img
+        class='die'
+        src='systems/swade/assets/official/dice/d{{attributes.strength.die}}.svg'
+      />
+      <span class='modifier'>
+        {{signedString attributes.strength.modifier}}
+      </span>
+    </button>
+  </div>
+  <div class='attribute'>
+    <span class='attribute-label'>
+      {{#if useAttributeShorts}}
+        {{localize 'SWADE.AttrVigShort'}}
+      {{else}}
+        {{localize 'SWADE.AttrVig'}}
+      {{/if}}
+    </span>
+    <button
+      type='button'
+      class='attribute-value rollable'
+      data-tooltip='{{attributes.vigor.tooltip}}'
+      data-attribute='vigor'
+    >
+      <img
+        class='die'
+        src='systems/swade/assets/official/dice/d{{attributes.vigor.die}}.svg'
+      />
+      <span class='modifier'>
+        {{signedString attributes.vigor.modifier}}
+      </span>
+    </button>
+  </div>
+</div>

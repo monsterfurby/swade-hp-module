@@ -1,0 +1,39 @@
+<li class="gear-card item" data-item-id="{{id}}">
+  <details data-collapsible-id='{{concat type "-card-" id}}'>
+    <summary  class="card-header flexrow">
+      <div class="item-image" style="background-image: url('{{img}}')"></div>
+      <a class="item-name">{{name}}</a>
+      <div class="item-controls">
+        <button type="button" class="item-control item-show">
+          <i class="far fa-comment-alt"></i>
+        </button>
+        <button type="button" class="item-toggle {{#unless system.favorite}}item-unequipped{{/unless}}" data-toggle="system.favorite"
+          title="{{localize (ifThen system.favorite "SWADE.Unfavorite" "SWADE.Favorite")}}">
+          <i class="fas fa-star"></i>
+        </button>
+      </div>
+    </summary>
+  <div class="content card-content">
+    {{#if (or hasTraitRoll hasDamage hasAmmoManagement hasMacros hasReloadButton system.isArcaneDevice (eq type "power"))}}
+      {{>"swade.npc-action-card" item=this}}
+    {{/if}}
+      {{#if (eq type "power")}}
+      <span class="power-details">
+        {{#if system.rank}}<span>{{system.rank}}</span>{{/if}}
+        <span>{{localize "SWADE.PPAbbreviation"}}:&nbsp;{{system.pp}}</span>
+        <span>{{localize "SWADE.Range._nameShort"}}:&nbsp;{{system.range}}</span>
+        <span>{{localize "SWADE.Dur"}}:&nbsp;{{system.duration}}</span>
+        {{#if system.ap}}<span>{{localize "SWADE.Ap"}}:&nbsp;{{system.ap}}</span>{{/if}}
+      </span>
+      {{#if system.trapping}}
+      <div class="trapping">{{localize "SWADE.Trapping"}}:&nbsp;{{system.trapping}}</div>
+      {{/if}}
+      {{/if}}
+      <span class="description">
+      {{#if system.description}}
+        {{{enrichedDescription}}}
+      {{/if}}
+      </span>
+  </div>
+  </details>
+</li>

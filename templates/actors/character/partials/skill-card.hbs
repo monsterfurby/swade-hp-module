@@ -1,0 +1,39 @@
+<li class='item skill skill-card' data-item-id='{{id}}'>
+  <details data-collapsible-id='{{concat "skill-card-" id}}'>
+    <summary class='card-header flexrow' data-item-id='{{id}}'>
+      <img class='skill-icon' src='{{img}}' />
+      <a class='skill-name item-name'>
+        {{#if isCoreSkill}}★ {{/if}}{{label}}
+        {{#if attribute}}
+          ({{localizeSkillAttribute attribute @root.useAttributeShorts}})
+        {{/if}}
+      </a>
+      <button
+        type='button'
+        class='skill-die rollable'
+        data-tooltip='{{tooltip}}'
+      >
+        <img
+          class='skill-die-icon'
+          src='systems/swade/assets/official/dice/d{{die}}.svg'
+          alt='d{{die}}{{modifier this.modifier}}'
+        />
+        <span class='skill-die-modifier'>{{signedString this.modifier}}</span>
+      </button>
+      <div class='item-controls'>
+        {{#if isOwner}}
+          <button
+            type='button'
+            class='item-control item-edit'
+            title='{{localize "SWADE.EdF" item=label}}'
+          >
+            <i class='fas fa-edit'></i>
+          </button>
+        {{/if}}
+      </div>
+    </summary>
+    <span class='content card-content description'>
+      <div class='swade-core'><p>{{localize 'SWADE.NoDescription'}}</p></div>
+    </span>
+  </details>
+</li>

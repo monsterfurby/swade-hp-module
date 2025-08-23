@@ -1,0 +1,128 @@
+<nav class='about-tabs sub-tabs' data-group='about'>
+  <a class='item section-header active' data-tab='advances' data-group='about'>
+    <span class='name'>{{localize 'SWADE.Adv'}}</span>
+  </a>
+  <a class='item section-header' data-tab='background' data-group='about'>
+    <span class='name'>{{localize 'SWADE.Background'}}</span>
+  </a>
+  <a class='item section-header' data-tab='notes' data-group='about'>
+    <span class='name'>{{localize 'SWADE.Notes'}}</span>
+  </a>
+</nav>
+<section class='about-body'>
+  <section class='tab advances active' data-group='about' data-tab='advances'>
+    {{#if (eq actor.system.advances.mode 'expanded')}}
+      <span class='advance-add'>
+        <button type='button' class='item-create' data-type='advance'>
+          <i class='fa fa-plus'></i>{{localize 'SWADE.AddAdvance'}}
+        </button>
+      </span>
+      {{#each advances.list}}
+        <h2>{{rank}}</h2>
+        <ol class='advance-track'>
+          {{#each list}}
+            <li class='form-group advance' data-advance-id='{{id}}'>
+              {{#if planned}}
+                <span class='faded'>{{sort}}</span>
+                <span class='faded'>{{advanceType type}}</span>
+                <span class='faded'>{{{enrichedNotes}}}</span>
+              {{else}}
+                <span>{{sort}}</span>
+                <span>{{advanceType type}}</span>
+                <span>{{{enrichedNotes}}}</span>
+              {{/if}}
+              <span class='item-controls'>
+                {{#if planned}}
+                  <button
+                    type='button'
+                    class='advance-action'
+                    data-action='toggle-planned'
+                    title='{{localize "SWADE.Advances.Toggle"}}'
+                  >
+                    <i class='fa-solid fa-hourglass'></i>
+                  </button>
+                {{else}}
+                  <button
+                    type='button'
+                    class='advance-action faded'
+                    data-action='toggle-planned'
+                    title='{{localize "SWADE.Advances.Toggle"}}'
+                  >
+                    <i class='fa-solid fa-hourglass'></i>
+                  </button>
+                {{/if}}
+                <button
+                  type='button'
+                  class='advance-action'
+                  data-action='edit'
+                  title='{{localize "SWADE.Ed"}}'
+                >
+                  <i class='fas fa-edit'></i>
+                </button>
+                <button
+                  type='button'
+                  class='advance-action'
+                  data-action='delete'
+                  title='{{localize "SWADE.Del"}}'
+                >
+                  <i class='fa-solid fa-trash'></i>
+                </button>
+              </span>
+            </li>
+          {{/each}}
+        </ol>
+      {{/each}}
+    {{else}}
+      {{editor
+        enrichedText.advances
+        target='system.advances.details'
+        button=editable
+        editable=editable
+        engine='prosemirror'
+      }}
+    {{/if}}
+  </section>
+  <section class='tab background' data-group='about' data-tab='background'>
+    <div class='editor-container'>
+      <header class='section-header'>{{localize 'SWADE.Appearance'}}</header>
+      {{editor
+        enrichedText.appearance
+        target='system.details.appearance'
+        button=editable
+        editable=editable
+        engine='prosemirror'
+      }}
+    </div>
+    <div class='editor-container'>
+      <header class='section-header'>
+        {{localize 'SWADE.CharacterGoals'}}
+      </header>
+      {{editor
+        enrichedText.goals
+        target='system.details.goals'
+        button=editable
+        editable=editable
+        engine='prosemirror'
+      }}
+    </div>
+    <div class='editor-container'>
+      <header class='section-header'>{{localize 'SWADE.Biography'}}</header>
+      {{editor
+        enrichedText.biography
+        target='system.details.biography.value'
+        button=editable
+        editable=editable
+        engine='prosemirror'
+      }}
+    </div>
+  </section>
+  <section class='tab actor-notes' data-group='about' data-tab='notes'>
+    {{editor
+      enrichedText.notes
+      target='system.details.notes'
+      button=editable
+      editable=editable
+      engine='prosemirror'
+    }}
+  </section>
+</section>

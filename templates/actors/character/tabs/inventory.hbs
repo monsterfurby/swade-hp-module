@@ -1,0 +1,481 @@
+<section class='flexrow'>
+  <div class='encumbrance'>
+    <span class='label'>{{localize 'SWADE.CarryWeight'}}</span>
+    <span class='value'>{{formatNumber actor.system.details.encumbrance.value}}
+      /
+      {{actor.system.details.encumbrance.max}}
+      {{settingrules.weightUnit}}</span>
+  </div>
+  <div class='form-group currency'>
+    {{#if (eq settingrules.wealthType 'currency')}}
+      <label for='{{actor.uuid}}-currency'>{{settingrules.currencyName}}</label>
+      <span class='form-fields'>
+        <input
+          id='{{actor.uuid}}-currency'
+          name='system.details.currency'
+          type='text'
+          data-dtype='Number'
+          value='{{actor.system.details.currency}}'
+          placeholder='{{localize "SWADE.Currency"}}'
+        />
+      </span>
+    {{else if (eq settingrules.wealthType 'wealthDie')}}
+      <label>
+        <button class='roll'>{{localize 'SWADE.WealthDie.Label'}}</button>
+      </label>
+      <span class='form-fields'>
+        <select data-dtype='Number' name='system.details.wealth.die'>
+          {{selectOptions
+            wealthDieTypes
+            selected=actor.system.details.wealth.die
+            localize=true
+            valueAttr='key'
+            labelAttr='label'
+          }}
+        </select>
+        <input
+          type='text'
+          data-dtype='Number'
+          name='system.details.wealth.modifier'
+          value='{{signedString actor.system.details.wealth.modifier}}'
+          placeholder='{{localize "SWADE.Modifier"}}'
+        />
+      </span>
+    {{/if}}
+  </div>
+</section>
+<section class='inventory'>
+
+  <!-- Weapons -->
+  <header class='header weapon'>
+    <span class='header-name'>{{localize 'SWADE.Weapons'}}</span>
+    <span class='damage'>{{localize 'SWADE.Dmg'}}</span>
+    <span class='ap'>{{localize 'SWADE.Ap'}}</span>
+    <span class='note'>{{localize 'SWADE.Notes'}}</span>
+    <span class='weight'>{{localize 'SWADE.Weight'}}</span>
+    <span class='item-controls'>
+      <button type='button' class='item-create' data-type='weapon'>
+        <i class='fa fa-plus'></i>{{localize 'SWADE.Add'}}
+      </button>
+    </span>
+  </header>
+  <ul>
+    {{#each itemTypes.weapon}}
+      <li class='item' data-item-id='{{id}}'>
+        <details data-collapsible-id='{{concat type "-" id}}'>
+          <summary class='item-wrapper weapon'>
+            <button
+              type='button'
+              class='item-img item-show'
+              style="background-image: url('{{img}}');"
+              title='{{localize "SWADE.ShowInChat"}}'
+            ></button>
+            <a
+              class='name item-name'
+              title='{{localize "SWADE.ExpandDescription"}}'
+            >
+              (x{{system.quantity}})
+              {{name}}
+            </a>
+            <span class='damage'>
+              {{#if system.damage}}
+                <button
+                  type='button'
+                  class='damage-roll rollable'
+                  title='{{localize "SWADE.RollDamage"}}'
+                >
+                  {{system.damage}}{{signedString system.actions.dmgMod}}
+                </button>
+              {{/if}}
+            </span>
+            <span class='ap'>{{system.ap}}</span>
+            <span class='note' data-tooltip='{{{enrichedNotes}}}'>
+              {{{enrichedNotes}}}
+            </span>
+            <span class='weight'>{{formatNumber
+                (multiply system.weight system.quantity)
+              }}</span>
+            <span class='item-controls'>
+              {{#if isOwner}}
+                <button
+                  type='menu'
+                  class='equip-status'
+                  title='{{equipStatusLabel system.equipStatus}}'
+                >
+                  {{equipStatus system.equipStatus}}
+                </button>
+                <button
+                  type='button'
+                  class='item-toggle'
+                  data-toggle='system.favorite'
+                  title='{{localize (ifThen system.favorite "SWADE.Unfavorite" "SWADE.Favorite")}}'
+                >
+                  {{#if system.favorite}}
+                    <i class='fas fa-star'></i>
+                  {{else}}
+                    <i class='fas fa-star item-unequipped'></i>
+                  {{/if}}
+                </button>
+                <button
+                  type='button'
+                  class='item-edit'
+                  title='{{localize "SWADE.Ed"}}'
+                >
+                  <i class='fas fa-edit'></i>
+                </button>
+                <button
+                  type='button'
+                  class='item-delete'
+                  title='{{localize "SWADE.Del"}}'
+                >
+                  <i class='fas fa-trash'></i>
+                </button>
+              {{/if}}
+            </span>
+          </summary>
+          <div class='content description'><p>{{localize
+                'SWADE.NoDescription'
+              }}</p></div>
+        </details>
+      </li>
+    {{/each}}
+  </ul>
+
+  <!-- Armor -->
+  <header class='header armor'>
+    <span class='header-name'>{{localize 'SWADE.Armors'}}</span>
+    <span class='bonus'>{{localize 'SWADE.Armor'}}</span>
+    <span class='min-str'>{{localize 'SWADE.MinStrShort'}}</span>
+    <span class='note'>{{localize 'SWADE.Notes'}}</span>
+    <span class='weight'>{{localize 'SWADE.Weight'}}</span>
+    <span class='item-controls'>
+      <button type='button' class='item-create' data-type='armor'>
+        <i class='fa fa-plus'></i>{{localize 'SWADE.Add'}}
+      </button>
+    </span>
+  </header>
+  <ul>
+    {{#each itemTypes.armor}}
+      <li class='item' data-item-id='{{id}}'>
+        <details data-collapsible-id='{{concat type "-" id}}'>
+          <summary class='item-wrapper armor'>
+            <button
+              type='button'
+              class='item-img item-show'
+              style="background-image: url('{{img}}');"
+              title='{{localize "SWADE.ShowInChat"}}'
+            ></button>
+            <a
+              class='name item-name'
+              title='{{localize "SWADE.ExpandDescription"}}'
+            >
+              (x{{system.quantity}})
+              {{name}}
+            </a>
+            <span class='bonus'> {{system.armor}} </span>
+            <span class='min-str'>{{system.minStr}}</span>
+            <span class='note' data-tooltip='{{{enrichedNotes}}}'>
+              {{{enrichedNotes}}}
+            </span>
+            <span class='weight'>{{formatNumber
+                (multiply system.weight system.quantity)
+              }}</span>
+            <span class='item-controls'>
+              {{#if isOwner}}
+                <button
+                  type='menu'
+                  class='equip-status'
+                  title='{{equipStatusLabel system.equipStatus}}'
+                >
+                  {{equipStatus system.equipStatus}}
+                </button>
+                <button
+                  type='button'
+                  class='item-toggle'
+                  data-toggle='system.favorite'
+                  title='{{localize (ifThen system.favorite "SWADE.Unfavorite" "SWADE.Favorite")}}'
+                >
+                  {{#if system.favorite}}
+                    <i class='fas fa-star'></i>
+                  {{else}}
+                    <i class='fas fa-star item-unequipped'></i>
+                  {{/if}}
+                </button>
+                <button
+                  type='button'
+                  class='item-edit'
+                  title='{{localize "SWADE.Ed"}}'
+                >
+                  <i class='fas fa-edit'></i>
+                </button>
+                <button
+                  type='button'
+                  class='item-delete'
+                  title='{{localize "SWADE.Del"}}'
+                >
+                  <i class='fas fa-trash'></i>
+                </button>
+              {{/if}}
+            </span>
+          </summary>
+          <div class='content description'><p>{{localize
+                'SWADE.NoDescription'
+              }}</p></div>
+        </details>
+      </li>
+    {{/each}}
+  </ul>
+
+  <!-- Shields -->
+  <header class='header shield'>
+    <span class='header-name'>{{localize 'SWADE.Shields'}}</span>
+    <span class='parry'>{{localize 'SWADE.Parry'}}</span>
+    <span class='cover'>{{localize 'SWADE.Cover._name'}}</span>
+    <span class='note'>{{localize 'SWADE.Notes'}}</span>
+    <span class='weight'>{{localize 'SWADE.Weight'}}</span>
+    <span class='item-controls'>
+      <button type='button' class='item-create' data-type='shield'>
+        <i class='fa fa-plus'></i>{{localize 'SWADE.Add'}}
+      </button>
+    </span>
+  </header>
+  <ul>
+    {{#each itemTypes.shield}}
+      <li class='item' data-item-id='{{id}}'>
+        <details data-collapsible-id='{{concat type "-" id}}'>
+          <summary class='item-wrapper shield'>
+            <button
+              type='button'
+              class='item-img item-show'
+              style="background-image: url('{{img}}');"
+              title='{{localize "SWADE.ShowInChat"}}'
+            ></button>
+            <a
+              class='name item-name'
+              title='{{localize "SWADE.ExpandDescription"}}'
+            >
+              (x{{system.quantity}})
+              {{name}}
+            </a>
+            <span class='parry'>{{system.parry}}</span>
+            <span class='cover'>{{system.cover}}</span>
+            <span class='note' data-tooltip='{{{enrichedNotes}}}'>
+              {{{enrichedNotes}}}
+            </span>
+            <span class='weight'>
+              {{formatNumber (multiply system.weight system.quantity)}}
+            </span>
+            <span class='item-controls'>
+              {{#if isOwner}}
+                <button
+                  type='menu'
+                  class='equip-status'
+                  title='{{equipStatusLabel system.equipStatus}}'
+                >
+                  {{equipStatus system.equipStatus}}
+                </button>
+                <button
+                  type='button'
+                  class='item-toggle'
+                  data-toggle='system.favorite'
+                  title='{{localize (ifThen system.favorite "SWADE.Unfavorite" "SWADE.Favorite")}}'
+                >
+                  {{#if system.favorite}}
+                    <i class='fas fa-star'></i>
+                  {{else}}
+                    <i class='fas fa-star item-unequipped'></i>
+                  {{/if}}
+                </button>
+                <button
+                  type='button'
+                  class='item-edit'
+                  title='{{localize "SWADE.Ed"}}'
+                >
+                  <i class='fas fa-edit'></i>
+                </button>
+                <button
+                  type='button'
+                  class='item-delete'
+                  title='{{localize "SWADE.Del"}}'
+                >
+                  <i class='fas fa-trash'></i>
+                </button>
+              {{/if}}
+            </span>
+          </summary>
+          <div class='content description'><p>{{localize
+                'SWADE.NoDescription'
+              }}</p></div>
+        </details>
+      </li>
+    {{/each}}
+  </ul>
+
+  <!-- Consumables -->
+  <header class='header consumable'>
+    <span class='header-name'>{{localize 'SWADE.Consumable.Consumables'}}</span>
+    <span class='charges'>{{localize 'SWADE.Charges'}}</span>
+    <span class='weight'>{{localize 'SWADE.Weight'}}</span>
+    <span class='item-controls'>
+      <button type='button' class='item-create' data-type='consumable'>
+        <i class='fa fa-plus'></i>{{localize 'SWADE.Add'}}
+      </button>
+    </span>
+  </header>
+  <ul>
+    {{#each itemTypes.consumable}}
+      <li class='item' data-item-id='{{id}}'>
+        <details data-collapsible-id='{{concat type "-" id}}'>
+          <summary class='item-wrapper consumable'>
+            <button
+              type='button'
+              class='item-img item-show'
+              style="background-image: url('{{img}}');"
+              title='{{localize "SWADE.ShowInChat"}}'
+            ></button>
+            <a
+              class='name item-name'
+              title='{{localize "SWADE.ExpandDescription"}}'
+            >
+              (x{{system.quantity}})
+              {{name}}
+            </a>
+            <span class='charges'>
+              {{#unless (eq system.subtype 'regular')}}
+                {{system.charges.value}}/{{system.charges.max}}
+              {{else}}
+                <button
+                  type='button'
+                  class='rollable use-consumable'
+                  title='{{localize "SWADE.Consumable.Use"}}'
+                >
+                  {{system.charges.value}}/{{system.charges.max}}
+                </button>
+              {{/unless}}
+            </span>
+            <span class='weight'>
+              {{formatNumber (multiply system.weight system.quantity)}}
+            </span>
+            <span class='item-controls'>
+              {{#if isOwner}}
+                <button
+                  type='menu'
+                  class='equip-status'
+                  title='{{equipStatusLabel system.equipStatus}}'
+                >
+                  {{equipStatus system.equipStatus}}
+                </button>
+                <button
+                  type='button'
+                  class='item-toggle'
+                  data-toggle='system.favorite'
+                  title='{{localize (ifThen system.favorite "SWADE.Unfavorite" "SWADE.Favorite")}}'
+                >
+                  {{#if system.favorite}}
+                    <i class='fas fa-star'></i>
+                  {{else}}
+                    <i class='fas fa-star item-unequipped'></i>
+                  {{/if}}
+                </button>
+                <button
+                  type='button'
+                  class='item-edit'
+                  title='{{localize "SWADE.Ed"}}'
+                >
+                  <i class='fas fa-edit'></i>
+                </button>
+                <button
+                  type='button'
+                  class='item-delete'
+                  title='{{localize "SWADE.Del"}}'
+                >
+                  <i class='fas fa-trash'></i>
+                </button>
+              {{/if}}
+            </span>
+          </summary>
+          <div class='content description'><p>{{localize
+                'SWADE.NoDescription'
+              }}</p></div>
+        </details>
+      </li>
+    {{/each}}
+  </ul>
+
+  <!-- Misc Gear -->
+  <header class='header misc'>
+    <span class='header-name'>{{localize 'SWADE.Misc'}}</span>
+    <span class='weight'>{{localize 'SWADE.Weight'}}</span>
+    <span class='item-controls'>
+      <button type='button' class='item-create' data-type='gear'>
+        <i class='fa fa-plus'></i>{{localize 'SWADE.Add'}}
+      </button>
+    </span>
+  </header>
+  <ul>
+    {{#each itemTypes.gear}}
+      <li class='item' data-item-id='{{id}}'>
+        <details data-collapsible-id='{{concat type "-" id}}'>
+          <summary class='item-wrapper misc'>
+            <button
+              type='button'
+              class='item-img item-show'
+              style="background-image: url('{{img}}');"
+              title='{{localize "SWADE.ShowInChat"}}'
+            ></button>
+            <a
+              class='name item-name'
+              title='{{localize "SWADE.ExpandDescription"}}'
+            >
+              (x{{system.quantity}})
+              {{name}}
+            </a>
+            <span class='weight'>
+              {{formatNumber (multiply system.weight system.quantity)}}
+            </span>
+            <span class='item-controls'>
+              {{#if isOwner}}
+                <button
+                  type='menu'
+                  class='equip-status'
+                  title='{{equipStatusLabel system.equipStatus}}'
+                >
+                  {{equipStatus system.equipStatus}}
+                </button>
+                <button
+                  type='button'
+                  class='item-toggle'
+                  data-toggle='system.favorite'
+                  title='{{localize (ifThen system.favorite "SWADE.Unfavorite" "SWADE.Favorite")}}'
+                >
+                  {{#if system.favorite}}
+                    <i class='fas fa-star'></i>
+                  {{else}}
+                    <i class='fas fa-star item-unequipped'></i>
+                  {{/if}}
+                </button>
+                <button
+                  type='button'
+                  class='item-edit'
+                  title='{{localize "SWADE.Ed"}}'
+                >
+                  <i class='fas fa-edit'></i>
+                </button>
+                <button
+                  type='button'
+                  class='item-delete'
+                  title='{{localize "SWADE.Del"}}'
+                >
+                  <i class='fas fa-trash'></i>
+                </button>
+              {{/if}}
+            </span>
+          </summary>
+          <div class='content description'>
+            <p>{{localize 'SWADE.NoDescription'}}</p>
+          </div>
+        </details>
+      </li>
+    {{/each}}
+  </ul>
+</section>

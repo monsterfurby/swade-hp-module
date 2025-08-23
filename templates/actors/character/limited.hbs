@@ -1,0 +1,42 @@
+<form class='main-grid limited {{cssClass}}' autocomplete='off'>
+  <figure class='grid-under gu-1'></figure>
+  <figure class='grid-under gu-2'></figure>
+  <figure class='grid-under gu-3'></figure>
+  <figure class='grid-under gu-4'></figure>
+  <div class='char-img-container'>
+    <img
+      class='profile-img'
+      src='{{actor.img}}'
+      data-edit='img'
+      alt='{{actor.name}}'
+      title='{{localize "SWADE.RightClickZoom"}}'
+    />
+  </div>
+  {{! Sheet Header }}
+  <label class='gridcell charname-container'>
+    <span class='sr-only'>{{localize 'Name'}}</span>
+    <span class='charname' data-tooltip="{{actor.name}}">{{actor.name}}</span>
+  </label>
+  <figure class='gridcell branding'></figure>
+
+  {{! Sheet Body }}
+  <main class='gridcell sheet-body'>
+    <header class='section-header'>
+      <span></span>
+      {{localize 'SWADE.Appearance'}}
+      <span></span>
+    </header>
+    <section>{{{enrichedText.appearance}}}</section>
+    <header class='section-header'>
+      <span></span>
+      {{localize 'SWADE.Biography'}}
+      <span></span>
+    </header>
+    <section>{{{enrichedText.biography}}}</section>
+  </main>
+
+  <figure class='grid-cover gc-1'></figure>
+  <figure class='grid-cover gc-2'></figure>
+  <figure class='grid-cover gc-3'></figure>
+  <figure class='grid-cover gc-4'></figure>
+</form>

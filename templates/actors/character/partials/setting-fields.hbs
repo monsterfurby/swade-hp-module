@@ -1,0 +1,77 @@
+{{#if hasAdditionalStats}}
+  <header class='section-header'>
+    <span class='name'>{{localize 'SWADE.AddStats'}}</span>
+  </header>
+  <div class='additional-stats'>
+    {{#each additionalStats as |attr key|}}
+      <div class='form-group'>
+        {{#if (eq attr.dtype 'Die')}}
+          <label>
+            <button type='button' class='roll' data-stat='{{key}}'>
+              {{attr.label}}
+            </button>
+          </label>
+          <span class='form-fields'>
+            <input
+              type='text'
+              name='system.additionalStats.{{key}}.value'
+              data-dtype='String'
+              value='{{attr.value}}'
+              placeholder='{{localize "SWADE.Die"}}'
+            />
+            <input
+              type='text'
+              name='system.additionalStats.{{key}}.modifier'
+              data-dtype='String'
+              value='{{attr.modifier}}'
+              placeholder='{{localize "SWADE.Modifier"}}'
+            />
+          </span>
+        {{else if (eq attr.dtype 'Boolean')}}
+          <label class='check-container'>
+            {{attr.label}}
+            <input
+              type='checkbox'
+              name='system.additionalStats.{{key}}.value'
+              {{checked attr.value}}
+              data-dtype='Boolean'
+            />
+            <span class='checkmark'></span>
+          </label>
+        {{else if (eq attr.dtype 'Selection')}}
+          <label>{{attr.label}}</label>
+          <select name='system.additionalStats.{{key}}.value'>
+            {{selectOptions attr.options selected=attr.value localize=true}}
+          </select>
+        {{else}}
+          <label>{{attr.label}}</label>
+          <span class='form-fields'>
+            <input
+              type='text'
+              name='system.additionalStats.{{key}}.value'
+              data-dtype='{{attr.dtype}}'
+              value='{{attr.value}}'
+              data-tooltip='{{attr.value}}'
+              placeholder='{{localize
+                "SWADE.AdditionalStats.Current"
+                stat=attr.label
+              }}'
+            />
+            {{#if attr.hasMaxValue}}
+              <input
+                type='text'
+                name='system.additionalStats.{{key}}.max'
+                data-dtype='{{attr.dtype}}'
+                value='{{attr.max}}'
+                placeholder='{{localize
+                  "SWADE.AdditionalStats.Max"
+                  stat=attr.label
+                }}'
+              />
+            {{/if}}
+          </span>
+        {{/if}}
+      </div>
+    {{/each}}
+  </div>
+{{/if}}

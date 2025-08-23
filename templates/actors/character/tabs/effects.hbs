@@ -1,0 +1,71 @@
+{{#*inline "effectPartial"}}
+  <li class="item effect {{#if effect.disabled}}disabled-effect{{/if}}" data-effect-id="{{effect.id}}" {{#if effect.source}}data-source-id="{{effect.source.id}}"{{/if}}>
+  <details data-collapsible-id="{{concat "active-effect-" effect.id}}">
+    <summary class="effect-entry-header" >
+      <img src="{{effect.img}}" alt="{{effect.name}}" class="effect-icon" />
+      <a class="effect-label" title='{{localize "SWADE.ExpandDescription"}}'>
+        {{effect.name}}
+      </a>
+      {{#if effect.source}}
+      <button type="button" class="effect-source effect-action" data-action="open-origin">
+        {{effect.source.name}}
+      </button>
+      {{else}}
+      <span class="effect-source"></span>
+      {{/if}}
+      <span class="effect-controls">
+        <button type="button" class="effect-action" data-action="toggle" data-toggle="disabled">
+          <i class="fas fa-power-off"></i>
+        </button>
+        <button 
+          type="button" 
+          class="effect-action {{#unless effect.favorite}}item-unequipped{{/unless}}" 
+          data-action="toggle"
+          data-toggle="system.favorite"
+          title="{{localize (ifThen effect.favorite "SWADE.Unfavorite" "SWADE.Favorite")}}"
+        >
+          <i class="fas fa-star"></i>
+        </button>
+        <button type="button" class="effect-action" data-action="edit">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button type="button" class="effect-action" data-action="delete">
+          <i class="fas fa-trash"></i>
+        </button>
+      </span>
+    </summary>
+    <div class="content">
+      {{#if effect.duration}}
+        <span class="effect-duration">
+          <span class="remaining">{{effect.duration.label}} {{localize 'SWADE.Expiration.Remaining'}}</span>
+        </span>
+      {{/if}}
+      <div class="description"><p>{{localize 'SWADE.NoDescription'}}</p></div>
+    </div>
+  </details>
+  </li>
+{{/inline}}
+
+<span class="effect-add">
+  <button type='menu' class='add-effect'>
+    <i class='fa-solid fa-plus'></i>{{localize 'SWADE.ActiveEffects.Add'}}
+  </button>
+</span>
+<div class="effect-header">
+  <span class="effect-label">{{localize 'SWADE.EffectsTemporary'}}</span>
+  <span class="effect-source">{{localize "SWADE.ActiveEffects.Source"}}</span>
+  <span class="effect-controls">
+  </span>
+</div>
+<ul class="effects-list">
+  {{#each sheetEffects.temporary}}{{> effectPartial effect=this}}{{/each}}
+</ul>
+<div class="effect-header">
+  <span class="effect-label">{{localize 'SWADE.EffectsPermanent'}}</span>
+  <span class="effect-source">{{localize "SWADE.ActiveEffects.Source"}}</span>
+  <span class="effect-controls">
+  </span>
+</div>
+<ul class="effects-list">
+  {{#each sheetEffects.permanent}}{{> effectPartial effect=this}}{{/each}}
+</ul>

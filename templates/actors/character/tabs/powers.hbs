@@ -1,0 +1,130 @@
+{{#*inline "powerEntry"}}
+  <li class="power item" data-item-id="{{id}}">
+    <details data-collapsible-id="{{concat type "-" id}}">
+      <summary class="power-header">
+        <button type="button" class="item-img item-show" style="background-image: url('{{img}}');" title="{{localize 'SWADE.ShowInChat'}}"></button>
+        <a class="name item-name" title="{{localize "SWADE.ExpandDescription"}}">{{name}}</a>
+        <div class="item-controls">
+          {{#if isOwner}}
+          <button
+            type="button"
+            class="item-toggle {{#unless system.favorite}}item-unequipped{{/unless}}"
+            data-toggle="system.favorite"
+            title="{{localize (ifThen system.favorite "SWADE.Unfavorite" "SWADE.Favorite")}}"
+          >
+            <i class="fas fa-star"></i>
+          </button>
+          <button type="button" class="item-edit" title="{{localize 'SWADE.Ed'}}">
+            <i class="fas fa-edit"></i>
+          </button>
+          {{/if}}
+        </div>
+      </summary>
+      <span class="content">
+        <span class="power-details">
+          {{#if system.rank}}<span>{{system.rank}}</span>{{/if}}
+          <span>{{localize "SWADE.PP"}}:&nbsp;{{system.pp}}</span>
+          <span>{{localize "SWADE.Range._name"}}:&nbsp;{{system.range}}</span>
+          <span>{{localize "SWADE.Dur"}}:&nbsp;{{system.duration}}</span>
+          {{#if system.ap}}<span>{{localize "SWADE.Ap"}}:&nbsp;{{system.ap}}</span>{{/if}}
+        </span>
+        <div class="trapping">
+          {{localize "SWADE.Trapping"}}:&nbsp;{{system.trapping}}
+        </div>
+        <div class="description"><p>{{localize 'SWADE.NoDescription'}}</p></div>
+        {{> "swade.npc-action-card" item=this powersTab=true}}
+      </span>
+    </details>
+  </li>
+{{/inline}}
+
+<span class="powers">
+  <div class="section-header">
+    <button type="button" class="item-create controls" data-type="power">
+      <i class="fa fa-plus"></i>
+      {{localize "SWADE.Add"}} {{localize "TYPES.Item.power"}}
+    </button>
+  </div>
+  {{#if powers.showGeneral}}
+  <header class="section-header">
+    <span class="name">{{localize "SWADE.General"}}</span>
+    {{#unless settingrules.noPowerPoints}}
+    <span class="pp-counter controls">
+       <span class="pp-label" data-arcane="general">{{localize "SWADE.PPAbbreviation"}}</span>:&nbsp;
+      <label>
+        <span class="sr-only">{{localize "SWADE.CurPP"}}</span>
+        <input
+          type="number"
+          name="system.powerPoints.general.value"
+          value="{{actor.system.powerPoints.general.value}}"
+        />
+      </label>
+      /
+      <label>
+        <span class="sr-only">{{localize "SWADE.CurPP"}}</span>
+        <input
+          type="number"
+          name="system.powerPoints.general.max"
+          value="{{actor.system.powerPoints.general.max}}"
+        />
+      </label>    
+      <button 
+      type="button" 
+      class="adjust-counter" 
+      data-action="pp-refresh" 
+      data-arcane="general" 
+      data-tooltip="{{localize "SWADE.RefreshPP"}}"
+      >
+        <i class="fa-solid fa-arrows-rotate"></i>
+      </button>
+    </span>
+    {{/unless}}
+  </header>
+  {{/if}}
+  {{#if powers.hasPowersWithoutArcane}}
+    <ul>
+      {{#each powers.arcaneBackgrounds.general.powers}}
+      {{> powerEntry}}
+      {{/each}}
+    </ul>
+  {{/if}} 
+  {{#each powers.arcaneBackgrounds as |background key|}}
+    {{#unless (eq key "general")}}
+      <header class="section-header">
+        <span class="name">{{key}}</span>
+        {{#unless @root.settingrules.noPowerPoints}}
+        <span class="pp-counter controls">
+          <span class="pp-label" data-arcane="{{key}}">{{localize "SWADE.PPAbbreviation"}}</span>:&nbsp;
+          <label>
+            <span class="sr-only">{{localize "SWADE.CurPP"}}</span>
+            <input
+              type="number"
+              name="{{background.valuePath}}"
+              value="{{background.value}}"
+            />
+          </label>
+          /
+          <label>
+            <span class="sr-only">{{localize "SWADE.MaxPP"}}</span>
+            <input type="number" name="{{background.maxPath}}" value="{{background.max}}" />
+          </label>    
+          <button 
+            type="button" 
+            class="adjust-counter" 
+            data-action="pp-refresh" 
+            data-arcane="{{key}}"  
+            data-tooltip="{{localize "SWADE.RefreshPP"}}"
+          >
+            <i class="fa-solid fa-arrows-rotate"></i>
+          </button>
+        </span>
+        {{/unless}}
+      </header>
+      <ul>
+        {{#each background.powers}}
+          {{> powerEntry}}
+        {{/each}}
+      </ul>
+    {{/unless}}
+  {{/each}}
+</span>

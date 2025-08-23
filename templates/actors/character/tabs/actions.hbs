@@ -1,0 +1,64 @@
+<section class='inventory'>
+  <header class='header misc'>
+    <span class='header-name'>{{localize 'SWADE.Actions.Name'}}</span>
+    <span class='item-controls'>
+      <button type='button' class='item-create' data-type='action'>
+        <i class='fa fa-plus'></i>{{localize 'SWADE.Add'}}
+      </button>
+    </span>
+  </header>
+  <ul>
+    {{#each itemTypes.action}}
+      <li class='item action' data-item-id='{{id}}'>
+        <details data-collapsible-id='{{concat type "-" id}}'>
+          <summary class='item-wrapper action'>
+            <button
+              type='button'
+              class='item-img item-show'
+              style="background-image: url('{{img}}');"
+              title='{{localize "SWADE.ShowInChat"}}'
+            /></button>
+            <a
+              class='name item-name'
+              title='{{localize "SWADE.ExpandDescription"}}'
+            >
+              {{name}}
+            </a>
+            <span class='item-controls'>
+              {{#if isOwner}}
+                <button
+                  type='button'
+                  class='item-toggle'
+                  data-toggle='system.favorite'
+                  title='{{localize (ifThen system.favorite "SWADE.Unfavorite" "SWADE.Favorite")}}'
+                >
+                  {{#if system.favorite}}
+                    <i class='fas fa-star'></i>
+                  {{else}}
+                    <i class='fas fa-star item-unequipped'></i>
+                  {{/if}}
+                </button>
+                <button
+                  type='button'
+                  class='item-edit'
+                  title='{{localize "SWADE.Ed"}}'
+                >
+                  <i class='fas fa-edit'></i>
+                </button>
+                <button
+                  type='button'
+                  class='item-delete'
+                  title='{{localize "SWADE.Del"}}'
+                >
+                  <i class='fas fa-trash'></i>
+                </button>
+              {{/if}}
+            </span>
+          </summary>
+          <div class='content description'><p>{{localize 'SWADE.NoDescription'}}</p></div>
+        </details>
+      </li>
+    {{/each}}
+  </ul>
+</section>
+
