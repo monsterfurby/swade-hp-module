@@ -64,13 +64,8 @@ class SWADEHPSystem {
                             hitDie: 0
                         };
                         
-                        // Persist the HP data structure to the actor's underlying data
-                        // This ensures the data survives page refreshes
-                        this.update({
-                            'system.hitPoints': this.system.hitPoints
-                        }, { render: false }).catch(error => {
-                            console.error('SWADE HP Module: Failed to persist HP data structure:', error);
-                        });
+                        // HP data structure created - will be persisted when form is submitted
+                        console.log('SWADE HP Module: HP data structure created for:', this.name);
                     }
                 }
                 
@@ -95,6 +90,17 @@ class SWADEHPSystem {
         
         // Hook into advance system
         Hooks.on('preUpdateActor', this.onAdvanceCheck.bind(this));
+        
+        // Debug: Monitor actor updates to see if HP data is being included
+        Hooks.on('preUpdateActor', (actor, changeData, options, userId) => {
+            if (actor.type === 'character') {
+                console.log('SWADE HP Module: Actor update detected:', {
+                    actorName: actor.name,
+                    changeData: changeData,
+                    hasHPData: !!changeData.system?.hitPoints
+                });
+            }
+        });
         
         // Register custom sheet after a delay
         setTimeout(async () => {
@@ -363,23 +369,44 @@ class SWADEHPSystem {
             activateListeners(html) {
                 super.activateListeners(html);
                 
-                // Find HP input elements
+                // Debug: Check if our HP inputs are being found
                 const hpCurrentInput = html.find('input[name="system.hitPoints.current"]');
                 const hpMaxInput = html.find('input[name="system.hitPoints.max"]');
                 
-                // Add event listeners for HP inputs
-                if (hpCurrentInput.length > 0) {
-                    hpCurrentInput.on('change', (event) => {
-                        const newValue = parseInt(event.target.value) || 0;
-                        this.actor.update({ 'system.hitPoints.current': newValue });
-                    });
-                }
+                console.log('SWADE HP Module: Found HP inputs:', {
+                    current: hpCurrentInput.length,
+                    max: hpMaxInput.length,
+                    currentValue: hpCurrentInput.val(),
+                    maxValue: hpMaxInput.val()
+                });
                 
-                if (hpMaxInput.length > 0) {
-                    hpMaxInput.on('change', (event) => {
-                        const newValue = parseInt(event.target.value) || 0;
-                        this.actor.update({ 'system.hitPoints.max': newValue });
+                // Add form submission debugging
+                const form = html.find('form');
+                if (form.length > 0) {
+                    form.on('submit', (event) => {
+                        console.log('SWADE HP Module: Form submission detected');
+                        const formData = new FormData(event.target);
+                        const hpCurrent = formData.get('system.hitPoints.current');
+                        const hpMax = formData.get('system.hitPoints.max');
+                        console.log('SWADE HP Module: Form data includes HP:', {
+                            current: hpCurrent,
+                            max: hpMax
+                        });
                     });
+                    
+                    // Test: Add a button to manually trigger form submission
+                    const testButton = $('<button type="button" style="position: absolute; top: 10px; right: 10px; z-index: 1000; background: red; color: white; padding: 5px;">Test Form</button>');
+                    testButton.on('click', () => {
+                        console.log('SWADE HP Module: Manual form submission test');
+                        const formData = new FormData(form[0]);
+                        const hpCurrent = formData.get('system.hitPoints.current');
+                        const hpMax = formData.get('system.hitPoints.max');
+                        console.log('SWADE HP Module: Manual form data includes HP:', {
+                            current: hpCurrent,
+                            max: hpMax
+                        });
+                    });
+                    html.append(testButton);
                 }
             }
 
