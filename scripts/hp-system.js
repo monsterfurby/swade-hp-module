@@ -53,9 +53,9 @@ class SWADEHPSystem {
         Hooks.on('preUpdateActor', this.onAdvanceCheck.bind(this));
         
         // Register custom sheet after a delay (since we're already in the ready hook)
-        setTimeout(() => {
+        setTimeout(async () => {
             console.log('SWADE HP Module: Attempting to register custom sheet...');
-            this.registerCustomSheet();
+            await this.registerCustomSheet();
         }, 1000); // Wait 1 second to ensure everything is loaded
         
         // Initialize HP for existing characters
@@ -88,7 +88,7 @@ class SWADEHPSystem {
             });
     }
 
-    waitForSWADE() {
+    async waitForSWADE() {
         // Enhanced detection - check multiple ways to find CharacterSheet (V13 + SWADE compatible)
         const detectCharacterSheet = () => {
             // Method 1: Check game.swade.sheets.CharacterSheet (SWADE v13 proper way)
@@ -130,14 +130,14 @@ class SWADEHPSystem {
         const existingSheet = detectCharacterSheet();
         if (existingSheet) {
             console.log('SWADE HP Module: CharacterSheet already available, registering immediately...');
-            this.registerCustomSheet(existingSheet);
+            await this.registerCustomSheet(existingSheet);
             return;
         }
 
         // If not ready, wait and check periodically
         console.log('SWADE HP Module: CharacterSheet not ready, waiting...');
         let checkCount = 0;
-        const checkInterval = setInterval(() => {
+        const checkInterval = setInterval(async () => {
             checkCount++;
             console.log(`SWADE HP Module: Checking if CharacterSheet is ready... (attempt ${checkCount})`);
             
@@ -145,17 +145,17 @@ class SWADEHPSystem {
             if (foundSheet) {
                 console.log('SWADE HP Module: CharacterSheet is now ready!');
                 clearInterval(checkInterval);
-                this.registerCustomSheet(foundSheet);
+                await this.registerCustomSheet(foundSheet);
             }
         }, 500); // Check every 500ms instead of 100ms
 
         // Also listen for the ready hook as backup
-        Hooks.once('ready', () => {
+        Hooks.once('ready', async () => {
             console.log('SWADE HP Module: ready hook fired!');
             const foundSheet = detectCharacterSheet();
             if (foundSheet) {
                 clearInterval(checkInterval);
-                this.registerCustomSheet(foundSheet);
+                await this.registerCustomSheet(foundSheet);
             }
         });
 
@@ -170,7 +170,7 @@ class SWADEHPSystem {
         }, 15000);
     }
 
-    registerCustomSheet(CharacterSheetClass = null) {
+    async registerCustomSheet(CharacterSheetClass = null) {
         console.log('SWADE HP Module: Starting custom sheet registration...');
         
         // Use provided class or try to find it using V13 + SWADE proper method
@@ -218,27 +218,21 @@ class SWADEHPSystem {
         console.log('SWADE HP Module: Attempting to fetch partial from:', partialPath);
         
         // Make this async and wait for completion
-        this.registerPartialAndCreateSheet(partialPath, BaseCharacterSheet);
+        await this.registerPartialAndCreateSheet(partialPath, BaseCharacterSheet);
     }
 
     async registerPartialAndCreateSheet(partialPath, BaseCharacterSheet) {
         try {
-            console.log('SWADE HP Module: Starting async partial registration...');
-            const response = await fetch(partialPath);
-            console.log('SWADE HP Module: Partial fetch response status:', response.status);
-            console.log('SWADE HP Module: Partial fetch response ok:', response.ok);
-            console.log('SWADE HP Module: Partial fetch response url:', response.url);
+            console.log('SWADE HP Module: Starting proper template registration using Foundry VTT v13 method...');
             
-            if (!response.ok) {
-                throw new Error(`Failed to fetch partial: ${response.status} ${response.statusText} from ${response.url}`);
-            }
+            // Use Foundry VTT v13's proper template loading system (same as SWADE)
+            const templatePaths = {
+                'swade-hp-module.character-tab-summary': 'modules/swade-hp-module/templates/actors/character/tabs/summary.hbs'
+            };
             
-            const template = await response.text();
-            console.log('SWADE HP Module: Partial template content length:', template.length);
-            console.log('SWADE HP Module: Partial template preview:', template.substring(0, 200));
-            
-            Handlebars.registerPartial('swade-hp-module.character-tab-summary', template);
-            console.log('SWADE HP Module: Successfully registered character-tab-summary partial');
+            console.log('SWADE HP Module: Loading templates with foundry.applications.handlebars.loadTemplates...');
+            await foundry.applications.handlebars.loadTemplates(templatePaths);
+            console.log('SWADE HP Module: Successfully loaded templates using Foundry VTT v13 method');
             
             // Verify registration
             const registered = Handlebars.partials['swade-hp-module.character-tab-summary'];
