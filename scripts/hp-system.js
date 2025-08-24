@@ -352,9 +352,21 @@ class SWADEHPSystem {
                             }
                         });
                     }
+                    
+                    // Add HP data to the main data object for template access
+                    data.hitPoints = data.actor.system.hitPoints;
+                    console.log('SWADE HP Module: Added HP data to template data:', data.hitPoints);
                 } else {
                     console.warn('SWADE HP Module: Actor or system data not available in getData()');
                     console.log('SWADE HP Module: Data structure:', data);
+                }
+                
+                // Final check - log what we're returning
+                console.log('SWADE HP Module: Final data object keys:', Object.keys(data));
+                if (data.hitPoints) {
+                    console.log('SWADE HP Module: HP data in final data object:', data.hitPoints);
+                } else {
+                    console.log('SWADE HP Module: No HP data in final data object');
                 }
                 
                 return data;
