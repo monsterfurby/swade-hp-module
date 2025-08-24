@@ -417,6 +417,11 @@ class SWADEHPSystem {
                 } else {
                     console.warn('SWADE HP Module: Actor or system data not available in getData()');
                     console.log('SWADE HP Module: Data structure:', data);
+                    console.log('SWADE HP Module: data.actor exists:', !!data.actor);
+                    if (data.actor) {
+                        console.log('SWADE HP Module: data.actor.system exists:', !!data.actor.system);
+                        console.log('SWADE HP Module: data.actor keys:', Object.keys(data.actor));
+                    }
                 }
                 
                 // Final check - log what we're returning
@@ -426,6 +431,17 @@ class SWADEHPSystem {
                 } else {
                     console.log('SWADE HP Module: No HP data in final data object');
                 }
+                
+                // Debug: Check what we have before HP values logging
+                console.log('SWADE HP Module: === PRE-HP VALUES DEBUG ===');
+                console.log('SWADE HP Module: this.actor exists:', !!this.actor);
+                console.log('SWADE HP Module: this.actor.system exists:', !!this.actor?.system);
+                console.log('SWADE HP Module: this.actor.system.hitPoints exists:', !!this.actor?.system?.hitPoints);
+                console.log('SWADE HP Module: data.hitPoints exists:', !!data.hitPoints);
+                console.log('SWADE HP Module: data.actor exists:', !!data.actor);
+                console.log('SWADE HP Module: data.actor.system exists:', !!data.actor?.system);
+                console.log('SWADE HP Module: data.actor.system.hitPoints exists:', !!data.actor?.system?.hitPoints);
+                console.log('SWADE HP Module: === END PRE-HP VALUES DEBUG ===');
                 
                 // Log HP values when sheet opens
                 console.log('SWADE HP Module: === SHEET OPENING HP VALUES ===');
