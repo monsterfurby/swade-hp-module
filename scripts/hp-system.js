@@ -377,23 +377,35 @@ class SWADEHPSystem {
                 
                 // Ensure actor and system data exist before accessing
                 if (data.actor && data.actor.system) {
+                    console.log('SWADE HP Module: Actor and system data found');
+                    console.log('SWADE HP Module: Actor system keys:', Object.keys(data.actor.system));
+                    
                     // First, ensure the actor's actual system data has the HP structure
                     if (!this.actor.system.hitPoints) {
                         console.log('SWADE HP Module: Creating HP data structure on actor');
-                        await this.actor.update({
-                            'system.hitPoints': {
-                                current: 0,
-                                max: 0,
-                                hitDie: 0
-                            }
-                        });
-                        console.log('SWADE HP Module: HP data structure created on actor');
+                        try {
+                            await this.actor.update({
+                                'system.hitPoints': {
+                                    current: 0,
+                                    max: 0,
+                                    hitDie: 0
+                                }
+                            });
+                            console.log('SWADE HP Module: HP data structure created on actor');
+                        } catch (error) {
+                            console.error('SWADE HP Module: Failed to create HP data structure on actor:', error);
+                        }
+                    } else {
+                        console.log('SWADE HP Module: HP data structure already exists on actor:', this.actor.system.hitPoints);
                     }
                     
                     // Now ensure the template data has the HP data
                     if (!data.actor.system.hitPoints) {
+                        console.log('SWADE HP Module: Creating HP data structure in template data');
                         data.actor.system.hitPoints = { current: 0, max: 0, hitDie: 0 };
                         console.log('SWADE HP Module: Created HP data structure in template data');
+                    } else {
+                        console.log('SWADE HP Module: HP data structure already exists in template data:', data.actor.system.hitPoints);
                     }
                     
                     console.log('SWADE HP Module: HP data available:', data.actor.system.hitPoints);
@@ -417,10 +429,13 @@ class SWADEHPSystem {
                 
                 // Log HP values when sheet opens
                 console.log('SWADE HP Module: === SHEET OPENING HP VALUES ===');
-                console.log('SWADE HP Module: Actor system HP current:', this.actor.system.hitPoints?.current);
-                console.log('SWADE HP Module: Actor system HP max:', this.actor.system.hitPoints?.max);
-                console.log('SWADE HP Module: Template data HP current:', data.hitPoints?.current);
-                console.log('SWADE HP Module: Template data HP max:', data.hitPoints?.max);
+                console.log('SWADE HP Module: Looking for HP data in the following locations:');
+                console.log('SWADE HP Module: 1. this.actor.system.hitPoints.current:', this.actor.system.hitPoints?.current);
+                console.log('SWADE HP Module: 2. this.actor.system.hitPoints.max:', this.actor.system.hitPoints?.max);
+                console.log('SWADE HP Module: 3. data.hitPoints.current:', data.hitPoints?.current);
+                console.log('SWADE HP Module: 4. data.hitPoints.max:', data.hitPoints?.max);
+                console.log('SWADE HP Module: 5. data.actor.system.hitPoints.current:', data.actor?.system?.hitPoints?.current);
+                console.log('SWADE HP Module: 6. data.actor.system.hitPoints.max:', data.actor?.system?.hitPoints?.max);
                 console.log('SWADE HP Module: === END SHEET OPENING HP VALUES ===');
                 
                 // Additional debugging for HP data structure
@@ -437,10 +452,10 @@ class SWADEHPSystem {
 
 
             activateListeners(html) {
+                console.log('SWADE HP Module: === ACTIVATE LISTENERS METHOD ENTERED ===');
+                console.log('SWADE HP Module: Activating listeners for custom sheet');
+                
                 try {
-                    console.log('SWADE HP Module: === ACTIVATE LISTENERS METHOD ENTERED ===');
-                    console.log('SWADE HP Module: Activating listeners for custom sheet');
-                    
                     console.log('SWADE HP Module: Method entry - html parameter received:', !!html);
                     console.log('SWADE HP Module: Method entry - html type:', typeof html);
                     console.log('SWADE HP Module: Method entry - this context:', !!this);
