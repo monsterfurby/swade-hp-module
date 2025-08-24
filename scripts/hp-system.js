@@ -13,28 +13,23 @@ class SWADEHPSystem {
     }
 
     init() {
-        console.log('SWADE HP Module: Initializing...');
+        console.log('SWADE HP Module: Initializing with MITM approach...');
         
         // Register module settings
         this.registerSettings();
         console.log('SWADE HP Module: Settings registered');
         
-        // Extend SWADE's data schema to include HP data structure
+        // Implement Man-in-the-Middle approach for data injection
         this.extendDataSchema();
-        console.log('SWADE HP Module: Data schema extended');
+        console.log('SWADE HP Module: MITM approach implemented');
         
         // Hook into SWADE system
         this.setupHooks();
         console.log('SWADE HP Module: Hooks set up');
         
-        // Initialize HP for existing actors
+        // Initialize HP for existing actors (backup approach)
         this.initializeExistingActors();
         console.log('SWADE HP Module: Initialization complete');
-        
-        // Ensure HP data structure exists for all existing characters after a delay
-        setTimeout(() => {
-            this.ensureAllActorsHaveHPData();
-        }, 2000); // Wait 2 seconds to ensure everything is loaded
     }
 
     registerSettings() {
@@ -49,37 +44,32 @@ class SWADEHPSystem {
     }
 
     extendDataSchema() {
-        console.log('SWADE HP Module: Extending SWADE data schema...');
+        console.log('SWADE HP Module: Implementing Man-in-the-Middle approach...');
         
-        // Extend the SWADE actor data schema to include HP data structure
+        // Implement Man-in-the-Middle interception of SWADE's prepareData
         if (game.swade && game.swade.Actor) {
-            // Extend the actor data schema
             const originalPrepareData = game.swade.Actor.prototype.prepareData;
+            
             game.swade.Actor.prototype.prepareData = function() {
-                // Call the original method
+                // Call SWADE's original prepareData first
                 const result = originalPrepareData.call(this);
                 
-                // Ensure HP data structure exists in the system data
+                // Now inject our HP data AFTER SWADE has done its work
                 if (this.type === 'character' && game.settings.get('swade-hp-module', 'enableHP')) {
                     if (!this.system.hitPoints) {
-                        console.log('SWADE HP Module: Creating HP data structure in prepareData for:', this.name);
+                        console.log('SWADE HP Module: Creating HP data structure via MITM for:', this.name);
                         this.system.hitPoints = {
                             current: 0,
                             max: 0,
                             hitDie: 0
                         };
                         
-                        // Also update the actor to persist the data
+                        // Persist the HP data structure to the actor's underlying data
+                        // This ensures the data survives page refreshes
                         this.update({
-                            'system.hitPoints': {
-                                current: 0,
-                                max: 0,
-                                hitDie: 0
-                            }
-                        }).then(() => {
-                            console.log('SWADE HP Module: Successfully persisted HP data structure for:', this.name);
-                        }).catch(error => {
-                            console.error('SWADE HP Module: Failed to persist HP data structure for:', this.name, error);
+                            'system.hitPoints': this.system.hitPoints
+                        }, { render: false }).catch(error => {
+                            console.error('SWADE HP Module: Failed to persist HP data structure:', error);
                         });
                     }
                 }
@@ -87,9 +77,9 @@ class SWADEHPSystem {
                 return result;
             };
             
-            console.log('SWADE HP Module: Successfully extended SWADE actor data schema');
+            console.log('SWADE HP Module: Successfully implemented Man-in-the-Middle approach');
         } else {
-            console.warn('SWADE HP Module: Could not extend data schema - SWADE Actor not found');
+            console.warn('SWADE HP Module: Could not implement MITM - SWADE Actor not found');
         }
     }
 
@@ -99,24 +89,18 @@ class SWADEHPSystem {
         // Register Handlebars partials
         this.registerPartials();
         
-        // Hook into actor creation and updates (only once each)
+        // Hook into actor creation and updates
         Hooks.on('preCreateActor', this.onPreCreateActor.bind(this));
         Hooks.on('preUpdateActor', this.onPreUpdateActor.bind(this));
         
         // Hook into advance system
         Hooks.on('preUpdateActor', this.onAdvanceCheck.bind(this));
         
-        // Register custom sheet after a delay (since we're already in the ready hook)
+        // Register custom sheet after a delay
         setTimeout(async () => {
             console.log('SWADE HP Module: Attempting to register custom sheet...');
             await this.registerCustomSheet();
         }, 1000); // Wait 1 second to ensure everything is loaded
-        
-        // Initialize HP for existing characters
-        this.initializeExistingActors();
-        
-        // Ensure HP data structure exists for all existing characters
-        this.ensureAllActorsHaveHPData();
     }
 
     registerPartials() {
@@ -697,12 +681,6 @@ Hooks.once('ready', () => {
     console.log('SWADE HP Module: Ready hook fired, initializing module...');
     const system = new SWADEHPSystem();
     system.init();
-    
-    // Additional initialization after a delay to ensure everything is loaded
-    setTimeout(() => {
-        console.log('SWADE HP Module: Running delayed initialization...');
-        system.ensureAllActorsHaveHPData();
-    }, 3000); // Wait 3 seconds to ensure everything is loaded
 });
 
 // Export for potential use by other modules
