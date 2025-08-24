@@ -28,6 +28,8 @@
     </header>
   <div class='wounds'>
     <span class='values'>
+      <!-- Debug: Current HP value is: {{actor.system.hitPoints.current}} -->
+      <!-- Debug: Max HP value is: {{actor.system.hitPoints.max}} -->
       <input
         type='number'
         min='0'
@@ -35,6 +37,7 @@
         value='{{actor.system.hitPoints.current}}'
         data-dtype='Number'
         placeholder='0'
+        style='border: 2px solid red;'
       />/<input
         type='number'
         min='0'
@@ -42,6 +45,7 @@
         value='{{actor.system.hitPoints.max}}'
         data-dtype='Number'
         placeholder='0'
+        style='border: 2px solid red;'
       />
     </span>
   </div>

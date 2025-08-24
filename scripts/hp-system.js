@@ -56,6 +56,7 @@ class SWADEHPSystem {
                 
                 // Now inject our HP data AFTER SWADE has done its work
                 if (this.type === 'character' && game.settings.get('swade-hp-module', 'enableHP')) {
+                    console.log('SWADE HP Module: Checking HP data for:', this.name, 'Current data:', this.system.hitPoints);
                     if (!this.system.hitPoints) {
                         console.log('SWADE HP Module: Creating HP data structure via MITM for:', this.name);
                         this.system.hitPoints = {
@@ -65,7 +66,9 @@ class SWADEHPSystem {
                         };
                         
                         // HP data structure created - will be persisted when form is submitted
-                        console.log('SWADE HP Module: HP data structure created for:', this.name);
+                        console.log('SWADE HP Module: HP data structure created for:', this.name, 'Data:', this.system.hitPoints);
+                    } else {
+                        console.log('SWADE HP Module: HP data structure already exists for:', this.name, 'Data:', this.system.hitPoints);
                     }
                 }
                 
@@ -350,6 +353,14 @@ class SWADEHPSystem {
             async getData() {
                 const data = await super.getData();
                 
+                console.log('SWADE HP Module: getData called, actor data:', {
+                    actorName: data.actor?.name,
+                    hasSystem: !!data.actor?.system,
+                    hasHitPoints: !!data.actor?.system?.hitPoints,
+                    hitPointsData: data.actor?.system?.hitPoints,
+                    fullActorSystem: data.actor?.system
+                });
+                
                 // Ensure HP data structure exists in template data (following SWADE's pattern)
                 if (data.actor && data.actor.system) {
                     if (!data.actor.system.hitPoints) {
@@ -358,6 +369,9 @@ class SWADEHPSystem {
                             max: 0,
                             hitDie: 0
                         };
+                        console.log('SWADE HP Module: Created HP data in getData');
+                    } else {
+                        console.log('SWADE HP Module: HP data already exists in getData:', data.actor.system.hitPoints);
                     }
                 }
                 
