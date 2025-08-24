@@ -304,6 +304,33 @@ class SWADEHPSystem {
                 console.log('SWADE HP Module: Default options template:', this.constructor.defaultOptions.template);
                 const data = await super.getData();
                 
+                // Comprehensive debug dump of the entire data structure
+                console.log('SWADE HP Module: === COMPLETE DATA STRUCTURE DUMP ===');
+                console.log('SWADE HP Module: Full data object:', data);
+                console.log('SWADE HP Module: Data keys:', Object.keys(data));
+                
+                if (data.actor) {
+                    console.log('SWADE HP Module: Actor object:', data.actor);
+                    console.log('SWADE HP Module: Actor keys:', Object.keys(data.actor));
+                    
+                    if (data.actor.system) {
+                        console.log('SWADE HP Module: Actor system object:', data.actor.system);
+                        console.log('SWADE HP Module: Actor system keys:', Object.keys(data.actor.system));
+                        
+                        // Check for existing HP data
+                        if (data.actor.system.hitPoints) {
+                            console.log('SWADE HP Module: Existing HP data found:', data.actor.system.hitPoints);
+                        } else {
+                            console.log('SWADE HP Module: No existing HP data found in system');
+                        }
+                    } else {
+                        console.log('SWADE HP Module: No actor.system found');
+                    }
+                } else {
+                    console.log('SWADE HP Module: No actor found in data');
+                }
+                console.log('SWADE HP Module: === END DATA STRUCTURE DUMP ===');
+                
                 // Ensure actor and system data exist before accessing
                 if (data.actor && data.actor.system) {
                     // Ensure HP data is available
@@ -337,6 +364,9 @@ class SWADEHPSystem {
 
             activateListeners(html) {
                 console.log('SWADE HP Module: Activating listeners for custom sheet');
+                console.log('SWADE HP Module: Method entry - html parameter received:', !!html);
+                console.log('SWADE HP Module: Method entry - html type:', typeof html);
+                console.log('SWADE HP Module: Method entry - this context:', !!this);
                 
                 try {
                     console.log('SWADE HP Module: About to call super.activateListeners...');
@@ -344,6 +374,7 @@ class SWADEHPSystem {
                     console.log('SWADE HP Module: Successfully called super.activateListeners');
                 } catch (error) {
                     console.error('SWADE HP Module: Error in super.activateListeners:', error);
+                    console.error('SWADE HP Module: Error stack:', error.stack);
                 }
                 
                 try {
@@ -392,7 +423,10 @@ class SWADEHPSystem {
                     console.log('SWADE HP Module: Form debugging completed');
                 } catch (error) {
                     console.error('SWADE HP Module: Error in form debugging section:', error);
+                    console.error('SWADE HP Module: Error stack:', error.stack);
                 }
+                
+                console.log('SWADE HP Module: activateListeners method completed');
             }
 
             async _onHPDecrease(event) {
