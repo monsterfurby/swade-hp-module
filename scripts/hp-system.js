@@ -316,49 +316,7 @@ class SWADEHPSystem {
                 return data;
             }
 
-            async _onSubmit(event) {
-                console.log('SWADE HP Module: _onSubmit called');
-                
-                // Ensure HP data structure exists before form submission
-                if (this.actor && this.actor.system && !this.actor.system.hitPoints) {
-                    console.log('SWADE HP Module: Creating HP data structure before form submission');
-                    await this.actor.update({
-                        'system.hitPoints': {
-                            current: 0,
-                            max: 0,
-                            hitDie: 0
-                        }
-                    });
-                }
-                
-                // Get form data and check HP values
-                const formData = new FormData(event.target);
-                const currentHP = parseInt(formData.get('system.hitPoints.current')) || 0;
-                const maxHP = parseInt(formData.get('system.hitPoints.max')) || 0;
-                
-                console.log('SWADE HP Module: Form data - Current HP:', currentHP, 'Max HP:', maxHP);
-                
-                // Call the parent _onSubmit method
-                const result = await super._onSubmit(event);
-                
-                // Verify the update worked
-                const updatedCurrentHP = this.actor.system.hitPoints?.current || 0;
-                const updatedMaxHP = this.actor.system.hitPoints?.max || 0;
-                
-                console.log('SWADE HP Module: After update - Current HP:', updatedCurrentHP, 'Max HP:', updatedMaxHP);
-                
-                if (updatedCurrentHP !== currentHP) {
-                    console.error(`SWADE HP Module: Current HP update failed! Expected ${currentHP}, got ${updatedCurrentHP}`);
-                    ui.notifications.error(`Failed to save current HP. Expected ${currentHP}, got ${updatedCurrentHP}`);
-                }
-                
-                if (updatedMaxHP !== maxHP) {
-                    console.error(`SWADE HP Module: Max HP update failed! Expected ${maxHP}, got ${updatedMaxHP}`);
-                    ui.notifications.error(`Failed to save max HP. Expected ${maxHP}, got ${updatedMaxHP}`);
-                }
-                
-                return result;
-            }
+
 
             activateListeners(html) {
                 console.log('SWADE HP Module: Activating listeners for custom sheet');
