@@ -375,6 +375,15 @@ class SWADEHPSystem {
                 }
                 console.log('SWADE HP Module: === END DATA STRUCTURE DUMP ===');
                 
+                // Debug: Check what we have before HP data structure creation
+                console.log('SWADE HP Module: === PRE-HP DATA STRUCTURE CREATION DEBUG ===');
+                console.log('SWADE HP Module: data.actor exists:', !!data.actor);
+                console.log('SWADE HP Module: data.actor.system exists:', !!data.actor?.system);
+                console.log('SWADE HP Module: this.actor exists:', !!this.actor);
+                console.log('SWADE HP Module: this.actor.system exists:', !!this.actor?.system);
+                console.log('SWADE HP Module: this.actor.system.hitPoints exists:', !!this.actor?.system?.hitPoints);
+                console.log('SWADE HP Module: === END PRE-HP DATA STRUCTURE CREATION DEBUG ===');
+                
                 // Ensure actor and system data exist before accessing
                 if (data.actor && data.actor.system) {
                     console.log('SWADE HP Module: Actor and system data found');
