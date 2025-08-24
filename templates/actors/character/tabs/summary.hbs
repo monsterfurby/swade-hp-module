@@ -21,8 +21,7 @@
   </div>
 </div>
 
-{{!-- HP System - inserted between Fatigue and Wounds --}}
-<div class='hp-wrapper'>
+<div class='wounds-wrapper'>
   <header class='counter-header'>
     <button type='button' class='adjust-counter' data-action='hp-minus'>
       <i class='fa-solid fa-minus fa-lg'></i>
@@ -32,7 +31,7 @@
       <i class='fa-solid fa-plus fa-lg'></i>
     </button>
   </header>
-  <div class='hp'>
+  <div class='wounds'>
     <span class='values'>
       <input
         type='number'
@@ -47,29 +46,6 @@
         value='{{actor.system.hitPoints.max}}'
         data-dtype='Number'
       />
-    </span>
-  </div>
-</div>
-
-<div class='wounds-wrapper'>
-  <header class='counter-header'>
-    <button type='button' class='adjust-counter' data-action='wounds-minus'>
-      <i class='fa-solid fa-minus fa-lg'></i>
-    </button>
-    <span class='label'>{{localize 'SWADE.Wounds'}}</span>
-    <button type='button' class='adjust-counter' data-action='wounds-plus'>
-      <i class='fa-solid fa-plus fa-lg'></i>
-    </button>
-  </header>
-  <div class='wounds'>
-    <span class='values'>
-      <input
-        type='number'
-        min='0'
-        name='system.wounds.value'
-        value='{{actor.system.wounds.value}}'
-        data-dtype='Number'
-      />/{{actor.system.wounds.max}}
     </span>
   </div>
 </div>
@@ -245,6 +221,18 @@
           data-tooltip='{{armorTooltip}}'
         >
           {{actor.system.stats.toughness.armor}}
+        </button>
+      </span>
+    </div>
+    <div class='stat wounds'>
+      <span class='stat-label'>{{localize 'SWADE.Wounds'}}</span>
+      <span class='stat-value flexrow'>
+        <button type='button' class='adjust-counter' data-action='wounds-minus'>
+          <i class='fa-solid fa-minus fa-sm'></i>
+        </button>
+        <span class='wounds-display'>{{actor.system.wounds.value}}/{{actor.system.wounds.max}}</span>
+        <button type='button' class='adjust-counter' data-action='wounds-plus'>
+          <i class='fa-solid fa-plus fa-sm'></i>
         </button>
       </span>
     </div>

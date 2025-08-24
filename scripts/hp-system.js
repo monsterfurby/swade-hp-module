@@ -230,6 +230,10 @@ class SWADEHPSystem {
                 'swade-hp-module.character-tab-summary': 'modules/swade-hp-module/templates/actors/character/tabs/summary.hbs'
             };
             
+            console.log('SWADE HP Module: Template paths object:', templatePaths);
+            console.log('SWADE HP Module: foundry.applications.handlebars available:', !!foundry.applications.handlebars);
+            console.log('SWADE HP Module: loadTemplates method available:', !!foundry.applications.handlebars?.loadTemplates);
+            
             console.log('SWADE HP Module: Loading templates with foundry.applications.handlebars.loadTemplates...');
             await foundry.applications.handlebars.loadTemplates(templatePaths);
             console.log('SWADE HP Module: Successfully loaded templates using Foundry VTT v13 method');
