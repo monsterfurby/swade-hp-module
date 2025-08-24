@@ -19,6 +19,10 @@ class SWADEHPSystem {
         this.registerSettings();
         console.log('SWADE HP Module: Settings registered');
         
+        // Extend SWADE's data schema to include HP data structure
+        this.extendDataSchema();
+        console.log('SWADE HP Module: Data schema extended');
+        
         // Hook into SWADE system
         this.setupHooks();
         console.log('SWADE HP Module: Hooks set up');
@@ -37,6 +41,37 @@ class SWADEHPSystem {
             type: Boolean,
             default: true
         });
+    }
+
+    extendDataSchema() {
+        console.log('SWADE HP Module: Extending SWADE data schema...');
+        
+        // Extend the SWADE actor data schema to include HP data structure
+        if (game.swade && game.swade.Actor) {
+            // Extend the actor data schema
+            const originalPrepareData = game.swade.Actor.prototype.prepareData;
+            game.swade.Actor.prototype.prepareData = function() {
+                // Call the original method
+                const result = originalPrepareData.call(this);
+                
+                // Ensure HP data structure exists in the system data
+                if (this.type === 'character' && game.settings.get('swade-hp-module', 'enableHP')) {
+                    if (!this.system.hitPoints) {
+                        this.system.hitPoints = {
+                            current: 0,
+                            max: 0,
+                            hitDie: 0
+                        };
+                    }
+                }
+                
+                return result;
+            };
+            
+            console.log('SWADE HP Module: Successfully extended SWADE actor data schema');
+        } else {
+            console.warn('SWADE HP Module: Could not extend data schema - SWADE Actor not found');
+        }
     }
 
     setupHooks() {
