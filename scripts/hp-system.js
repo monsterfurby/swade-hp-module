@@ -312,6 +312,7 @@ class SWADEHPSystem {
                         console.log('SWADE HP Module: Created HP data structure in getData');
                     }
                     console.log('SWADE HP Module: HP data available:', data.actor.system.hitPoints);
+                    console.log('SWADE HP Module: Actor system data keys:', Object.keys(data.actor.system));
                     
                     // Also ensure the actor itself has the HP data
                     if (!this.actor.system.hitPoints) {
@@ -343,6 +344,18 @@ class SWADEHPSystem {
                 const hpMaxInput = html.find('input[name="system.hitPoints.max"]');
                 console.log('SWADE HP Module: HP inputs found:', hpCurrentInput.length, hpMaxInput.length);
                 
+                // Debug the form structure
+                const forms = html.find('form');
+                console.log('SWADE HP Module: Forms found:', forms.length);
+                forms.each((index, form) => {
+                    console.log(`SWADE HP Module: Form ${index}:`, form);
+                    const formInputs = $(form).find('input');
+                    console.log(`SWADE HP Module: Form ${index} inputs:`, formInputs.length);
+                    formInputs.each((i, input) => {
+                        console.log(`SWADE HP Module: Input ${i}:`, input.name, input.value);
+                    });
+                });
+                
                 // Add debugging for form submission
                 html.find('form').on('submit', (event) => {
                     console.log('SWADE HP Module: Form submit event detected');
@@ -355,6 +368,17 @@ class SWADEHPSystem {
                 // Add debugging for input changes
                 html.on('change', 'input[name="system.hitPoints.current"], input[name="system.hitPoints.max"]', (event) => {
                     console.log('SWADE HP Module: Input change detected:', event.target.name, event.target.value);
+                });
+                
+                // Check if HP inputs are inside a form
+                hpCurrentInput.each((index, input) => {
+                    const closestForm = $(input).closest('form');
+                    console.log(`SWADE HP Module: HP current input ${index} closest form:`, closestForm.length > 0 ? 'Found' : 'Not found');
+                });
+                
+                hpMaxInput.each((index, input) => {
+                    const closestForm = $(input).closest('form');
+                    console.log(`SWADE HP Module: HP max input ${index} closest form:`, closestForm.length > 0 ? 'Found' : 'Not found');
                 });
             }
 
