@@ -333,15 +333,7 @@ class SWADEHPSystem {
                 
                 // Ensure actor and system data exist before accessing
                 if (data.actor && data.actor.system) {
-                    // Ensure HP data is available
-                    if (!data.actor.system.hitPoints) {
-                        data.actor.system.hitPoints = { current: 0, max: 0, hitDie: 0 };
-                        console.log('SWADE HP Module: Created HP data structure in getData');
-                    }
-                    console.log('SWADE HP Module: HP data available:', data.actor.system.hitPoints);
-                    console.log('SWADE HP Module: Actor system data keys:', Object.keys(data.actor.system));
-                    
-                    // Also ensure the actor itself has the HP data
+                    // First, ensure the actor's actual system data has the HP structure
                     if (!this.actor.system.hitPoints) {
                         console.log('SWADE HP Module: Creating HP data structure on actor');
                         await this.actor.update({
@@ -351,7 +343,17 @@ class SWADEHPSystem {
                                 hitDie: 0
                             }
                         });
+                        console.log('SWADE HP Module: HP data structure created on actor');
                     }
+                    
+                    // Now ensure the template data has the HP data
+                    if (!data.actor.system.hitPoints) {
+                        data.actor.system.hitPoints = { current: 0, max: 0, hitDie: 0 };
+                        console.log('SWADE HP Module: Created HP data structure in template data');
+                    }
+                    
+                    console.log('SWADE HP Module: HP data available:', data.actor.system.hitPoints);
+                    console.log('SWADE HP Module: Actor system data keys:', Object.keys(data.actor.system));
                     
                     // Add HP data to the main data object for template access
                     data.hitPoints = data.actor.system.hitPoints;
