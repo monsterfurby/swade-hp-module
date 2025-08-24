@@ -1,527 +1,107 @@
-{{!-- SWADE HP MODULE CUSTOM TEMPLATE LOADED --}}
-<form
-  class="main-grid {{cssClass}}{{#if settingrules.conviction}} conviction-enabled{{/if}}"
-  autocomplete="off"
->
-  <figure class="grid-under gu-1"></figure>
-  <figure class="grid-under gu-2"></figure>
-  <figure class="grid-under gu-3"></figure>
-  <figure class="grid-under gu-4"></figure>
-  <div class="char-img-container">
-	  <img class="profile-img" src="{{actor.img}}" data-edit="img" alt="{{actor.name}}" title="{{localize 'SWADE.RightClickZoom'}}">
-	</div>
-  {{!-- Sheet Header --}}
-  <label class="gridcell charname-container">
-    <span class="sr-only">{{localize 'Name'}}</span>
-    <input
-      type="text"
-      name="name"
-      class="charname"
-      value="{{actor.name}}"
-      placeholder="{{localize 'Name'}}"
-      data-tooltip="{{actor.name}}"
-    />
-  </label>
-  <figure class="gridcell branding"></figure>
-  {{#if (and settingrules.conviction actor.isWildcard)}}
-  <div id="conviction" class="gridcell">
-    <button type="button" class="conviction-toggle">
-      <strong class="{{#if actor.system.details.conviction.active}}pulse{{/if}}">
-        {{~#if actor.system.details.conviction.active~}} {{localize
-        "SWADE.ConvictionActive"}} {{~else~}} {{localize "SWADE.Conv"}} {{/if}}
-      </strong>
-    </button>
-    <div>
-      <input
-        type="Number"
-        class="conviction-counter"
-        name="system.details.conviction.value"
-        value="{{actor.system.details.conviction.value}}"
-        class="character-detail"
-        data-dtype="Number"
-      />
-    </div>
-  </div>
-  {{/if}}
-  <span class="gridcell character-detail ancestry" data-tooltip="{{localize 'SWADE.Ancestry'}}">
-    <label class="sr-only">{{localize 'SWADE.Ancestry'}}</label>
-    {{#if actor.ancestry}}
-      <button type="button" data-item-id="{{actor.ancestry.id}}">{{actor.ancestry.name}}</button>
-   {{else}}
-      <input
-        type="text"
-        name="system.details.species.name"
-        value="{{actor.system.details.species.name}}"
-        placeholder="{{localize 'SWADE.Ancestry'}}"
-        data-tooltip="{{localize 'SWADE.Ancestry'}}"
-      >
-   {{/if}}
-  </span>
-  <span class="gridcell character-detail archetype" data-tooltip="SWADE.Archetype">
-    <label class="sr-only">{{localize 'SWADE.Archetype'}}</label>
-   {{#if actor.archetype}}
-      <button  type="button" data-item-id="{{actor.archetype.id}}" >{{actor.archetype.name}}</button>
-   {{else}}
-      <input
-        type="text"
-        name="system.details.archetype"
-        value="{{actor.system.details.archetype}}"
-        placeholder="{{localize 'SWADE.Archetype'}}"
-        data-tooltip="{{localize 'SWADE.Archetype'}}"
-      >
-   {{/if}}
-  </span>
-  <span class="gridcell character-detail rank" data-tooltip="SWADE.Rank">
-    <label class="sr-only">{{localize 'SWADE.Rank'}}</label>
-    <input
-      type="text"
-      name="system.advances.rank"
-      value="{{actor.system.advances.rank}}"
-      placeholder="{{localize 'SWADE.Rank'}}"
-      {{disabled advances.expanded}}
-    />
-  </span>
-  <span class="gridcell character-detail advances" data-tooltip="SWADE.Adv">
-    <a>{{localize 'SWADE.Adv'}}</a>
-    <input
-      type="number"
-      name="system.advances.value"
-      value="{{actor.system.advances.value}}"
-      {{disabled advances.expanded}}
-    />
-  </span>
+{{!-- SWADE HP MODULE CUSTOM CHARACTER SHEET --}}
+{{!-- This template includes the HP system integrated between Fatigue and Wounds --}}
 
-  {{!-- Sheet Tab Navigation --}}
-  <nav class="gridcell tabs" data-group="primary">
+<form class="{{cssClass}} flexcol" autocomplete="off">
+  {{!-- Sheet Header --}}
+  <header class="gridcell sheet-header">
+    {{!-- Character Image --}}
+    <img
+      class="profile-img"
+      src="{{actor.img}}"
+      data-edit="img"
+      title="{{actor.name}}"
+      alt="{{actor.name}}"
+    />
+
+    {{!-- Character Name and Details --}}
+    <div class="header-fields">
+      <h1 class="charname">
+        <input
+          name="name"
+          type="text"
+          value="{{actor.name}}"
+          placeholder="{{localize 'SWADE.CharName'}}"
+        />
+      </h1>
+
+      <div class="resource">
+        <label class="resource-label">{{localize 'SWADE.Concept'}}</label>
+        <input
+          type="text"
+          name="system.details.biography.concept"
+          value="{{actor.system.details.biography.concept}}"
+          data-dtype="String"
+        />
+      </div>
+
+      <div class="resource">
+        <label class="resource-label">{{localize 'SWADE.Race'}}</label>
+        <input
+          type="text"
+          name="system.details.species"
+          value="{{actor.system.details.species}}"
+          data-dtype="String"
+        />
+      </div>
+
+      <div class="resource">
+        <label class="resource-label">{{localize 'SWADE.Rank'}}</label>
+        <select name="system.details.biography.rank" data-dtype="String">
+          {{#select actor.system.details.biography.rank}}
+            <option value="Novice">{{localize 'SWADE.RankNovice'}}</option>
+            <option value="Seasoned">{{localize 'SWADE.RankSeasoned'}}</option>
+            <option value="Veteran">{{localize 'SWADE.RankVeteran'}}</option>
+            <option value="Heroic">{{localize 'SWADE.RankHeroic'}}</option>
+            <option value="Legendary">{{localize 'SWADE.RankLegendary'}}</option>
+          {{/select}}
+        </select>
+      </div>
+
+      <div class="resource">
+        <label class="resource-label">{{localize 'SWADE.Advances'}}</label>
+        <input
+          type="text"
+          name="system.advances.value"
+          value="{{actor.system.advances.value}}"
+          data-dtype="Number"
+        />
+      </div>
+    </div>
+
+    {{!-- Conviction --}}
+    {{#if hasConviction}}
+      <div class="conviction-wrapper">
+        <div class="conviction-counter">
+          <span class="conviction-label">{{localize 'SWADE.Conviction'}}</span>
+          <span class="conviction-value">{{actor.system.details.conviction.value}}</span>
+        </div>
+      </div>
+    {{/if}}
+  </header>
+
+  {{!-- Sheet Navigation --}}
+  <nav class="sheet-tabs tabs" data-group="primary">
     <a class="item" data-tab="summary" data-group="primary">{{localize "SWADE.Summary"}}</a>
-    <a class="item" data-tab="edges" data-group="primary">{{localize "SWADE.EdgesHindrances"}}</a>
-    <a class="item" data-tab="inventory" data-group="primary">{{localize "SWADE.Inv"}}</a>
+    <a class="item" data-tab="edges" data-group="primary">{{localize "SWADE.Edges"}}</a>
+    <a class="item" data-tab="inventory" data-group="primary">{{localize "SWADE.Inventory"}}</a>
     {{#if (or actor.hasPowers actor.hasArcaneBackground)}}
-      <a class="item" data-tab="powers" data-group="primary">{{localize "SWADE.Pow"}}</a>
+      <a class="item" data-tab="powers" data-group="primary">{{localize "SWADE.Powers"}}</a>
     {{/if}}
     <a class="item" data-tab="effects" data-group="primary">{{localize "SWADE.Effects"}}</a>
-    <a class="item" data-tab="actions" data-group="primary">{{localize "SWADE.Actions.Name"}}</a>
-    <a class="item" data-tab="about" data-group="primary">{{localize "SWADE.About"}}</a>
+    <a class="item" data-tab="actions" data-group="primary">{{localize "SWADE.Actions"}}</a>
+    <a class="item" data-tab="about" data-group="primary">{{localize "SWADE.Biography"}}</a>
   </nav>
 
   {{!-- Sheet Body --}}
   <main class="gridcell sheet-body">
     {{!-- Summary Tab --}}
     <section class="tab summary active" data-group="primary" data-tab="summary">
-      <div style="background: lime; color: black; padding: 10px; font-weight: bold; border: 3px solid red;">
-        🟢 CUSTOM TEMPLATE IS LOADING! 🟢
+      <div style="background: lime; color: black; padding: 10px; font-weight: bold; border: 3px solid red; z-index: 9999;">
+        🟢 CUSTOM TEMPLATE WITH HP PARTIAL IS LOADING! 🟢
       </div>
       
-      <div class='fatigue-wrapper'>
-        <header class='counter-header'>
-          <button type='button' class='adjust-counter' data-action='fatigue-minus'>
-            <i class='fa-solid fa-minus fa-lg'></i>
-          </button>
-          <span class='label'>{{localize 'SWADE.Fatigue'}}</span>
-          <button type='button' class='adjust-counter' data-action='fatigue-plus'>
-            <i class='fa-solid fa-plus fa-lg'></i>
-          </button>
-        </header>
-        <div class='fatigue'>
-          <span class='values'>
-            <input
-              type='number'
-              min='0'
-              name='system.fatigue.value'
-              value='{{actor.system.fatigue.value}}'
-              data-dtype='Number'
-            />/{{actor.system.fatigue.max}}
-          </span>
-        </div>
-      </div>
-      
-      {{!-- HP System - inserted between Fatigue and Wounds --}}
-      <div class='hp-wrapper'>
-        <header class='counter-header'>
-          <button type='button' class='adjust-counter' data-action='hp-minus'>
-            <i class='fa-solid fa-minus fa-lg'></i>
-          </button>
-          <span class='label'>Hit Points</span>
-          <button type='button' class='adjust-counter' data-action='hp-plus'>
-            <i class='fa-solid fa-plus fa-lg'></i>
-          </button>
-        </header>
-        <div class='hp'>
-          <span class='values'>
-            <input
-              type='number'
-              min='0'
-              name='system.hitPoints.current'
-              value='{{actor.system.hitPoints.current}}'
-              data-dtype='Number'
-            />/<input
-              type='number'
-              min='0'
-              name='system.hitPoints.max'
-              value='{{actor.system.hitPoints.max}}'
-              data-dtype='Number'
-            />
-          </span>
-        </div>
-      </div>
-      
-      <div class='wounds-wrapper'>
-        <header class='counter-header'>
-          <button type='button' class='adjust-counter' data-action='wounds-minus'>
-            <i class='fa-solid fa-minus fa-lg'></i>
-          </button>
-          <span class='label'>{{localize 'SWADE.Wounds'}}</span>
-          <button type='button' class='adjust-counter' data-action='wounds-plus'>
-            <i class='fa-solid fa-plus fa-lg'></i>
-          </button>
-        </header>
-        <div class='wounds'>
-          <span class='values'>
-            <input
-              type='number'
-              min='0'
-              name='system.wounds.value'
-              value='{{actor.system.wounds.value}}'
-              data-dtype='Number'
-            />/{{actor.system.wounds.max}}
-          </span>
-        </div>
-      </div>
-
-      {{!-- Status Effects --}}
-      <div class='status'>
-        <label class='check-container'>
-          {{localize 'SWADE.Shaken'}}
-          <input
-            type='checkbox'
-            data-id='shaken'
-            data-key='isShaken'
-            {{checked actor.system.status.isShaken}}
-          />
-          <span class='checkmark'></span>
-        </label>
-        <label class='check-container'>
-          {{localize 'SWADE.Distr'}}
-          <input
-            type='checkbox'
-            data-id='distracted'
-            data-key='isDistracted'
-            {{checked actor.system.status.isDistracted}}
-          />
-          <span class='checkmark'></span>
-        </label>
-        <label class='check-container'>
-          {{localize 'SWADE.Vuln'}}
-          <input
-            type='checkbox'
-            data-id='vulnerable'
-            data-key='isVulnerable'
-            {{checked actor.system.status.isVulnerable}}
-          />
-          <span class='checkmark'></span>
-        </label>
-      </div>
-      <div class='status'>
-        <label class='check-container'>
-          {{localize 'SWADE.Stunned'}}
-          <input
-            type='checkbox'
-            data-id='stunned'
-            data-key='isStunned'
-            {{checked actor.system.status.isStunned}}
-          />
-          <span class='checkmark'></span>
-        </label>
-        <label class='check-container'>
-          {{localize 'SWADE.Entangled'}}
-          <input
-            type='checkbox'
-            data-id='entangled'
-            data-key='isEntangled'
-            {{checked actor.system.status.isEntangled}}
-          />
-          <span class='checkmark'></span>
-        </label>
-        <label class='check-container'>
-          {{localize 'SWADE.Bound'}}
-          <input
-            type='checkbox'
-            data-id='bound'
-            data-key='isBound'
-            {{checked actor.system.status.isBound}}
-          />
-          <span class='checkmark'></span>
-        </label>
-      </div>
-
-      {{!-- Bennies --}}
-      {{#if actor.isWildcard}}
-        <div class='bennies'>
-          <header class='counter-header'>
-            <button type='button' class='adjust-counter' data-action='spend-benny'>
-              <i class='fa-solid fa-minus fa-lg'></i>
-            </button>
-            <span class='label'>{{actor.system.bennies.value}}
-              {{localize 'SWADE.Bennies'}}</span>
-            <button type='button' class='adjust-counter' data-action='get-benny'>
-              <i class='fa-solid fa-plus fa-lg'></i>
-            </button>
-          </header>
-          {{#each currentBennies as |benny|}}
-            {{#unless (gte @index 5)}}
-              <span
-                title='{{localize "SWADE.BenniesSpend"}}'
-                class='benny adjust-counter'
-                data-action='spend-benny'
-                style='z-index: {{@index}}; grid-column: {{benny}} / span 8; background-image: url({{@root.bennyImageURL}});'
-              ></span>
-            {{/unless}}
-          {{/each}}
-        </div>
-      {{/if}}
-
-      {{!-- Attributes --}}
-      <span class='attributes primary'>
-        {{> "swade.character-attributes"}}
-      </span>
-
-      {{!-- Derived Stats --}}
-      <span class='attributes derived'>
-        <header class='section-header'>
-          <span class='name'>{{localize 'SWADE.Derived'}}</span>
-        </header>
-        <span class='flexrow derived-list'>
-          <div class='stat size'>
-            <span class='stat-label'>{{localize 'SWADE.Size'}}</span>
-            <span class='stat-value flexrow'>
-              <input
-                name='system.stats.size'
-                type='text'
-                value='{{actor.system.stats.size}}'
-                data-dtype='Number'
-              />
-            </span>
-          </div>
-          <div class='stat pace'>
-            <span class='stat-label'>{{localize 'SWADE.Pace'}}</span>
-            <span class='stat-value flexrow'>
-              <input
-                type='text'
-                value='{{actor.system.pace.default}}'
-                data-dtype='Number'
-                placeholder='{{localize "SWADE.Pace"}}'
-                readonly
-              />
-              <button
-                type='button'
-                class='running-die'
-                data-tooltip='SWADE.RollRun'
-                style='background-image: url(systems/swade/assets/official/dice/d{{actor.system.pace.running.die}}.svg);'
-              >
-                <span class='sr-only'>
-                  d{{actor.system.pace.running.die}}
-                  {{localize 'SWADE.RunningDie'}}
-                </span>
-              </button>
-            </span>
-          </div>
-          <div class='stat parry'>
-            <span class='stat-label'>{{localize 'SWADE.Parry'}}</span>
-            <span class='stat-value flexrow'>
-              <input
-                name='system.stats.parry.value'
-                value='{{actor.system.stats.parry.value}}'
-                type='text'
-                placeholder='{{localize "SWADE.Parry"}}'
-                data-dtype='Number'
-                {{disabled actor.system.details.autoCalcParry}}
-                data-tooltip='{{parryTooltip}}'
-              />
-              <button
-                type='button'
-                class='parry-display'
-                {{disabled actor.system.details.autoCalcParry}}
-              >
-                {{actor.system.stats.parry.shield}}
-              </button>
-            </span>
-          </div>
-          <div class='stat toughness'>
-            <span class='stat-label'>{{localize 'SWADE.Tough'}}</span>
-            <span class='stat-value flexrow'>
-              <input
-                id='toughness'
-                name='system.stats.toughness.value'
-                type='text'
-                value='{{actor.system.stats.toughness.value}}'
-                placeholder='{{localize "SWADE.Tough"}}'
-                data-dtype='Number'
-                {{disabled actor.system.details.autoCalcToughness}}
-                data-tooltip='{{toughnessTooltip}}'
-              />
-              <button
-                type='button'
-                class='armor-display'
-                {{disabled actor.system.details.autoCalcToughness}}
-                data-tooltip='{{armorTooltip}}'
-              >
-                {{actor.system.stats.toughness.armor}}
-              </button>
-            </span>
-          </div>
-        </span>
-      </span>
-
-      {{!-- Skills --}}
-      <span class='skills note-box'>
-        <div class='note-header'>&nbsp;</div>
-        <div class='note-main'>
-          <header class='section-header'>
-            <span class='name'>{{localize 'SWADE.Skills'}}</span>
-            <button type='button' class='item-create controls' data-type='skill'>
-              <i class='fa fa-plus'></i>{{localize 'SWADE.Add'}}
-            </button>
-          </header>
-          <ol class='skill-list'>
-            {{#each skills}}
-              {{>"swade.character-skill-card"}}
-            {{/each}}
-          </ol>
-        </div>
-        <div class='note-footer'>&nbsp;</div>
-      </span>
-
-      {{!-- Quick Access --}}
-      <span class='quickaccess note-box'>
-        <div class='note-header'>&nbsp;</div>
-        <div class='note-main'>
-          {{> "swade.character-setting-field"}}
-          <header class='section-header'>
-            <span class='name'>{{localize 'SWADE.QuickAccess'}}</span>
-            <button
-              type='button'
-              class='item-create controls'
-              data-type='choice'
-              data-equipped='true'
-              data-choices='weapon,power,armor,shield,consumable,effect,action'
-            >
-              <i class='fa fa-plus'></i>{{localize 'SWADE.Add'}}
-            </button>
-          </header>
-          <ol class='quick-list'>
-            {{#each sheetEffects.favorite}}
-              <li
-                class="gear-card effect {{#if disabled}}disabled-effect{{/if}}" 
-                data-effect-id='{{id}}'
-                data-source-id='{{source.id}}'
-              >
-                <details data-collapsible-id='{{concat "effect-card-" id}}'>
-                  <summary class='card-header flexrow'>
-                    <div
-                      class='item-image'
-                      style="background-image: url('{{img}}')"
-                    ></div>
-                    <a class='item-name' data-tooltip='{{tooltip}}'>{{name}}</a>
-                    <div class='item-controls'>
-                      <button
-                        type='button'
-                        class='item-control effect-action'
-                        data-action='toggle'
-                        data-toggle='disabled'
-                      >
-                        <i class='fas fa-power-off'></i>
-                      </button>
-                      <button
-                        type='button'
-                        class='effect-action'
-                        data-action='toggle'
-                        data-toggle='system.favorite'
-                        title='{{localize "SWADE.Unfavorite"}}'
-                      >
-                        <i class='fas fa-star'></i>
-                      </button>
-                    </div>
-                  </summary>
-                  <div class='card-content content description'></div>
-                </details>
-              </li>
-            {{/each}}
-          </ol>
-          <ol class='quick-list'>
-            {{#each actor.itemTypes.weapon}}
-              {{#if system.favorite}}
-                {{> "swade.character-item-card"}}
-              {{/if}}
-            {{/each}}
-          </ol>
-          {{#if (or actor.hasPowers actor.hasArcaneBackground)}}
-            <ol class='quick-list'>
-              {{#each actor.itemTypes.power}}
-                {{#if system.favorite}}
-                  {{> "swade.character-item-card"}}
-                {{/if}}
-              {{/each}}
-            </ol>
-          {{/if}}
-          <ol class='quick-list'>
-            {{#each actor.itemTypes.armor}}
-              {{#if system.favorite}}
-                {{> "swade.character-item-card"}}
-              {{/if}}
-            {{/each}}
-          </ol>
-          <ol class='quick-list'>
-            {{#each actor.itemTypes.shield}}
-              {{#if system.favorite}}
-                {{> "swade.character-item-card"}}
-              {{/if}}
-            {{/each}}
-          </ol>
-          <ol class='quick-list'>
-            {{#each actor.itemTypes.consumable}}
-              {{#if system.favorite}}
-                {{> "swade.character-item-card"}}
-              {{/if}}
-            {{/each}}
-          </ol>
-          <ol class='quick-list'>
-            {{#each actor.itemTypes.gear}}
-              {{#if system.favorite}}
-                {{> "swade.character-item-card"}}
-              {{/if}}
-            {{/each}}
-          </ol>
-          <ol class='quick-list'>
-            {{#each actor.itemTypes.edge}}
-              {{#if system.favorite}}
-                {{> "swade.character-item-card"}}
-              {{/if}}
-            {{/each}}
-          </ol>
-          <ol class='quick-list'>
-            {{#each actor.itemTypes.hindrance}}
-              {{#if system.favorite}}
-                {{> "swade.character-item-card"}}
-              {{/if}}
-            {{/each}}
-          </ol>
-          <ol class='quick-list'>
-            {{#each actor.itemTypes.ability}}
-              {{#if system.favorite}}
-                {{> "swade.character-item-card"}}
-              {{/if}}
-            {{/each}}
-          </ol>
-          <ol class='quick-list'>
-            {{#each actor.itemTypes.action}}
-              {{#if system.favorite}}
-                {{> "swade.character-item-card"}}
-              {{/if}}
-            {{/each}}
-          </ol>
-        </div>
-        <div class='note-footer'>&nbsp;</div>
-      </span>
+      {{!-- Use our custom summary partial that includes HP counter --}}
+      {{> "swade-hp-module.character-tab-summary"}}
     </section>
 
     {{!-- Other Tabs use original SWADE partials --}}
@@ -553,8 +133,8 @@
     </section>
   </main>
 
-  <figure class="grid-cover gc-1"></figure>
-  <figure class="grid-cover gc-2"></figure>
-  <figure class="grid-cover gc-3"></figure>
-  <figure class="grid-cover gc-4"></figure>
+  {{!-- Sheet Footer --}}
+  <footer class="sheet-footer flexrow">
+    <span class="system-info">{{localize "SWADE.SystemTitle"}} v{{systemVersion}}</span>
+  </footer>
 </form>

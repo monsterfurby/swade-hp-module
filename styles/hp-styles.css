@@ -1,6 +1,9 @@
 /* HP Module Styles - Match SWADE's fatigue/wounds layout exactly */
 .hp-wrapper {
-  /* Let SWADE's grid layout handle positioning - no custom positioning */
+  /* Force the HP wrapper to behave exactly like fatigue-wrapper and wounds-wrapper */
+  grid-column: auto;
+  grid-row: auto;
+  display: block;
 }
 
 .hp-wrapper .hp {
