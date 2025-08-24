@@ -423,6 +423,14 @@ class SWADEHPSystem {
                 console.log('SWADE HP Module: Template data HP max:', data.hitPoints?.max);
                 console.log('SWADE HP Module: === END SHEET OPENING HP VALUES ===');
                 
+                // Additional debugging for HP data structure
+                console.log('SWADE HP Module: === HP DATA STRUCTURE DEBUG ===');
+                console.log('SWADE HP Module: this.actor.system:', this.actor.system);
+                console.log('SWADE HP Module: this.actor.system.hitPoints:', this.actor.system.hitPoints);
+                console.log('SWADE HP Module: data.hitPoints:', data.hitPoints);
+                console.log('SWADE HP Module: data.actor.system.hitPoints:', data.actor?.system?.hitPoints);
+                console.log('SWADE HP Module: === END HP DATA STRUCTURE DEBUG ===');
+                
                 return data;
             }
 
@@ -465,6 +473,7 @@ class SWADEHPSystem {
                         if (hpCurrentInput.length > 0) {
                             console.log('SWADE HP Module: HP current input value:', hpCurrentInput.val());
                             console.log('SWADE HP Module: HP current input name:', hpCurrentInput.attr('name'));
+                            console.log('SWADE HP Module: HP current input element:', hpCurrentInput[0]);
                             
                             // Add focus and blur event listeners for HP current input
                             hpCurrentInput.on('focus', (event) => {
@@ -498,6 +507,11 @@ class SWADEHPSystem {
                                     console.log('SWADE HP Module: No value change detected');
                                 }
                             });
+                            
+                            console.log('SWADE HP Module: Successfully attached event listeners to HP current input');
+                        } else {
+                            console.log('SWADE HP Module: HP current input NOT FOUND!');
+                            console.log('SWADE HP Module: All input elements:', html.find('input').map(function() { return this.name; }).get());
                         }
                         
                         const hpMaxInput = html.find('input[name="system.hitPoints.max"]');
@@ -505,6 +519,7 @@ class SWADEHPSystem {
                         if (hpMaxInput.length > 0) {
                             console.log('SWADE HP Module: HP max input value:', hpMaxInput.val());
                             console.log('SWADE HP Module: HP max input name:', hpMaxInput.attr('name'));
+                            console.log('SWADE HP Module: HP max input element:', hpMaxInput[0]);
                             
                             // Add focus and blur event listeners for HP max input
                             hpMaxInput.on('focus', (event) => {
@@ -538,6 +553,11 @@ class SWADEHPSystem {
                                     console.log('SWADE HP Module: No value change detected');
                                 }
                             });
+                            
+                            console.log('SWADE HP Module: Successfully attached event listeners to HP max input');
+                        } else {
+                            console.log('SWADE HP Module: HP max input NOT FOUND!');
+                            console.log('SWADE HP Module: All input elements:', html.find('input').map(function() { return this.name; }).get());
                         }
                         
                         // Debug the form structure
