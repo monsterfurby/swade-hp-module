@@ -44,7 +44,7 @@ class SWADEHPSystem {
     }
 
     extendDataSchema() {
-        console.log('SWADE HP Module: Overriding SWADE getData to inject HP data...');
+        console.log('SWADE HP Module: Setting up data injection...');
         
         // Override SWADE's CharacterSheet getData method to inject our HP data
         if (game.swade && game.swade.sheets && game.swade.sheets.CharacterSheet) {
@@ -72,6 +72,32 @@ class SWADEHPSystem {
             console.log('SWADE HP Module: Successfully overrode SWADE getData');
         } else {
             console.warn('SWADE HP Module: Could not override getData - SWADE CharacterSheet not found');
+        }
+        
+        // Also ensure HP data structure exists on the actor's actual data
+        if (game.swade && game.swade.Actor) {
+            const originalPrepareData = game.swade.Actor.prototype.prepareData;
+            
+            game.swade.Actor.prototype.prepareData = function() {
+                // Call SWADE's original prepareData first
+                const result = originalPrepareData.call(this);
+                
+                // Ensure HP data structure exists on the actor's system data
+                if (this.type === 'character' && game.settings.get('swade-hp-module', 'enableHP')) {
+                    if (!this.system.hitPoints) {
+                        this.system.hitPoints = {
+                            current: 0,
+                            max: 0,
+                            hitDie: 0
+                        };
+                        console.log('SWADE HP Module: Created HP data structure on actor:', this.name);
+                    }
+                }
+                
+                return result;
+            };
+            
+            console.log('SWADE HP Module: Successfully set up actor data structure');
         }
     }
 
@@ -573,16 +599,8 @@ class SWADEHPSystem {
                 changeData.system.hitPoints.hitDie = actor.system.hitPoints.hitDie;
             }
             
-            // Set defaults for missing values
-            if (changeData.system.hitPoints.current === undefined) {
-                changeData.system.hitPoints.current = 0;
-            }
-            if (changeData.system.hitPoints.max === undefined) {
-                changeData.system.hitPoints.max = 0;
-            }
-            if (changeData.system.hitPoints.hitDie === undefined) {
-                changeData.system.hitPoints.hitDie = 0;
-            }
+            // REMOVED: The problematic lines that were setting values to 0
+            // These lines were overriding any existing values
         }
     }
 
