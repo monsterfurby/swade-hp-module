@@ -377,27 +377,35 @@ class SWADEHPSystem {
 
 
             activateListeners(html) {
+                console.log('SWADE HP Module: === ACTIVATE LISTENERS METHOD ENTERED ===');
+                console.log('SWADE HP Module: Activating listeners for custom sheet');
+                
                 try {
-                    console.log('SWADE HP Module: === ACTIVATE LISTENERS METHOD ENTERED ===');
-                    console.log('SWADE HP Module: Activating listeners for custom sheet');
                     console.log('SWADE HP Module: Method entry - html parameter received:', !!html);
                     console.log('SWADE HP Module: Method entry - html type:', typeof html);
                     console.log('SWADE HP Module: Method entry - this context:', !!this);
                     console.log('SWADE HP Module: Simple test log - if you see this, the method is executing');
                     
-                    try {
-                        console.log('SWADE HP Module: About to call super.activateListeners...');
-                        super.activateListeners(html);
-                        console.log('SWADE HP Module: Successfully called super.activateListeners');
-                    } catch (error) {
-                        console.error('SWADE HP Module: Error in super.activateListeners:', error);
-                        console.error('SWADE HP Module: Error stack:', error.stack);
-                    }
+                                    try {
+                    console.log('SWADE HP Module: About to call super.activateListeners...');
+                    super.activateListeners(html);
+                    console.log('SWADE HP Module: Successfully called super.activateListeners');
+                } catch (error) {
+                    console.error('SWADE HP Module: Error in super.activateListeners:', error);
+                    console.error('SWADE HP Module: Error stack:', error.stack);
+                    return; // Exit early if super.activateListeners fails
+                }
+                
+                console.log('SWADE HP Module: After super.activateListeners call');
                     
                     try {
                         console.log('SWADE HP Module: Starting form debugging...');
                         console.log('SWADE HP Module: html parameter:', html);
                         console.log('SWADE HP Module: html type:', typeof html);
+                        
+                        // Simple test - can we find any inputs at all?
+                        const allInputs = html.find('input');
+                        console.log('SWADE HP Module: Total inputs found:', allInputs.length);
                         
                         // Test if the HP elements exist
                         const hpCurrentInput = html.find('input[name="system.hitPoints.current"]');
