@@ -339,47 +339,27 @@ class SWADEHPSystem {
                 console.log('SWADE HP Module: Activating listeners for custom sheet');
                 super.activateListeners(html);
                 
-                // Test if the HP elements exist
-                const hpCurrentInput = html.find('input[name="system.hitPoints.current"]');
-                const hpMaxInput = html.find('input[name="system.hitPoints.max"]');
-                console.log('SWADE HP Module: HP inputs found:', hpCurrentInput.length, hpMaxInput.length);
+                console.log('SWADE HP Module: Starting form debugging...');
                 
-                // Debug the form structure
-                const forms = html.find('form');
-                console.log('SWADE HP Module: Forms found:', forms.length);
-                forms.each((index, form) => {
-                    console.log(`SWADE HP Module: Form ${index}:`, form);
-                    const formInputs = $(form).find('input');
-                    console.log(`SWADE HP Module: Form ${index} inputs:`, formInputs.length);
-                    formInputs.each((i, input) => {
-                        console.log(`SWADE HP Module: Input ${i}:`, input.name, input.value);
+                try {
+                    // Test if the HP elements exist
+                    const hpCurrentInput = html.find('input[name="system.hitPoints.current"]');
+                    const hpMaxInput = html.find('input[name="system.hitPoints.max"]');
+                    console.log('SWADE HP Module: HP inputs found:', hpCurrentInput.length, hpMaxInput.length);
+                    
+                    // Debug the form structure
+                    const forms = html.find('form');
+                    console.log('SWADE HP Module: Forms found:', forms.length);
+                    
+                    // Add debugging for input changes
+                    html.on('change', 'input[name="system.hitPoints.current"], input[name="system.hitPoints.max"]', (event) => {
+                        console.log('SWADE HP Module: Input change detected:', event.target.name, event.target.value);
                     });
-                });
-                
-                // Add debugging for form submission
-                html.find('form').on('submit', (event) => {
-                    console.log('SWADE HP Module: Form submit event detected');
-                    const formData = new FormData(event.target);
-                    const currentHP = formData.get('system.hitPoints.current');
-                    const maxHP = formData.get('system.hitPoints.max');
-                    console.log('SWADE HP Module: Form data - Current HP:', currentHP, 'Max HP:', maxHP);
-                });
-                
-                // Add debugging for input changes
-                html.on('change', 'input[name="system.hitPoints.current"], input[name="system.hitPoints.max"]', (event) => {
-                    console.log('SWADE HP Module: Input change detected:', event.target.name, event.target.value);
-                });
-                
-                // Check if HP inputs are inside a form
-                hpCurrentInput.each((index, input) => {
-                    const closestForm = $(input).closest('form');
-                    console.log(`SWADE HP Module: HP current input ${index} closest form:`, closestForm.length > 0 ? 'Found' : 'Not found');
-                });
-                
-                hpMaxInput.each((index, input) => {
-                    const closestForm = $(input).closest('form');
-                    console.log(`SWADE HP Module: HP max input ${index} closest form:`, closestForm.length > 0 ? 'Found' : 'Not found');
-                });
+                    
+                    console.log('SWADE HP Module: Form debugging completed');
+                } catch (error) {
+                    console.error('SWADE HP Module: Error in activateListeners:', error);
+                }
             }
 
             async _onHPDecrease(event) {
