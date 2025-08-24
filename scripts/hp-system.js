@@ -55,6 +55,12 @@ class SWADEHPSystem {
         // Hook into actor updates to ensure HP data exists
         Hooks.on('preUpdateActor', this.ensureHPData.bind(this));
         
+        // Hook into actor sheet rendering to ensure HP data exists
+        Hooks.on('renderActorSheet', this.ensureActorHPData.bind(this));
+        
+        // Hook into actor loading to ensure HP data exists
+        Hooks.on('preCreateActor', this.ensureActorHPDataOnCreate.bind(this));
+        
         // Register custom sheet after a delay (since we're already in the ready hook)
         setTimeout(async () => {
             console.log('SWADE HP Module: Attempting to register custom sheet...');
@@ -63,6 +69,9 @@ class SWADEHPSystem {
         
         // Initialize HP for existing characters
         this.initializeExistingActors();
+        
+        // Ensure HP data structure exists for all existing characters
+        this.ensureAllActorsHaveHPData();
     }
 
     registerPartials() {
@@ -599,6 +608,58 @@ class SWADEHPSystem {
             };
             console.log('SWADE HP Module: Added HP data structure to change data');
         }
+    }
+
+    ensureActorHPData(app, html, data) {
+        if (!game.settings.get(this.id, 'enableHP')) return;
+        if (data.actor.type !== 'character') return;
+
+        // Ensure HP data structure exists in the actor's system data
+        if (!data.actor.system.hitPoints) {
+            data.actor.system.hitPoints = {
+                current: 0,
+                max: 0,
+                hitDie: 0
+            };
+            console.log('SWADE HP Module: Added HP data structure to actor\'s system data during render');
+        }
+    }
+
+    ensureActorHPDataOnCreate(actor, createData, options, userId) {
+        if (!game.settings.get(this.id, 'enableHP')) return;
+        if (actor.type !== 'character') return;
+
+        // Ensure HP data structure exists on actor creation
+        if (!createData.system.hitPoints) {
+            createData.system.hitPoints = {
+                current: 0,
+                max: 0,
+                hitDie: 0
+            };
+            console.log('SWADE HP Module: Added HP data structure to actor creation data');
+        }
+    }
+
+    ensureAllActorsHaveHPData() {
+        if (!game.settings.get(this.id, 'enableHP')) return;
+        
+        // Ensure HP data structure exists for all existing characters
+        game.actors.forEach(actor => {
+            if (actor.type === 'character' && !actor.system.hitPoints) {
+                console.log(`SWADE HP Module: Ensuring HP data structure exists for ${actor.name}`);
+                actor.update({
+                    'system.hitPoints': {
+                        current: 0,
+                        max: 0,
+                        hitDie: 0
+                    }
+                }).then(() => {
+                    console.log(`SWADE HP Module: Successfully ensured HP data structure for ${actor.name}`);
+                }).catch(error => {
+                    console.error(`SWADE HP Module: Failed to ensure HP data structure for ${actor.name}:`, error);
+                });
+            }
+        });
     }
 
     async rollHPForAdvance(actor) {
