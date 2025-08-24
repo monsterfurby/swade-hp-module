@@ -21,28 +21,29 @@
   </div>
 </div>
 
-    <div class='stat hp'>
-    <span class='stat-label'>Hit Points</span>
-    <span class='stat-value flexrow'>
+  {{!-- HP System - using wounds-wrapper CSS classes for consistency with SWADE styling --}}
+  <div class='wounds-wrapper'>
+    <header class='counter-header'>
+      <span class='label'>Hit Points</span>
+    </header>
+  <div class='wounds'>
+    <span class='values'>
       <input
-        id='hp-current'
+        type='number'
+        min='0'
         name='system.hitPoints.current'
-        type='text'
         value='{{actor.system.hitPoints.current}}'
-        placeholder='Current'
         data-dtype='Number'
-      />
-      <span class='hp-separator'>/</span>
-      <input
-        id='hp-max'
+      />/<input
+        type='number'
+        min='0'
         name='system.hitPoints.max'
-        type='text'
         value='{{actor.system.hitPoints.max}}'
-        placeholder='Max'
         data-dtype='Number'
       />
     </span>
   </div>
+</div>
 <div class='status'>
   <label class='check-container'>
     {{localize 'SWADE.Shaken'}}
@@ -218,11 +219,11 @@
         </button>
       </span>
     </div>
-    <div class='stat wounds'>
+    <div class='stat wounds-simple'>
       <span class='stat-label'>{{localize 'SWADE.Wounds'}}</span>
       <span class='stat-value flexrow'>
         <input
-          id='wounds'
+          id='wounds-simple'
           name='system.wounds.value'
           type='text'
           value='{{actor.system.wounds.value}}'

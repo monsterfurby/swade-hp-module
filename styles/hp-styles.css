@@ -28,8 +28,34 @@
   background: rgba(255, 255, 255, 0.9);
 }
 
-/* HP stat styling to match other stats */
-.stat.hp .stat-value input {
+/* HP input styling with responsive sizing */
+.wounds-wrapper .wounds .values input {
+  width: 70px;
+  text-align: center;
+  font-size: 1.2em;
+  font-weight: bold;
+  padding: 0.25rem;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.9);
+  min-width: 70px;
+  max-width: 120px;
+}
+
+/* Responsive sizing for larger numbers */
+.wounds-wrapper .wounds .values input:focus {
+  min-width: 80px;
+  max-width: 140px;
+}
+
+/* Ensure text doesn't get cut off */
+.wounds-wrapper .wounds .values input {
+  overflow: visible;
+  text-overflow: clip;
+}
+
+/* Wounds simple display - matches Size/Pace/Parry/Toughness style */
+.stat.wounds-simple .stat-value input {
   width: 60px;
   text-align: center;
   font-size: 1em;
@@ -40,23 +66,9 @@
   background: rgba(255, 255, 255, 0.9);
 }
 
-.hp-separator {
-  margin: 0 0.25rem;
+.stat.wounds-simple .wounds-max {
+  margin-left: 0.25rem;
   font-weight: bold;
-}
-
-/* Responsive sizing for larger numbers - using min-width and max-width */
-.stat.hp .stat-value input {
-  min-width: 60px;
-  max-width: 100px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Ensure text doesn't get cut off */
-.stat.hp .stat-value input:focus {
-  min-width: 80px;
-  max-width: 120px;
 }
 
 /* Remove all the problematic grid-area and positioning CSS */
