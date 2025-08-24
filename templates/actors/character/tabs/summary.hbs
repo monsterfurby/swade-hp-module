@@ -21,16 +21,10 @@
   </div>
 </div>
 
-<div class='wounds-wrapper'>
-  <header class='counter-header'>
-    <button type='button' class='adjust-counter' data-action='hp-minus'>
-      <i class='fa-solid fa-minus fa-lg'></i>
-    </button>
-    <span class='label'>Hit Points</span>
-    <button type='button' class='adjust-counter' data-action='hp-plus'>
-      <i class='fa-solid fa-plus fa-lg'></i>
-    </button>
-  </header>
+  <div class='wounds-wrapper'>
+    <header class='counter-header'>
+      <span class='label'>Hit Points</span>
+    </header>
   <div class='wounds'>
     <span class='values'>
       <input
@@ -227,13 +221,15 @@
     <div class='stat wounds'>
       <span class='stat-label'>{{localize 'SWADE.Wounds'}}</span>
       <span class='stat-value flexrow'>
-        <button type='button' class='adjust-counter' data-action='wounds-minus'>
-          <i class='fa-solid fa-minus fa-sm'></i>
-        </button>
-        <span class='wounds-display'>{{actor.system.wounds.value}}/{{actor.system.wounds.max}}</span>
-        <button type='button' class='adjust-counter' data-action='wounds-plus'>
-          <i class='fa-solid fa-plus fa-sm'></i>
-        </button>
+        <input
+          id='wounds'
+          name='system.wounds.value'
+          type='text'
+          value='{{actor.system.wounds.value}}'
+          placeholder='{{localize "SWADE.Wounds"}}'
+          data-dtype='Number'
+        />
+        <span class='wounds-max'>/{{actor.system.wounds.max}}</span>
       </span>
     </div>
   </span>

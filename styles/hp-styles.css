@@ -28,4 +28,26 @@
   background: rgba(255, 255, 255, 0.9);
 }
 
+/* Responsive font sizing for HP values */
+.hp-wrapper .hp .values input[value*="100"],
+.hp-wrapper .hp .values input[value*="200"],
+.hp-wrapper .hp .values input[value*="300"] {
+  font-size: 1em;
+}
+
+.hp-wrapper .hp .values input[value*="1000"],
+.hp-wrapper .hp .values input[value*="2000"],
+.hp-wrapper .hp .values input[value*="3000"] {
+  font-size: 0.9em;
+}
+
+/* Dynamic width adjustment for larger numbers */
+.hp-wrapper .hp .values input[value*="100"] {
+  width: 80px;
+}
+
+.hp-wrapper .hp .values input[value*="1000"] {
+  width: 90px;
+}
+
 /* Remove all the problematic grid-area and positioning CSS */

@@ -320,10 +320,9 @@ class SWADEHPSystem {
                 console.log('SWADE HP Module: Activating listeners for custom sheet');
                 super.activateListeners(html);
                 
-                // Add HP-specific event listeners
-                html.on('click', '[data-action="hp-minus"]', this._onHPDecrease.bind(this));
-                html.on('click', '[data-action="hp-plus"]', this._onHPIncrease.bind(this));
-                html.on('click', '[data-action="roll-hp-advance"]', this._onManualHPAdvance.bind(this));
+                // Add input change listeners for HP fields
+                html.on('change', 'input[name="system.hitPoints.current"]', this._onHPInputChange.bind(this));
+                html.on('change', 'input[name="system.hitPoints.max"]', this._onHPInputChange.bind(this));
             }
 
             async _onHPDecrease(event) {
@@ -339,6 +338,29 @@ class SWADEHPSystem {
                 const maxHP = this.actor.system.hitPoints?.max || 0;
                 const newHP = Math.min(maxHP, currentHP + 1);
                 await this.actor.update({ 'system.hitPoints.current': newHP });
+            }
+
+            async _onHPInputChange(event) {
+                event.preventDefault();
+                const input = event.target;
+                const field = input.name;
+                const value = parseInt(input.value) || 0;
+                
+                // Ensure HP data structure exists
+                if (!this.actor.system.hitPoints) {
+                    await this.actor.update({
+                        'system.hitPoints': {
+                            current: 0,
+                            max: 0,
+                            hitDie: 0
+                        }
+                    });
+                }
+                
+                // Update the specific field
+                await this.actor.update({ [field]: value });
+                
+                console.log(`SWADE HP Module: Updated ${field} to ${value}`);
             }
 
             async _onManualHPAdvance(event) {
