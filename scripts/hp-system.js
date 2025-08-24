@@ -372,8 +372,12 @@ class SWADEHPSystem {
                 if (this.actor && this.actor.system) {
                     console.log('SWADE HP Module: Actor and system data found');
                     
-                    // Use the helper method to ensure HP data structure exists
-                    await this.ensureHPDataBeforeRender(this.actor);
+                    try {
+                        // Use the helper method to ensure HP data structure exists
+                        await this.ensureHPDataBeforeRender(this.actor);
+                    } catch (error) {
+                        console.error('SWADE HP Module: Error ensuring HP data structure:', error);
+                    }
                 }
                 
                 // Now ensure the template data has the HP data
@@ -400,7 +404,29 @@ class SWADEHPSystem {
                 return data;
             }
 
+            // Method to ensure HP data structure exists before template rendering
+            async ensureHPDataBeforeRender(actor) {
+                if (!game.settings.get('swade-hp-module', 'enableHP')) return;
+                if (actor.type !== 'character') return;
 
+                // Check if HP data structure exists
+                if (!actor.system.hitPoints) {
+                    console.log('SWADE HP Module: Creating HP data structure before render for:', actor.name);
+                    return actor.update({
+                        'system.hitPoints': {
+                            current: 0,
+                            max: 0,
+                            hitDie: 0
+                        }
+                    }).then(() => {
+                        console.log('SWADE HP Module: Successfully created HP data structure before render for:', actor.name);
+                    }).catch(error => {
+                        console.error('SWADE HP Module: Failed to create HP data structure before render for:', actor.name, error);
+                    });
+                }
+                
+                return Promise.resolve();
+            }
 
             activateListeners(html) {
                 console.log('SWADE HP Module: Activating listeners for custom sheet');
@@ -736,29 +762,7 @@ class SWADEHPSystem {
         }
     }
 
-    // Method to ensure HP data structure exists before template rendering
-    ensureHPDataBeforeRender(actor) {
-        if (!game.settings.get(this.id, 'enableHP')) return;
-        if (actor.type !== 'character') return;
 
-        // Check if HP data structure exists
-        if (!actor.system.hitPoints) {
-            console.log('SWADE HP Module: Creating HP data structure before render for:', actor.name);
-            return actor.update({
-                'system.hitPoints': {
-                    current: 0,
-                    max: 0,
-                    hitDie: 0
-                }
-            }).then(() => {
-                console.log('SWADE HP Module: Successfully created HP data structure before render for:', actor.name);
-            }).catch(error => {
-                console.error('SWADE HP Module: Failed to create HP data structure before render for:', actor.name, error);
-            });
-        }
-        
-        return Promise.resolve();
-    }
 
     ensureAllActorsHaveHPData() {
         if (!game.settings.get(this.id, 'enableHP')) return;
