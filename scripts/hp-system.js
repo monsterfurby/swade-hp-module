@@ -317,6 +317,8 @@ class SWADEHPSystem {
             }
 
             async _onSubmit(event) {
+                console.log('SWADE HP Module: _onSubmit called');
+                
                 // Ensure HP data structure exists before form submission
                 if (this.actor && this.actor.system && !this.actor.system.hitPoints) {
                     console.log('SWADE HP Module: Creating HP data structure before form submission');
@@ -329,17 +331,43 @@ class SWADEHPSystem {
                     });
                 }
                 
+                // Get form data and check HP values
+                const formData = new FormData(event.target);
+                const currentHP = parseInt(formData.get('system.hitPoints.current')) || 0;
+                const maxHP = parseInt(formData.get('system.hitPoints.max')) || 0;
+                
+                console.log('SWADE HP Module: Form data - Current HP:', currentHP, 'Max HP:', maxHP);
+                
                 // Call the parent _onSubmit method
-                return super._onSubmit(event);
+                const result = await super._onSubmit(event);
+                
+                // Verify the update worked
+                const updatedCurrentHP = this.actor.system.hitPoints?.current || 0;
+                const updatedMaxHP = this.actor.system.hitPoints?.max || 0;
+                
+                console.log('SWADE HP Module: After update - Current HP:', updatedCurrentHP, 'Max HP:', updatedMaxHP);
+                
+                if (updatedCurrentHP !== currentHP) {
+                    console.error(`SWADE HP Module: Current HP update failed! Expected ${currentHP}, got ${updatedCurrentHP}`);
+                    ui.notifications.error(`Failed to save current HP. Expected ${currentHP}, got ${updatedCurrentHP}`);
+                }
+                
+                if (updatedMaxHP !== maxHP) {
+                    console.error(`SWADE HP Module: Max HP update failed! Expected ${maxHP}, got ${updatedMaxHP}`);
+                    ui.notifications.error(`Failed to save max HP. Expected ${maxHP}, got ${updatedMaxHP}`);
+                }
+                
+                return result;
             }
 
             activateListeners(html) {
                 console.log('SWADE HP Module: Activating listeners for custom sheet');
                 super.activateListeners(html);
                 
-                // Add input change listeners for HP fields
-                html.on('change', 'input[name="system.hitPoints.current"]', this._onHPInputChange.bind(this));
-                html.on('change', 'input[name="system.hitPoints.max"]', this._onHPInputChange.bind(this));
+                // Test if the HP elements exist
+                const hpCurrentInput = html.find('input[name="system.hitPoints.current"]');
+                const hpMaxInput = html.find('input[name="system.hitPoints.max"]');
+                console.log('SWADE HP Module: HP inputs found:', hpCurrentInput.length, hpMaxInput.length);
             }
 
             async _onHPDecrease(event) {
@@ -357,81 +385,7 @@ class SWADEHPSystem {
                 await this.actor.update({ 'system.hitPoints.current': newHP });
             }
 
-            async _onHPInputChange(event) {
-                event.preventDefault();
-                const input = event.target;
-                const field = input.name;
-                const value = parseInt(input.value) || 0;
-                
-                console.log(`SWADE HP Module: Input change detected for ${field} with value ${value}`);
-                
-                // Ensure HP data structure exists
-                if (!this.actor.system.hitPoints) {
-                    console.log('SWADE HP Module: Creating HP data structure');
-                    await this.actor.update({
-                        'system.hitPoints': {
-                            current: 0,
-                            max: 0,
-                            hitDie: 0
-                        }
-                    });
-                }
-                
-                // Update the specific field using the same pattern as SWADE wounds
-                try {
-                    console.log(`SWADE HP Module: Current actor data before update:`, this.actor.system.hitPoints);
-                    
-                    // Use the same update pattern as SWADE wounds
-                    await this.actor.update({ [field]: value });
-                    
-                    console.log(`SWADE HP Module: Update call completed`);
-                    
-                    // Verify the update worked immediately
-                    const updatedValue = foundry.utils.getProperty(this.actor, field);
-                    console.log(`SWADE HP Module: Verification - Expected ${value}, got ${updatedValue}`);
-                    
-                    if (updatedValue !== value) {
-                        console.error(`SWADE HP Module: Update verification failed! Expected ${value}, got ${updatedValue}`);
-                        console.log(`SWADE HP Module: Full actor system data:`, this.actor.system);
-                        
-                        // Try a different approach - update the entire hitPoints object
-                        console.log(`SWADE HP Module: Trying alternative update method...`);
-                        const currentHP = this.actor.system.hitPoints?.current || 0;
-                        const maxHP = this.actor.system.hitPoints?.max || 0;
-                        
-                        if (field === 'system.hitPoints.current') {
-                            await this.actor.update({
-                                'system.hitPoints': {
-                                    current: value,
-                                    max: maxHP,
-                                    hitDie: this.actor.system.hitPoints?.hitDie || 0
-                                }
-                            });
-                        } else if (field === 'system.hitPoints.max') {
-                            await this.actor.update({
-                                'system.hitPoints': {
-                                    current: currentHP,
-                                    max: value,
-                                    hitDie: this.actor.system.hitPoints?.hitDie || 0
-                                }
-                            });
-                        }
-                        
-                        // Check again
-                        const finalValue = foundry.utils.getProperty(this.actor, field);
-                        if (finalValue !== value) {
-                            ui.notifications.error(`Failed to save HP value. Expected ${value}, got ${finalValue}`);
-                        } else {
-                            console.log(`SWADE HP Module: Alternative update method succeeded`);
-                        }
-                    } else {
-                        console.log(`SWADE HP Module: Update verified successfully`);
-                    }
-                } catch (error) {
-                    console.error('SWADE HP Module: Failed to update HP data:', error);
-                    ui.notifications.error(`Failed to save HP value: ${error.message}`);
-                }
-            }
+
 
             async _onManualHPAdvance(event) {
                 event.preventDefault();
