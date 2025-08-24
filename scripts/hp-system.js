@@ -358,160 +358,48 @@ class SWADEHPSystem {
             }
 
             async getData() {
-                console.log('SWADE HP Module: Getting data for custom sheet');
                 const data = await super.getData();
                 
-                // Ensure HP data structure exists on the actor's actual system data FIRST
-                if (this.actor && this.actor.system) {
-                    console.log('SWADE HP Module: Actor and system data found');
-                    
-                    try {
-                        // Check if HP data structure exists on the actor
-                        if (!this.actor.system.hitPoints) {
-                            console.log('SWADE HP Module: Creating HP data structure on actor');
-                            await this.actor.update({
-                                'system.hitPoints': {
-                                    current: 0,
-                                    max: 0,
-                                    hitDie: 0
-                                }
-                            });
-                            console.log('SWADE HP Module: Successfully created HP data structure on actor');
-                        } else {
-                            console.log('SWADE HP Module: HP data structure already exists on actor:', this.actor.system.hitPoints);
-                        }
-                    } catch (error) {
-                        console.error('SWADE HP Module: Error ensuring HP data structure:', error);
-                    }
-                }
-                
-                // Now ensure the template data has the HP data
+                // Ensure HP data structure exists in template data (following SWADE's pattern)
                 if (data.actor && data.actor.system) {
                     if (!data.actor.system.hitPoints) {
-                        console.log('SWADE HP Module: Creating HP data structure in template data');
-                        data.actor.system.hitPoints = { 
-                            current: this.actor.system.hitPoints?.current || 0, 
-                            max: this.actor.system.hitPoints?.max || 0, 
-                            hitDie: this.actor.system.hitPoints?.hitDie || 0 
+                        data.actor.system.hitPoints = {
+                            current: 0,
+                            max: 0,
+                            hitDie: 0
                         };
-                        console.log('SWADE HP Module: Created HP data structure in template data');
-                    } else {
-                        console.log('SWADE HP Module: HP data structure already exists in template data:', data.actor.system.hitPoints);
                     }
-                    
-                    // Add HP data to the main data object for template access
-                    data.hitPoints = data.actor.system.hitPoints;
-                    console.log('SWADE HP Module: Added HP data to template data:', data.hitPoints);
-                } else {
-                    console.warn('SWADE HP Module: Actor or system data not available in getData()');
                 }
                 
                 return data;
             }
 
-            // Method to ensure HP data structure exists before template rendering
-            async ensureHPDataBeforeRender(actor) {
-                if (!game.settings.get('swade-hp-module', 'enableHP')) return;
-                if (actor.type !== 'character') return;
 
-                // Check if HP data structure exists
-                if (!actor.system.hitPoints) {
-                    console.log('SWADE HP Module: Creating HP data structure before render for:', actor.name);
-                    return actor.update({
-                        'system.hitPoints': {
-                            current: 0,
-                            max: 0,
-                            hitDie: 0
-                        }
-                    }).then(() => {
-                        console.log('SWADE HP Module: Successfully created HP data structure before render for:', actor.name);
-                    }).catch(error => {
-                        console.error('SWADE HP Module: Failed to create HP data structure before render for:', actor.name, error);
+
+            activateListeners(html) {
+                super.activateListeners(html);
+                
+                // Find HP input elements
+                const hpCurrentInput = html.find('input[name="system.hitPoints.current"]');
+                const hpMaxInput = html.find('input[name="system.hitPoints.max"]');
+                
+                // Add event listeners for HP inputs
+                if (hpCurrentInput.length > 0) {
+                    hpCurrentInput.on('change', (event) => {
+                        const newValue = parseInt(event.target.value) || 0;
+                        this.actor.update({ 'system.hitPoints.current': newValue });
                     });
                 }
                 
-                return Promise.resolve();
-            }
-
-            activateListeners(html) {
-                console.log('SWADE HP Module: Activating listeners for custom sheet');
-                
-                try {
-                    // Call the parent class activateListeners first
-                    super.activateListeners(html);
-                    
-                    // Find HP input elements
-                    const hpCurrentInput = html.find('input[name="system.hitPoints.current"]');
-                    const hpMaxInput = html.find('input[name="system.hitPoints.max"]');
-                    
-                    console.log('SWADE HP Module: HP current input found:', hpCurrentInput.length);
-                    console.log('SWADE HP Module: HP max input found:', hpMaxInput.length);
-                    
-                    // Add event listeners for HP inputs
-                    if (hpCurrentInput.length > 0) {
-                        hpCurrentInput.on('change', (event) => {
-                            const newValue = parseInt(event.target.value) || 0;
-                            console.log('SWADE HP Module: HP current value changed to:', newValue);
-                            this.actor.update({ 'system.hitPoints.current': newValue })
-                                .then(() => {
-                                    console.log('SWADE HP Module: Successfully saved HP current value:', newValue);
-                                })
-                                .catch(error => {
-                                    console.error('SWADE HP Module: Failed to save HP current value:', error);
-                                });
-                        });
-                    }
-                    
-                    if (hpMaxInput.length > 0) {
-                        hpMaxInput.on('change', (event) => {
-                            const newValue = parseInt(event.target.value) || 0;
-                            console.log('SWADE HP Module: HP max value changed to:', newValue);
-                            this.actor.update({ 'system.hitPoints.max': newValue })
-                                .then(() => {
-                                    console.log('SWADE HP Module: Successfully saved HP max value:', newValue);
-                                })
-                                .catch(error => {
-                                    console.error('SWADE HP Module: Failed to save HP max value:', error);
-                                });
-                        });
-                    }
-                    
-                    // Add form submission handler to ensure HP data is saved
-                    const form = html.find('form');
-                    if (form.length > 0) {
-                        form.on('submit', (event) => {
-                            console.log('SWADE HP Module: Form submission detected');
-                            this.handleFormSubmission(event);
-                        });
-                    }
-                    
-                } catch (error) {
-                    console.error('SWADE HP Module: Error in activateListeners:', error);
+                if (hpMaxInput.length > 0) {
+                    hpMaxInput.on('change', (event) => {
+                        const newValue = parseInt(event.target.value) || 0;
+                        this.actor.update({ 'system.hitPoints.max': newValue });
+                    });
                 }
             }
 
-            handleFormSubmission(event) {
-                console.log('SWADE HP Module: Handling form submission');
-                
-                // Get current HP values from the form
-                const hpCurrentValue = parseInt(this.form?.querySelector('input[name="system.hitPoints.current"]')?.value) || 0;
-                const hpMaxValue = parseInt(this.form?.querySelector('input[name="system.hitPoints.max"]')?.value) || 0;
-                
-                console.log('SWADE HP Module: Form HP values - Current:', hpCurrentValue, 'Max:', hpMaxValue);
-                
-                // Ensure HP data structure exists and save values
-                this.actor.update({
-                    'system.hitPoints': {
-                        current: hpCurrentValue,
-                        max: hpMaxValue,
-                        hitDie: this.actor.system.hitPoints?.hitDie || 0
-                    }
-                }).then(() => {
-                    console.log('SWADE HP Module: Successfully saved HP data during form submission');
-                }).catch(error => {
-                    console.error('SWADE HP Module: Failed to save HP data during form submission:', error);
-                });
-            }
+
 
             async _onHPDecrease(event) {
                 event.preventDefault();
