@@ -337,51 +337,62 @@ class SWADEHPSystem {
 
             activateListeners(html) {
                 console.log('SWADE HP Module: Activating listeners for custom sheet');
-                super.activateListeners(html);
                 
-                console.log('SWADE HP Module: Starting form debugging...');
-                console.log('SWADE HP Module: html parameter:', html);
-                console.log('SWADE HP Module: html type:', typeof html);
+                try {
+                    console.log('SWADE HP Module: About to call super.activateListeners...');
+                    super.activateListeners(html);
+                    console.log('SWADE HP Module: Successfully called super.activateListeners');
+                } catch (error) {
+                    console.error('SWADE HP Module: Error in super.activateListeners:', error);
+                }
                 
-                // Test if the HP elements exist
-                const hpCurrentInput = html.find('input[name="system.hitPoints.current"]');
-                console.log('SWADE HP Module: HP current input found:', hpCurrentInput.length);
-                
-                const hpMaxInput = html.find('input[name="system.hitPoints.max"]');
-                console.log('SWADE HP Module: HP max input found:', hpMaxInput.length);
-                
-                // Debug the form structure
-                const forms = html.find('form');
-                console.log('SWADE HP Module: Forms found:', forms.length);
-                
-                // Add form submission debugging with verification
-                html.find('form').on('submit', (event) => {
-                    console.log('SWADE HP Module: Form submit event detected');
-                    const formData = new FormData(event.target);
-                    const currentHP = formData.get('system.hitPoints.current');
-                    const maxHP = formData.get('system.hitPoints.max');
-                    console.log('SWADE HP Module: Form data - Current HP:', currentHP, 'Max HP:', maxHP);
+                try {
+                    console.log('SWADE HP Module: Starting form debugging...');
+                    console.log('SWADE HP Module: html parameter:', html);
+                    console.log('SWADE HP Module: html type:', typeof html);
                     
-                    // Verify the update worked after a short delay
-                    setTimeout(() => {
-                        const updatedCurrentHP = this.actor.system.hitPoints?.current || 0;
-                        const updatedMaxHP = this.actor.system.hitPoints?.max || 0;
+                    // Test if the HP elements exist
+                    const hpCurrentInput = html.find('input[name="system.hitPoints.current"]');
+                    console.log('SWADE HP Module: HP current input found:', hpCurrentInput.length);
+                    
+                    const hpMaxInput = html.find('input[name="system.hitPoints.max"]');
+                    console.log('SWADE HP Module: HP max input found:', hpMaxInput.length);
+                    
+                    // Debug the form structure
+                    const forms = html.find('form');
+                    console.log('SWADE HP Module: Forms found:', forms.length);
+                    
+                    // Add form submission debugging with verification
+                    html.find('form').on('submit', (event) => {
+                        console.log('SWADE HP Module: Form submit event detected');
+                        const formData = new FormData(event.target);
+                        const currentHP = formData.get('system.hitPoints.current');
+                        const maxHP = formData.get('system.hitPoints.max');
+                        console.log('SWADE HP Module: Form data - Current HP:', currentHP, 'Max HP:', maxHP);
                         
-                        console.log('SWADE HP Module: After update - Current HP:', updatedCurrentHP, 'Max HP:', updatedMaxHP);
-                        
-                        if (updatedCurrentHP !== parseInt(currentHP)) {
-                            console.error(`SWADE HP Module: Current HP update failed! Expected ${currentHP}, got ${updatedCurrentHP}`);
-                            ui.notifications.error(`Failed to save current HP. Expected ${currentHP}, got ${updatedCurrentHP}`);
-                        }
-                        
-                        if (updatedMaxHP !== parseInt(maxHP)) {
-                            console.error(`SWADE HP Module: Max HP update failed! Expected ${maxHP}, got ${updatedMaxHP}`);
-                            ui.notifications.error(`Failed to save max HP. Expected ${maxHP}, got ${updatedMaxHP}`);
-                        }
-                    }, 100);
-                });
-                
-                console.log('SWADE HP Module: Form debugging completed');
+                        // Verify the update worked after a short delay
+                        setTimeout(() => {
+                            const updatedCurrentHP = this.actor.system.hitPoints?.current || 0;
+                            const updatedMaxHP = this.actor.system.hitPoints?.max || 0;
+                            
+                            console.log('SWADE HP Module: After update - Current HP:', updatedCurrentHP, 'Max HP:', updatedMaxHP);
+                            
+                            if (updatedCurrentHP !== parseInt(currentHP)) {
+                                console.error(`SWADE HP Module: Current HP update failed! Expected ${currentHP}, got ${updatedCurrentHP}`);
+                                ui.notifications.error(`Failed to save current HP. Expected ${currentHP}, got ${updatedCurrentHP}`);
+                            }
+                            
+                            if (updatedMaxHP !== parseInt(maxHP)) {
+                                console.error(`SWADE HP Module: Max HP update failed! Expected ${maxHP}, got ${updatedMaxHP}`);
+                                ui.notifications.error(`Failed to save max HP. Expected ${maxHP}, got ${updatedMaxHP}`);
+                            }
+                        }, 100);
+                    });
+                    
+                    console.log('SWADE HP Module: Form debugging completed');
+                } catch (error) {
+                    console.error('SWADE HP Module: Error in form debugging section:', error);
+                }
             }
 
             async _onHPDecrease(event) {
