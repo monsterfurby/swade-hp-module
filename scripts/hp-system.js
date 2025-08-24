@@ -52,6 +52,9 @@ class SWADEHPSystem {
         // Hook into advance system
         Hooks.on('preUpdateActor', this.onAdvanceCheck.bind(this));
         
+        // Hook into actor updates to ensure HP data exists
+        Hooks.on('preUpdateActor', this.ensureHPData.bind(this));
+        
         // Register custom sheet after a delay (since we're already in the ready hook)
         setTimeout(async () => {
             console.log('SWADE HP Module: Attempting to register custom sheet...');
@@ -306,8 +309,21 @@ class SWADEHPSystem {
                     // Ensure HP data is available
                     if (!data.actor.system.hitPoints) {
                         data.actor.system.hitPoints = { current: 0, max: 0, hitDie: 0 };
+                        console.log('SWADE HP Module: Created HP data structure in getData');
                     }
                     console.log('SWADE HP Module: HP data available:', data.actor.system.hitPoints);
+                    
+                    // Also ensure the actor itself has the HP data
+                    if (!this.actor.system.hitPoints) {
+                        console.log('SWADE HP Module: Creating HP data structure on actor');
+                        await this.actor.update({
+                            'system.hitPoints': {
+                                current: 0,
+                                max: 0,
+                                hitDie: 0
+                            }
+                        });
+                    }
                 } else {
                     console.warn('SWADE HP Module: Actor or system data not available in getData()');
                     console.log('SWADE HP Module: Data structure:', data);
@@ -326,6 +342,20 @@ class SWADEHPSystem {
                 const hpCurrentInput = html.find('input[name="system.hitPoints.current"]');
                 const hpMaxInput = html.find('input[name="system.hitPoints.max"]');
                 console.log('SWADE HP Module: HP inputs found:', hpCurrentInput.length, hpMaxInput.length);
+                
+                // Add debugging for form submission
+                html.find('form').on('submit', (event) => {
+                    console.log('SWADE HP Module: Form submit event detected');
+                    const formData = new FormData(event.target);
+                    const currentHP = formData.get('system.hitPoints.current');
+                    const maxHP = formData.get('system.hitPoints.max');
+                    console.log('SWADE HP Module: Form data - Current HP:', currentHP, 'Max HP:', maxHP);
+                });
+                
+                // Add debugging for input changes
+                html.on('change', 'input[name="system.hitPoints.current"], input[name="system.hitPoints.max"]', (event) => {
+                    console.log('SWADE HP Module: Input change detected:', event.target.name, event.target.value);
+                });
             }
 
             async _onHPDecrease(event) {
@@ -468,6 +498,25 @@ class SWADEHPSystem {
         }
     }
 
+    ensureHPData(actor, changeData, options, userId) {
+        if (!game.settings.get(this.id, 'enableHP')) return;
+        if (actor.type !== 'character') return;
+        
+        // Ensure HP data structure exists in the change data
+        if (!changeData.system) {
+            changeData.system = {};
+        }
+        
+        if (!changeData.system.hitPoints && !actor.system.hitPoints) {
+            changeData.system.hitPoints = {
+                current: 0,
+                max: 0,
+                hitDie: 0
+            };
+            console.log('SWADE HP Module: Added HP data structure to change data');
+        }
+    }
+
     async rollHPForAdvance(actor) {
         if (!actor.system.hitPoints) return;
         
@@ -557,15 +606,18 @@ class SWADEHPSystem {
         // Initialize HP data structure for existing characters that don't have it
         game.actors.forEach(actor => {
             if (actor.type === 'character' && !actor.system.hitPoints) {
+                console.log(`SWADE HP Module: Initializing HP data structure for ${actor.name}`);
                 actor.update({
                     'system.hitPoints': {
                         current: 0,
                         max: 0,
                         hitDie: 0
                     }
+                }).then(() => {
+                    console.log(`SWADE HP Module: Successfully initialized HP data structure for ${actor.name}`);
+                }).catch(error => {
+                    console.error(`SWADE HP Module: Failed to initialize HP data structure for ${actor.name}:`, error);
                 });
-                
-                console.log(`SWADE HP Module: Initialized HP data structure for ${actor.name}`);
             }
         });
     }
