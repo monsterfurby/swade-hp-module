@@ -369,6 +369,8 @@ class SWADEHPSystem {
             activateListeners(html) {
                 super.activateListeners(html);
                 
+                console.log('SWADE HP Module: activateListeners called!');
+                
                 // Debug: Check if our HP inputs are being found
                 const hpCurrentInput = html.find('input[name="system.hitPoints.current"]');
                 const hpMaxInput = html.find('input[name="system.hitPoints.max"]');
