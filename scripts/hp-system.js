@@ -44,40 +44,34 @@ class SWADEHPSystem {
     }
 
     extendDataSchema() {
-        console.log('SWADE HP Module: Implementing Man-in-the-Middle approach...');
+        console.log('SWADE HP Module: Overriding SWADE getData to inject HP data...');
         
-        // Implement Man-in-the-Middle interception of SWADE's prepareData
-        if (game.swade && game.swade.Actor) {
-            const originalPrepareData = game.swade.Actor.prototype.prepareData;
+        // Override SWADE's CharacterSheet getData method to inject our HP data
+        if (game.swade && game.swade.sheets && game.swade.sheets.CharacterSheet) {
+            const originalGetData = game.swade.sheets.CharacterSheet.prototype.getData;
             
-            game.swade.Actor.prototype.prepareData = function() {
-                // Call SWADE's original prepareData first
-                const result = originalPrepareData.call(this);
+            game.swade.sheets.CharacterSheet.prototype.getData = async function() {
+                // Call SWADE's original getData
+                const data = await originalGetData.call(this);
                 
-                // Now inject our HP data AFTER SWADE has done its work
-                if (this.type === 'character' && game.settings.get('swade-hp-module', 'enableHP')) {
-                    console.log('SWADE HP Module: Checking HP data for:', this.name, 'Current data:', this.system.hitPoints);
-                    if (!this.system.hitPoints) {
-                        console.log('SWADE HP Module: Creating HP data structure via MITM for:', this.name);
-                        this.system.hitPoints = {
+                // Inject our HP data into the template data
+                if (data.actor && data.actor.system && game.settings.get('swade-hp-module', 'enableHP')) {
+                    if (!data.actor.system.hitPoints) {
+                        data.actor.system.hitPoints = {
                             current: 0,
                             max: 0,
                             hitDie: 0
                         };
-                        
-                        // HP data structure created - will be persisted when form is submitted
-                        console.log('SWADE HP Module: HP data structure created for:', this.name, 'Data:', this.system.hitPoints);
-                    } else {
-                        console.log('SWADE HP Module: HP data structure already exists for:', this.name, 'Data:', this.system.hitPoints);
                     }
+                    console.log('SWADE HP Module: Injected HP data into SWADE getData:', data.actor.system.hitPoints);
                 }
                 
-                return result;
+                return data;
             };
             
-            console.log('SWADE HP Module: Successfully implemented Man-in-the-Middle approach');
+            console.log('SWADE HP Module: Successfully overrode SWADE getData');
         } else {
-            console.warn('SWADE HP Module: Could not implement MITM - SWADE Actor not found');
+            console.warn('SWADE HP Module: Could not override getData - SWADE CharacterSheet not found');
         }
     }
 
@@ -351,6 +345,7 @@ class SWADEHPSystem {
             }
 
             async getData() {
+                console.log('SWADE HP Module: getData method called!');
                 const data = await super.getData();
                 
                 console.log('SWADE HP Module: getData called, actor data:', {
@@ -502,7 +497,7 @@ class SWADEHPSystem {
             console.log('SWADE HP Module: Attempting to register with foundry.documents.collections.Actors.registerSheet...');
             foundry.documents.collections.Actors.registerSheet('swade', SWADEHPCharacterSheet, {
                 types: ['character'],
-                makeDefault: false,
+                makeDefault: true,
                 label: 'SWADE HP Module Sheet'
             });
             console.log('SWADE HP Module: Registration successful!');
