@@ -415,6 +415,14 @@ class SWADEHPSystem {
                     console.log('SWADE HP Module: No HP data in final data object');
                 }
                 
+                // Log HP values when sheet opens
+                console.log('SWADE HP Module: === SHEET OPENING HP VALUES ===');
+                console.log('SWADE HP Module: Actor system HP current:', this.actor.system.hitPoints?.current);
+                console.log('SWADE HP Module: Actor system HP max:', this.actor.system.hitPoints?.max);
+                console.log('SWADE HP Module: Template data HP current:', data.hitPoints?.current);
+                console.log('SWADE HP Module: Template data HP max:', data.hitPoints?.max);
+                console.log('SWADE HP Module: === END SHEET OPENING HP VALUES ===');
+                
                 return data;
             }
 
@@ -457,6 +465,39 @@ class SWADEHPSystem {
                         if (hpCurrentInput.length > 0) {
                             console.log('SWADE HP Module: HP current input value:', hpCurrentInput.val());
                             console.log('SWADE HP Module: HP current input name:', hpCurrentInput.attr('name'));
+                            
+                            // Add focus and blur event listeners for HP current input
+                            hpCurrentInput.on('focus', (event) => {
+                                console.log('SWADE HP Module: === HP CURRENT INPUT FOCUS ===');
+                                console.log('SWADE HP Module: User clicked into HP Current field');
+                                console.log('SWADE HP Module: Current value in field:', event.target.value);
+                                console.log('SWADE HP Module: Actor system HP current value:', this.actor.system.hitPoints?.current);
+                            });
+                            
+                            hpCurrentInput.on('blur', (event) => {
+                                console.log('SWADE HP Module: === HP CURRENT INPUT BLUR ===');
+                                console.log('SWADE HP Module: User clicked outside HP Current field');
+                                console.log('SWADE HP Module: Final value in field:', event.target.value);
+                                console.log('SWADE HP Module: Actor system HP current value before blur:', this.actor.system.hitPoints?.current);
+                                
+                                // Check if value changed
+                                const newValue = parseInt(event.target.value) || 0;
+                                const oldValue = this.actor.system.hitPoints?.current || 0;
+                                console.log('SWADE HP Module: Value comparison - Field:', newValue, 'Actor:', oldValue);
+                                
+                                if (newValue !== oldValue) {
+                                    console.log('SWADE HP Module: Value changed! Attempting to save...');
+                                    this.actor.update({ 'system.hitPoints.current': newValue })
+                                        .then(() => {
+                                            console.log('SWADE HP Module: Successfully saved HP current value:', newValue);
+                                        })
+                                        .catch(error => {
+                                            console.error('SWADE HP Module: Failed to save HP current value:', error);
+                                        });
+                                } else {
+                                    console.log('SWADE HP Module: No value change detected');
+                                }
+                            });
                         }
                         
                         const hpMaxInput = html.find('input[name="system.hitPoints.max"]');
@@ -464,6 +505,39 @@ class SWADEHPSystem {
                         if (hpMaxInput.length > 0) {
                             console.log('SWADE HP Module: HP max input value:', hpMaxInput.val());
                             console.log('SWADE HP Module: HP max input name:', hpMaxInput.attr('name'));
+                            
+                            // Add focus and blur event listeners for HP max input
+                            hpMaxInput.on('focus', (event) => {
+                                console.log('SWADE HP Module: === HP MAX INPUT FOCUS ===');
+                                console.log('SWADE HP Module: User clicked into HP Max field');
+                                console.log('SWADE HP Module: Current value in field:', event.target.value);
+                                console.log('SWADE HP Module: Actor system HP max value:', this.actor.system.hitPoints?.max);
+                            });
+                            
+                            hpMaxInput.on('blur', (event) => {
+                                console.log('SWADE HP Module: === HP MAX INPUT BLUR ===');
+                                console.log('SWADE HP Module: User clicked outside HP Max field');
+                                console.log('SWADE HP Module: Final value in field:', event.target.value);
+                                console.log('SWADE HP Module: Actor system HP max value before blur:', this.actor.system.hitPoints?.max);
+                                
+                                // Check if value changed
+                                const newValue = parseInt(event.target.value) || 0;
+                                const oldValue = this.actor.system.hitPoints?.max || 0;
+                                console.log('SWADE HP Module: Value comparison - Field:', newValue, 'Actor:', oldValue);
+                                
+                                if (newValue !== oldValue) {
+                                    console.log('SWADE HP Module: Value changed! Attempting to save...');
+                                    this.actor.update({ 'system.hitPoints.max': newValue })
+                                        .then(() => {
+                                            console.log('SWADE HP Module: Successfully saved HP max value:', newValue);
+                                        })
+                                        .catch(error => {
+                                            console.error('SWADE HP Module: Failed to save HP max value:', error);
+                                        });
+                                } else {
+                                    console.log('SWADE HP Module: No value change detected');
+                                }
+                            });
                         }
                         
                         // Debug the form structure
