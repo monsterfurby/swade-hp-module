@@ -377,16 +377,53 @@ class SWADEHPSystem {
                     });
                 }
                 
-                // Update the specific field
+                // Update the specific field using the same pattern as SWADE wounds
                 try {
-                    await this.actor.update({ [field]: value });
-                    console.log(`SWADE HP Module: Successfully updated ${field} to ${value}`);
+                    console.log(`SWADE HP Module: Current actor data before update:`, this.actor.system.hitPoints);
                     
-                    // Verify the update worked
+                    // Use the same update pattern as SWADE wounds
+                    await this.actor.update({ [field]: value });
+                    
+                    console.log(`SWADE HP Module: Update call completed`);
+                    
+                    // Verify the update worked immediately
                     const updatedValue = foundry.utils.getProperty(this.actor, field);
+                    console.log(`SWADE HP Module: Verification - Expected ${value}, got ${updatedValue}`);
+                    
                     if (updatedValue !== value) {
                         console.error(`SWADE HP Module: Update verification failed! Expected ${value}, got ${updatedValue}`);
-                        ui.notifications.error(`Failed to save HP value. Expected ${value}, got ${updatedValue}`);
+                        console.log(`SWADE HP Module: Full actor system data:`, this.actor.system);
+                        
+                        // Try a different approach - update the entire hitPoints object
+                        console.log(`SWADE HP Module: Trying alternative update method...`);
+                        const currentHP = this.actor.system.hitPoints?.current || 0;
+                        const maxHP = this.actor.system.hitPoints?.max || 0;
+                        
+                        if (field === 'system.hitPoints.current') {
+                            await this.actor.update({
+                                'system.hitPoints': {
+                                    current: value,
+                                    max: maxHP,
+                                    hitDie: this.actor.system.hitPoints?.hitDie || 0
+                                }
+                            });
+                        } else if (field === 'system.hitPoints.max') {
+                            await this.actor.update({
+                                'system.hitPoints': {
+                                    current: currentHP,
+                                    max: value,
+                                    hitDie: this.actor.system.hitPoints?.hitDie || 0
+                                }
+                            });
+                        }
+                        
+                        // Check again
+                        const finalValue = foundry.utils.getProperty(this.actor, field);
+                        if (finalValue !== value) {
+                            ui.notifications.error(`Failed to save HP value. Expected ${value}, got ${finalValue}`);
+                        } else {
+                            console.log(`SWADE HP Module: Alternative update method succeeded`);
+                        }
                     } else {
                         console.log(`SWADE HP Module: Update verified successfully`);
                     }
