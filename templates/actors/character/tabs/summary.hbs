@@ -21,28 +21,28 @@
   </div>
 </div>
 
-  <div class='wounds-wrapper'>
-    <header class='counter-header'>
-      <span class='label'>Hit Points</span>
-    </header>
-  <div class='wounds'>
-    <span class='values'>
+    <div class='stat hp'>
+    <span class='stat-label'>Hit Points</span>
+    <span class='stat-value flexrow'>
       <input
-        type='number'
-        min='0'
+        id='hp-current'
         name='system.hitPoints.current'
+        type='text'
         value='{{actor.system.hitPoints.current}}'
+        placeholder='Current'
         data-dtype='Number'
-      />/<input
-        type='number'
-        min='0'
+      />
+      <span class='hp-separator'>/</span>
+      <input
+        id='hp-max'
         name='system.hitPoints.max'
+        type='text'
         value='{{actor.system.hitPoints.max}}'
+        placeholder='Max'
         data-dtype='Number'
       />
     </span>
   </div>
-</div>
 <div class='status'>
   <label class='check-container'>
     {{localize 'SWADE.Shaken'}}

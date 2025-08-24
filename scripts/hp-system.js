@@ -316,13 +316,34 @@ class SWADEHPSystem {
                 return data;
             }
 
+            async _onSubmit(event) {
+                // Ensure HP data structure exists before form submission
+                if (this.actor && this.actor.system && !this.actor.system.hitPoints) {
+                    console.log('SWADE HP Module: Creating HP data structure before form submission');
+                    await this.actor.update({
+                        'system.hitPoints': {
+                            current: 0,
+                            max: 0,
+                            hitDie: 0
+                        }
+                    });
+                }
+                
+                // Call the parent _onSubmit method
+                return super._onSubmit(event);
+            }
+
             activateListeners(html) {
                 console.log('SWADE HP Module: Activating listeners for custom sheet');
                 super.activateListeners(html);
                 
-                // Add input change listeners for HP fields
-                html.on('change', 'input[name="system.hitPoints.current"]', this._onHPInputChange.bind(this));
-                html.on('change', 'input[name="system.hitPoints.max"]', this._onHPInputChange.bind(this));
+                // Add input event listeners for dynamic sizing only
+                html.on('input', 'input[name="system.hitPoints.current"], input[name="system.hitPoints.max"]', this._onHPInputResize.bind(this));
+                
+                // Initial resize for existing values
+                html.find('input[name="system.hitPoints.current"], input[name="system.hitPoints.max"]').each((i, input) => {
+                    this._resizeInput(input);
+                });
             }
 
             async _onHPDecrease(event) {
@@ -340,27 +361,21 @@ class SWADEHPSystem {
                 await this.actor.update({ 'system.hitPoints.current': newHP });
             }
 
-            async _onHPInputChange(event) {
-                event.preventDefault();
-                const input = event.target;
-                const field = input.name;
-                const value = parseInt(input.value) || 0;
+
+
+            _onHPInputResize(event) {
+                this._resizeInput(event.target);
+            }
+
+            _resizeInput(input) {
+                const value = input.value || '';
+                const length = value.length;
                 
-                // Ensure HP data structure exists
-                if (!this.actor.system.hitPoints) {
-                    await this.actor.update({
-                        'system.hitPoints': {
-                            current: 0,
-                            max: 0,
-                            hitDie: 0
-                        }
-                    });
-                }
+                // Calculate width based on content length
+                let width = Math.max(60, length * 8 + 20); // Base 60px + 8px per character + 20px padding
+                width = Math.min(width, 120); // Cap at 120px
                 
-                // Update the specific field
-                await this.actor.update({ [field]: value });
-                
-                console.log(`SWADE HP Module: Updated ${field} to ${value}`);
+                input.style.width = width + 'px';
             }
 
             async _onManualHPAdvance(event) {

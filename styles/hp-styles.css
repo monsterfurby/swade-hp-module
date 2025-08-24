@@ -28,26 +28,35 @@
   background: rgba(255, 255, 255, 0.9);
 }
 
-/* Responsive font sizing for HP values */
-.hp-wrapper .hp .values input[value*="100"],
-.hp-wrapper .hp .values input[value*="200"],
-.hp-wrapper .hp .values input[value*="300"] {
+/* HP stat styling to match other stats */
+.stat.hp .stat-value input {
+  width: 60px;
+  text-align: center;
   font-size: 1em;
+  font-weight: bold;
+  padding: 0.25rem;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.9);
 }
 
-.hp-wrapper .hp .values input[value*="1000"],
-.hp-wrapper .hp .values input[value*="2000"],
-.hp-wrapper .hp .values input[value*="3000"] {
-  font-size: 0.9em;
+.hp-separator {
+  margin: 0 0.25rem;
+  font-weight: bold;
 }
 
-/* Dynamic width adjustment for larger numbers */
-.hp-wrapper .hp .values input[value*="100"] {
-  width: 80px;
+/* Responsive sizing for larger numbers - using min-width and max-width */
+.stat.hp .stat-value input {
+  min-width: 60px;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.hp-wrapper .hp .values input[value*="1000"] {
-  width: 90px;
+/* Ensure text doesn't get cut off */
+.stat.hp .stat-value input:focus {
+  min-width: 80px;
+  max-width: 120px;
 }
 
 /* Remove all the problematic grid-area and positioning CSS */
