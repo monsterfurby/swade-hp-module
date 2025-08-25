@@ -7,5 +7,7 @@
 			"path": "C:/Users/lordm/Downloads/swade"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"powershell.cwd": "swade_health"
+	}
 }
