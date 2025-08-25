@@ -1,6 +1,6 @@
-/* HP Module Styles - Match SWADE's fatigue/wounds layout exactly */
+/* HP Module Styles - Minimal styling that doesn't interfere with SWADE's grid */
 .hp-wrapper {
-  /* Let SWADE's grid layout handle positioning - no custom positioning */
+  /* Remove all grid positioning - let SWADE handle it naturally */
 }
 
 .hp-wrapper .hp {
@@ -28,56 +28,8 @@
   background: rgba(255, 255, 255, 0.9);
 }
 
-.hp-advance-btn {
-  padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #4a90e2, #357abd);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  margin-top: 0.5rem;
-}
-
-.hp-advance-btn:hover {
-  background: linear-gradient(135deg, #357abd, #2c5aa0);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.hp-advance-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.hp-wrapper .counter-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-}
-
-.hp-wrapper .label {
-  font-weight: bold;
-  font-size: 1.1em;
-  color: #d4af37;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.hp-values {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.hp-input {
+/* HP input styling with responsive sizing */
+.wounds-wrapper .wounds .values input {
   width: 70px;
   text-align: center;
   font-size: 1.2em;
@@ -86,108 +38,37 @@
   border: 1px solid #ccc;
   border-radius: 3px;
   background: rgba(255, 255, 255, 0.9);
+  min-width: 70px;
+  max-width: 120px;
 }
 
-.hp-separator {
-  font-weight: bold;
-  color: var(--color-text-secondary);
-}
-
-.hp-max {
-  font-weight: bold;
-  color: var(--color-text-secondary);
-}
-
-.hp-advance-button {
-  padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #4a90e2, #357abd);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.hp-advance-button:hover {
-  background: linear-gradient(135deg, #357abd, #2c5aa0);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.hp-advance-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-/* Smaller wounds display */
-.wounds-compact {
-  transform: scale(0.85);
-  transform-origin: left top;
-  margin: 0.25rem 0;
-  opacity: 0.8;
-}
-
-.wounds-compact .counter-header {
-  margin-bottom: 0.25rem;
-}
-
-.wounds-compact .label {
-  font-size: 0.9em;
-}
-
-.wounds-compact .values input {
-  width: 50px;
-  font-size: 0.9em;
-}
-
-/* NPC HP specific styles */
-.npc-hp-container {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0.5rem 0;
-}
-
-.npc-hp-label {
-  font-weight: bold;
+/* Responsive sizing for larger numbers */
+.wounds-wrapper .wounds .values input:focus {
   min-width: 80px;
+  max-width: 140px;
 }
 
-.npc-hp-inputs {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
+/* Ensure text doesn't get cut off */
+.wounds-wrapper .wounds .values input {
+  overflow: visible;
+  text-overflow: clip;
 }
 
-/* Character sheet integration */
-.character .hp-wrapper {
-  grid-area: hp;
+/* Wounds simple display - matches Size/Pace/Parry/Toughness style */
+.stat.wounds-simple .stat-value input {
+  width: 60px;
+  text-align: center;
+  font-size: 1em;
+  font-weight: bold;
+  padding: 0.25rem;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.9);
 }
 
-.character .hp-wrapper .hp-header {
-  background: var(--color-primary);
-  color: var(--color-text-on-primary);
+.stat.wounds-simple .wounds-max {
+  margin-left: 0.25rem;
+  font-weight: bold;
 }
 
-/* NPC sheet integration */
-.npc .npc-hp-container {
-  margin: 0.25rem 0;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .hp-values {
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-  
-  .npc-hp-container {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
+/* Remove all the problematic grid-area and positioning CSS */

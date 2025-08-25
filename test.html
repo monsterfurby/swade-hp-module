@@ -1,222 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SWADE HP Module Test</title>
-    <link rel="stylesheet" href="styles/hp-styles.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background: #f5f5f5;
-        }
-        .test-container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .test-title {
-            color: #333;
-            border-bottom: 2px solid #007cba;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        .test-section {
-            margin-bottom: 30px;
-        }
-        .test-section h3 {
-            color: #007cba;
-            margin-bottom: 15px;
-        }
-        .mock-character {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            border-left: 4px solid #007cba;
-        }
-        .mock-npc {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            border-left: 4px solid #28a745;
-        }
-        .status {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin: 15px 0;
-        }
-        .check-container {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .check-container input[type="checkbox"] {
-            margin: 0;
-        }
-        .checkmark {
-            width: 16px;
-            height: 16px;
-            border: 2px solid #ccc;
-            border-radius: 3px;
-            display: inline-block;
-            position: relative;
-        }
-        .check-container input[type="checkbox"]:checked + .checkmark {
-            background: #007cba;
-            border-color: #007cba;
-        }
-        .check-container input[type="checkbox"]:checked + .checkmark::after {
-            content: '✓';
-            color: white;
-            position: absolute;
-            top: -2px;
-            left: 2px;
-            font-size: 12px;
-        }
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
     </style>
 </head>
 <body>
-    <div class="test-container">
-        <h1 class="test-title">SWADE HP Module - Visual Test</h1>
-        
-        <div class="test-section">
-            <h3>Character Sheet HP Display</h3>
-            <div class="mock-character">
-                <div class='hp-wrapper'>
-                    <header class='counter-header'>
-                        <button type='button' class='adjust-counter' data-action='hp-minus'>
-                            <i class='fa-solid fa-minus fa-lg'>−</i>
-                        </button>
-                        <span class='label'>Hit Points</span>
-                        <button type='button' class='adjust-counter' data-action='hp-plus'>
-                            <i class='fa-solid fa-plus fa-lg'>+</i>
-                        </button>
-                    </header>
-                    <div class='hp-values'>
-                        <span class='values'>
-                            <input
-                                type='number'
-                                min='0'
-                                name='system.hitPoints.current'
-                                value='6'
-                                data-dtype='Number'
-                                class='hp-input'
-                            />/8
-                        </span>
-                    </div>
-                    <button type='button' class='hp-advance-button' data-action='roll-hp-advance' 
-                            title="Roll a hit die (current Vigor value) and add to max HP">
-                        Roll HP for Advance
-                    </button>
-                </div>
-                
-                <div class='status'>
-                    <label class='check-container'>
-                        Shaken
-                        <input type='checkbox' data-id='shaken' data-key='isShaken' />
-                        <span class='checkmark'></span>
-                    </label>
-                    <label class='check-container'>
-                        Distracted
-                        <input type='checkbox' data-id='distracted' data-key='isDistracted' />
-                        <span class='checkmark'></span>
-                    </label>
-                    <label class='check-container'>
-                        Vulnerable
-                        <input type='checkbox' data-id='vulnerable' data-key='isVulnerable' />
-                        <span class='checkmark'></span>
-                    </label>
-                </div>
-            </div>
-        </div>
-        
-        <div class="test-section">
-            <h3>NPC Sheet HP Display</h3>
-            <div class="mock-npc">
-                <div class="npc-hp-container">
-                    <span class="npc-hp-label">Hit Points</span>
-                    <div class="npc-hp-inputs">
-                        <input
-                            type="number"
-                            name="system.hitPoints.current"
-                            value="12"
-                            data-dtype="Number"
-                            class="vitals-input"
-                            style="width: 60px; padding: 4px; border: 1px solid #ccc; border-radius: 3px;"
-                        />
-                        <span class="seperator">/</span>
-                        <input
-                            type="number"
-                            name="system.hitPoints.max"
-                            value="15"
-                            data-dtype="Number"
-                            class="vitals-input"
-                            style="width: 60px; padding: 4px; border: 1px solid #ccc; border-radius: 3px;"
-                        />
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="test-section">
-            <h3>Test Instructions</h3>
-            <ol>
-                <li><strong>Visual Check:</strong> Verify the HP displays look correct and match SWADE's style</li>
-                <li><strong>Input Test:</strong> Try changing the HP values in the input fields</li>
-                <li><strong>Button Test:</strong> Click the +/- buttons to see if they respond</li>
-                <li><strong>Advance Button:</strong> Click the "Roll HP for Advance" button</li>
-                <li><strong>Responsive Test:</strong> Resize your browser window to test mobile layout</li>
-            </ol>
-        </div>
-        
-        <div class="test-section">
-            <h3>Expected Behavior</h3>
-            <ul>
-                <li>HP display should appear between Wounds and Status sections</li>
-                <li>Current HP should be editable, max HP should be read-only</li>
-                <li>+/- buttons should increment/decrement current HP</li>
-                <li>Advance button should trigger a hit die roll</li>
-                <li>NPC HP should have separate current/max input fields</li>
-                <li>All styling should match SWADE's existing UI</li>
-            </ul>
-        </div>
+    <h1>SWADE HP Module Test</h1>
+    
+    <div class="test-section">
+        <h2>Module Status</h2>
+        <div id="module-status">Checking module status...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>HP Data Structure Test</h2>
+        <div id="hp-data-test">Testing HP data structure...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Template Test</h2>
+        <div id="template-test">Testing template rendering...</div>
     </div>
     
     <script>
-        // Simple test functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            // Test HP adjustment buttons
-            document.querySelectorAll('[data-action="hp-minus"]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const input = this.closest('.hp-wrapper').querySelector('input[name="system.hitPoints.current"]');
-                    const current = parseInt(input.value) || 0;
-                    input.value = Math.max(0, current - 1);
-                });
-            });
+        // Simple test to verify the module is working
+        function testModule() {
+            const statusDiv = document.getElementById('module-status');
+            const hpDataDiv = document.getElementById('hp-data-test');
+            const templateDiv = document.getElementById('template-test');
             
-            document.querySelectorAll('[data-action="hp-plus"]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const input = this.closest('.hp-wrapper').querySelector('input[name="system.hitPoints.current"]');
-                    const current = parseInt(input.value) || 0;
-                    const max = 8; // Mock max HP
-                    input.value = Math.min(max, current + 1);
-                });
-            });
+            // Test 1: Check if module is loaded
+            if (typeof SWADEHPSystem !== 'undefined') {
+                statusDiv.innerHTML = '<span class="success">✓ SWADE HP Module is loaded</span>';
+            } else {
+                statusDiv.innerHTML = '<span class="error">✗ SWADE HP Module is not loaded</span>';
+            }
             
-            // Test advance button
-            document.querySelectorAll('[data-action="roll-hp-advance"]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const roll = Math.floor(Math.random() * 6) + 1;
-                    alert(`Hit Die Roll: ${roll}\nThis would add ${roll} to max HP in the actual module.`);
-                });
-            });
-        });
+            // Test 2: Check if Handlebars helper is registered
+            if (typeof Handlebars !== 'undefined' && Handlebars.helpers && Handlebars.helpers.hpValue) {
+                hpDataDiv.innerHTML = '<span class="success">✓ Handlebars helper is registered</span>';
+            } else {
+                hpDataDiv.innerHTML = '<span class="error">✗ Handlebars helper is not registered</span>';
+            }
+            
+            // Test 3: Check if partial is registered
+            if (typeof Handlebars !== 'undefined' && Handlebars.partials && Handlebars.partials['swade-hp-module.character-tab-summary']) {
+                templateDiv.innerHTML = '<span class="success">✓ Template partial is registered</span>';
+            } else {
+                templateDiv.innerHTML = '<span class="error">✗ Template partial is not registered</span>';
+            }
+        }
+        
+        // Run test when page loads
+        window.addEventListener('load', testModule);
     </script>
 </body>
 </html>

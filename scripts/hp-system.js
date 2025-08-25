@@ -13,17 +13,21 @@ class SWADEHPSystem {
     }
 
     init() {
-        console.log('SWADE HP Module: Initializing...');
+        console.log('SWADE HP Module: Initializing with MITM approach...');
         
         // Register module settings
         this.registerSettings();
         console.log('SWADE HP Module: Settings registered');
         
+        // Implement Man-in-the-Middle approach for data injection
+        this.extendDataSchema();
+        console.log('SWADE HP Module: MITM approach implemented');
+        
         // Hook into SWADE system
         this.setupHooks();
         console.log('SWADE HP Module: Hooks set up');
         
-        // Initialize HP for existing actors
+        // Initialize HP for existing actors (backup approach)
         this.initializeExistingActors();
         console.log('SWADE HP Module: Initialization complete');
     }
@@ -39,6 +43,55 @@ class SWADEHPSystem {
         });
     }
 
+    extendDataSchema() {
+        console.log('SWADE HP Module: Setting up data injection...');
+        
+        // Override SWADE's CharacterSheet getData method to inject our HP data
+        if (game.swade && game.swade.sheets && game.swade.sheets.CharacterSheet) {
+            const originalGetData = game.swade.sheets.CharacterSheet.prototype.getData;
+            
+            game.swade.sheets.CharacterSheet.prototype.getData = async function() {
+                // Call SWADE's original getData
+                const data = await originalGetData.call(this);
+                
+                // Inject our HP data from flags into the template data
+                if (data.actor && game.settings.get('swade-hp-module', 'enableHP')) {
+                    // Get HP data from flags instead of system
+                    const hpData = data.actor.flags['swade-hp-module']?.hitPoints || { current: 0, max: 0, hitDie: 0 };
+                    data.actor.system.hitPoints = hpData;
+                    console.log('SWADE HP Module: Injected HP data into SWADE getData:', data.actor.system.hitPoints);
+                }
+                
+                return data;
+            };
+            
+            console.log('SWADE HP Module: Successfully overrode SWADE getData');
+        } else {
+            console.warn('SWADE HP Module: Could not override getData - SWADE CharacterSheet not found');
+        }
+        
+        // Also ensure HP data structure exists on the actor's actual data
+        if (game.swade && game.swade.Actor) {
+            const originalPrepareData = game.swade.Actor.prototype.prepareData;
+            
+            game.swade.Actor.prototype.prepareData = function() {
+                // Call SWADE's original prepareData first
+                const result = originalPrepareData.call(this);
+                
+                // Get HP data from flags instead of system
+                if (this.type === 'character' && game.settings.get('swade-hp-module', 'enableHP')) {
+                    const hpData = this.flags['swade-hp-module']?.hitPoints || { current: 0, max: 0, hitDie: 0 };
+                    this.system.hitPoints = hpData;
+                    console.log('SWADE HP Module: Created HP data structure on actor:', this.name);
+                }
+                
+                return result;
+            };
+            
+            console.log('SWADE HP Module: Successfully set up actor data structure');
+        }
+    }
+
     setupHooks() {
         console.log('SWADE HP Module: Setting up hooks...');
         
@@ -52,18 +105,31 @@ class SWADEHPSystem {
         // Hook into advance system
         Hooks.on('preUpdateActor', this.onAdvanceCheck.bind(this));
         
-        // Register custom sheet after a delay (since we're already in the ready hook)
-        setTimeout(() => {
-            console.log('SWADE HP Module: Attempting to register custom sheet...');
-            this.registerCustomSheet();
-        }, 1000); // Wait 1 second to ensure everything is loaded
+        // Debug: Monitor actor updates to see if HP data is being included
+        Hooks.on('preUpdateActor', (actor, changeData, options, userId) => {
+            if (actor.type === 'character') {
+                console.log('SWADE HP Module: Actor update detected:', {
+                    actorName: actor.name,
+                    changeData: changeData,
+                    hasHPData: !!changeData.system?.hitPoints
+                });
+            }
+        });
         
-        // Initialize HP for existing characters
-        this.initializeExistingActors();
+        // Register custom sheet after a delay
+        setTimeout(async () => {
+            console.log('SWADE HP Module: Attempting to register custom sheet...');
+            await this.registerCustomSheet();
+        }, 1000); // Wait 1 second to ensure everything is loaded
     }
 
     registerPartials() {
         console.log('SWADE HP Module: Registering Handlebars partials...');
+        
+        // Register a helper to handle undefined HP values
+        Handlebars.registerHelper('hpValue', function(value, defaultValue = 0) {
+            return value !== undefined && value !== null ? value : defaultValue;
+        });
         
         // Load and register the summary tab partial
         fetch('modules/swade-hp-module/templates/actors/character/tabs/summary.hbs')
@@ -88,7 +154,7 @@ class SWADEHPSystem {
             });
     }
 
-    waitForSWADE() {
+    async waitForSWADE() {
         // Enhanced detection - check multiple ways to find CharacterSheet (V13 + SWADE compatible)
         const detectCharacterSheet = () => {
             // Method 1: Check game.swade.sheets.CharacterSheet (SWADE v13 proper way)
@@ -130,14 +196,14 @@ class SWADEHPSystem {
         const existingSheet = detectCharacterSheet();
         if (existingSheet) {
             console.log('SWADE HP Module: CharacterSheet already available, registering immediately...');
-            this.registerCustomSheet(existingSheet);
+            await this.registerCustomSheet(existingSheet);
             return;
         }
 
         // If not ready, wait and check periodically
         console.log('SWADE HP Module: CharacterSheet not ready, waiting...');
         let checkCount = 0;
-        const checkInterval = setInterval(() => {
+        const checkInterval = setInterval(async () => {
             checkCount++;
             console.log(`SWADE HP Module: Checking if CharacterSheet is ready... (attempt ${checkCount})`);
             
@@ -145,17 +211,17 @@ class SWADEHPSystem {
             if (foundSheet) {
                 console.log('SWADE HP Module: CharacterSheet is now ready!');
                 clearInterval(checkInterval);
-                this.registerCustomSheet(foundSheet);
+                await this.registerCustomSheet(foundSheet);
             }
         }, 500); // Check every 500ms instead of 100ms
 
         // Also listen for the ready hook as backup
-        Hooks.once('ready', () => {
+        Hooks.once('ready', async () => {
             console.log('SWADE HP Module: ready hook fired!');
             const foundSheet = detectCharacterSheet();
             if (foundSheet) {
                 clearInterval(checkInterval);
-                this.registerCustomSheet(foundSheet);
+                await this.registerCustomSheet(foundSheet);
             }
         });
 
@@ -170,7 +236,7 @@ class SWADEHPSystem {
         }, 15000);
     }
 
-    registerCustomSheet(CharacterSheetClass = null) {
+    async registerCustomSheet(CharacterSheetClass = null) {
         console.log('SWADE HP Module: Starting custom sheet registration...');
         
         // Use provided class or try to find it using V13 + SWADE proper method
@@ -218,27 +284,25 @@ class SWADEHPSystem {
         console.log('SWADE HP Module: Attempting to fetch partial from:', partialPath);
         
         // Make this async and wait for completion
-        this.registerPartialAndCreateSheet(partialPath, BaseCharacterSheet);
+        await this.registerPartialAndCreateSheet(partialPath, BaseCharacterSheet);
     }
 
     async registerPartialAndCreateSheet(partialPath, BaseCharacterSheet) {
         try {
-            console.log('SWADE HP Module: Starting async partial registration...');
-            const response = await fetch(partialPath);
-            console.log('SWADE HP Module: Partial fetch response status:', response.status);
-            console.log('SWADE HP Module: Partial fetch response ok:', response.ok);
-            console.log('SWADE HP Module: Partial fetch response url:', response.url);
+            console.log('SWADE HP Module: Starting proper template registration using Foundry VTT v13 method...');
             
-            if (!response.ok) {
-                throw new Error(`Failed to fetch partial: ${response.status} ${response.statusText} from ${response.url}`);
-            }
+            // Use Foundry VTT v13's proper template loading system (same as SWADE)
+            const templatePaths = {
+                'swade-hp-module.character-tab-summary': 'modules/swade-hp-module/templates/actors/character/tabs/summary.hbs'
+            };
             
-            const template = await response.text();
-            console.log('SWADE HP Module: Partial template content length:', template.length);
-            console.log('SWADE HP Module: Partial template preview:', template.substring(0, 200));
+            console.log('SWADE HP Module: Template paths object:', templatePaths);
+            console.log('SWADE HP Module: foundry.applications.handlebars available:', !!foundry.applications.handlebars);
+            console.log('SWADE HP Module: loadTemplates method available:', !!foundry.applications.handlebars?.loadTemplates);
             
-            Handlebars.registerPartial('swade-hp-module.character-tab-summary', template);
-            console.log('SWADE HP Module: Successfully registered character-tab-summary partial');
+            console.log('SWADE HP Module: Loading templates with foundry.applications.handlebars.loadTemplates...');
+            await foundry.applications.handlebars.loadTemplates(templatePaths);
+            console.log('SWADE HP Module: Successfully loaded templates using Foundry VTT v13 method');
             
             // Verify registration
             const registered = Handlebars.partials['swade-hp-module.character-tab-summary'];
@@ -298,35 +362,83 @@ class SWADEHPSystem {
             }
 
             async getData() {
-                console.log('SWADE HP Module: Getting data for custom sheet');
-                console.log('SWADE HP Module: Template being used:', this.options.template);
-                console.log('SWADE HP Module: Default options template:', this.constructor.defaultOptions.template);
+                console.log('SWADE HP Module: getData method called!');
                 const data = await super.getData();
                 
-                // Ensure actor and system data exist before accessing
+                console.log('SWADE HP Module: getData called, actor data:', {
+                    actorName: data.actor?.name,
+                    hasSystem: !!data.actor?.system,
+                    hasHitPoints: !!data.actor?.system?.hitPoints,
+                    hitPointsData: data.actor?.system?.hitPoints,
+                    fullActorSystem: data.actor?.system
+                });
+                
+                // Ensure HP data structure exists in template data (following SWADE's pattern)
                 if (data.actor && data.actor.system) {
-                    // Ensure HP data is available
                     if (!data.actor.system.hitPoints) {
-                        data.actor.system.hitPoints = { current: 0, max: 0, hitDie: 0 };
+                        data.actor.system.hitPoints = {
+                            current: 0,
+                            max: 0,
+                            hitDie: 0
+                        };
+                        console.log('SWADE HP Module: Created HP data in getData');
+                    } else {
+                        console.log('SWADE HP Module: HP data already exists in getData:', data.actor.system.hitPoints);
                     }
-                    console.log('SWADE HP Module: HP data available:', data.actor.system.hitPoints);
-                } else {
-                    console.warn('SWADE HP Module: Actor or system data not available in getData()');
-                    console.log('SWADE HP Module: Data structure:', data);
                 }
                 
                 return data;
             }
 
+
+
             activateListeners(html) {
-                console.log('SWADE HP Module: Activating listeners for custom sheet');
                 super.activateListeners(html);
                 
-                // Add HP-specific event listeners
-                html.on('click', '[data-action="hp-minus"]', this._onHPDecrease.bind(this));
-                html.on('click', '[data-action="hp-plus"]', this._onHPIncrease.bind(this));
-                html.on('click', '[data-action="roll-hp-advance"]', this._onManualHPAdvance.bind(this));
+                console.log('SWADE HP Module: activateListeners called!');
+                
+                // Debug: Check if our HP inputs are being found
+                const hpCurrentInput = html.find('input[name="system.hitPoints.current"]');
+                const hpMaxInput = html.find('input[name="system.hitPoints.max"]');
+                
+                console.log('SWADE HP Module: Found HP inputs:', {
+                    current: hpCurrentInput.length,
+                    max: hpMaxInput.length,
+                    currentValue: hpCurrentInput.val(),
+                    maxValue: hpMaxInput.val()
+                });
+                
+                // Add form submission debugging
+                const form = html.find('form');
+                if (form.length > 0) {
+                    form.on('submit', (event) => {
+                        console.log('SWADE HP Module: Form submission detected');
+                        const formData = new FormData(event.target);
+                        const hpCurrent = formData.get('system.hitPoints.current');
+                        const hpMax = formData.get('system.hitPoints.max');
+                        console.log('SWADE HP Module: Form data includes HP:', {
+                            current: hpCurrent,
+                            max: hpMax
+                        });
+                    });
+                    
+                    // Test: Add a button to manually trigger form submission
+                    const testButton = $('<button type="button" style="position: absolute; top: 10px; right: 10px; z-index: 1000; background: red; color: white; padding: 5px;">Test Form</button>');
+                    testButton.on('click', () => {
+                        console.log('SWADE HP Module: Manual form submission test');
+                        const formData = new FormData(form[0]);
+                        const hpCurrent = formData.get('system.hitPoints.current');
+                        const hpMax = formData.get('system.hitPoints.max');
+                        console.log('SWADE HP Module: Manual form data includes HP:', {
+                            current: hpCurrent,
+                            max: hpMax
+                        });
+                    });
+                    html.append(testButton);
+                }
             }
+
+
 
             async _onHPDecrease(event) {
                 event.preventDefault();
@@ -342,6 +454,8 @@ class SWADEHPSystem {
                 const newHP = Math.min(maxHP, currentHP + 1);
                 await this.actor.update({ 'system.hitPoints.current': newHP });
             }
+
+
 
             async _onManualHPAdvance(event) {
                 event.preventDefault();
@@ -400,7 +514,7 @@ class SWADEHPSystem {
             console.log('SWADE HP Module: Attempting to register with foundry.documents.collections.Actors.registerSheet...');
             foundry.documents.collections.Actors.registerSheet('swade', SWADEHPCharacterSheet, {
                 types: ['character'],
-                makeDefault: false,
+                makeDefault: true,
                 label: 'SWADE HP Module Sheet'
             });
             console.log('SWADE HP Module: Registration successful!');
@@ -442,13 +556,33 @@ class SWADEHPSystem {
     onPreUpdateActor(actor, changeData, options, userId) {
         if (!game.settings.get(this.id, 'enableHP')) return;
         
-        // Ensure HP data structure exists
-        if (!changeData.system.hitPoints && !actor.system.hitPoints) {
-            changeData.system.hitPoints = {
-                current: 0,
-                max: 0,
-                hitDie: 0
+        // If HP values are being updated in system data, convert them to flags
+        if (changeData.system && (changeData.system.hitPoints?.current !== undefined || changeData.system.hitPoints?.max !== undefined)) {
+            console.log('SWADE HP Module: HP values being updated in system data:', changeData.system.hitPoints);
+            
+            // Get current HP data from flags
+            const currentHPData = actor.flags['swade-hp-module']?.hitPoints || { current: 0, max: 0, hitDie: 0 };
+            
+            // Create new HP data by merging current flags with system updates
+            const newHPData = {
+                current: changeData.system.hitPoints.current !== undefined ? changeData.system.hitPoints.current : currentHPData.current,
+                max: changeData.system.hitPoints.max !== undefined ? changeData.system.hitPoints.max : currentHPData.max,
+                hitDie: changeData.system.hitPoints.hitDie !== undefined ? changeData.system.hitPoints.hitDie : currentHPData.hitDie
             };
+            
+            // Convert system update to flags update
+            if (!changeData.flags) {
+                changeData.flags = {};
+            }
+            if (!changeData.flags['swade-hp-module']) {
+                changeData.flags['swade-hp-module'] = {};
+            }
+            changeData.flags['swade-hp-module'].hitPoints = newHPData;
+            
+            // Remove the system.hitPoints from the update to avoid conflicts
+            delete changeData.system.hitPoints;
+            
+            console.log('SWADE HP Module: Converted system update to flags update:', newHPData);
         }
     }
 
@@ -467,18 +601,19 @@ class SWADEHPSystem {
     }
 
     async rollHPForAdvance(actor) {
-        if (!actor.system.hitPoints) return;
+        const hpData = actor.flags['swade-hp-module']?.hitPoints;
+        if (!hpData) return;
         
         const vigorDie = actor.system.attributes.vigor.die.sides;
         const roll = new Roll(`1d${vigorDie}`);
         const result = await roll.evaluate();
         
-        const newMaxHP = actor.system.hitPoints.max + result.total;
-        const newCurrentHP = Math.min(actor.system.hitPoints.current + result.total, newMaxHP);
+        const newMaxHP = hpData.max + result.total;
+        const newCurrentHP = Math.min(hpData.current + result.total, newMaxHP);
         
         await actor.update({
-            'system.hitPoints.max': newMaxHP,
-            'system.hitPoints.current': newCurrentHP
+            'flags.swade-hp-module.hitPoints.max': newMaxHP,
+            'flags.swade-hp-module.hitPoints.current': newCurrentHP
         });
         
         // Show roll result
@@ -506,47 +641,36 @@ class SWADEHPSystem {
         ChatMessage.create(chatData);
     }
 
-    // NPC HP display (simpler approach for NPCs)
-    onRenderActorSheet(app, html, data) {
+    ensureAllActorsHaveHPData() {
         if (!game.settings.get(this.id, 'enableHP')) return;
         
-        // Only handle NPCs here - characters use custom sheet
-        if (data.actor.type === 'npc') {
-            this.addNPCHPDisplay(html, data);
-        }
-    }
-
-    addNPCHPDisplay(html, data) {
-        const hpData = data.actor.system.hitPoints || { current: 0, max: 0 };
+        console.log('SWADE HP Module: Ensuring HP data structure exists for all existing characters...');
         
-        // Find the vitals section to add HP
-        const vitalsSection = html.find('.vitals');
-        if (vitalsSection.length > 0) {
-            const hpHTML = `
-                <div class="npc-hp-container">
-                    <span class="npc-hp-label">${game.i18n.localize('SWADE_HP.HitPoints')}</span>
-                    <div class="npc-hp-inputs">
-                        <input
-                            type="number"
-                            name="system.hitPoints.current"
-                            value="${hpData.current}"
-                            data-dtype="Number"
-                            class="vitals-input"
-                        />
-                        <span class="seperator">/</span>
-                        <input
-                            type="number"
-                            name="system.hitPoints.max"
-                            value="${hpData.max}"
-                            data-dtype="Number"
-                            class="vitals-input"
-                        />
-                    </div>
-                </div>
-            `;
-            
-            vitalsSection.append(hpHTML);
-        }
+        // Ensure HP data structure exists for all existing characters
+        game.actors.forEach(actor => {
+            if (actor.type === 'character') {
+                console.log(`SWADE HP Module: Checking actor: ${actor.name}`);
+                
+                if (!actor.flags['swade-hp-module']?.hitPoints) {
+                    console.log(`SWADE HP Module: Creating HP data structure for ${actor.name}`);
+                    actor.update({
+                        'flags.swade-hp-module.hitPoints': {
+                            current: 0,
+                            max: 0,
+                            hitDie: 0
+                        }
+                    }).then(() => {
+                        console.log(`SWADE HP Module: Successfully created HP data structure for ${actor.name}`);
+                    }).catch(error => {
+                        console.error(`SWADE HP Module: Failed to create HP data structure for ${actor.name}:`, error);
+                    });
+                } else {
+                    console.log(`SWADE HP Module: HP data structure already exists for ${actor.name}:`, actor.flags['swade-hp-module'].hitPoints);
+                }
+            }
+        });
+        
+        console.log('SWADE HP Module: Finished ensuring HP data structure for all actors');
     }
 
     initializeExistingActors() {
@@ -554,16 +678,19 @@ class SWADEHPSystem {
         
         // Initialize HP data structure for existing characters that don't have it
         game.actors.forEach(actor => {
-            if (actor.type === 'character' && !actor.system.hitPoints) {
+            if (actor.type === 'character' && !actor.flags['swade-hp-module']?.hitPoints) {
+                console.log(`SWADE HP Module: Initializing HP data structure for ${actor.name}`);
                 actor.update({
-                    'system.hitPoints': {
+                    'flags.swade-hp-module.hitPoints': {
                         current: 0,
                         max: 0,
                         hitDie: 0
                     }
+                }).then(() => {
+                    console.log(`SWADE HP Module: Successfully initialized HP data structure for ${actor.name}`);
+                }).catch(error => {
+                    console.error(`SWADE HP Module: Failed to initialize HP data structure for ${actor.name}:`, error);
                 });
-                
-                console.log(`SWADE HP Module: Initialized HP data structure for ${actor.name}`);
             }
         });
     }
@@ -577,9 +704,10 @@ class SWADEHPSystem {
 
     // Utility function to calculate max HP for a character
     static calculateMaxHP(actor) {
-        if (!actor.system.hitPoints) return 0;
+        const hpData = actor.flags['swade-hp-module']?.hitPoints;
+        if (!hpData) return 0;
         
-        const baseHP = actor.system.hitPoints.hitDie || 0;
+        const baseHP = hpData.hitDie || 0;
         const advances = actor.system.advances?.value || 0;
         
         // For simplicity, we'll assume each advance adds the current Vigor die

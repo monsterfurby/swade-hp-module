@@ -1,4 +1,3 @@
-{{!-- SWADE HP MODULE CUSTOM TEMPLATE LOADED --}}
 <form
   class="main-grid {{cssClass}}{{#if settingrules.conviction}} conviction-enabled{{/if}}"
   autocomplete="off"
@@ -108,26 +107,9 @@
   <main class="gridcell sheet-body">
     {{!-- Summary Tab --}}
     <section class="tab summary active" data-group="primary" data-tab="summary">
-      <div style="background: lime; color: black; padding: 10px; font-weight: bold; border: 3px solid red;">
-        🟢 CUSTOM TEMPLATE WITH HP IS LOADING! 🟢
-      </div>
-      
       {{!-- Use our custom summary partial that includes HP counter --}}
       {{> "swade-hp-module.character-tab-summary"}}
-
-
-
-
-
-
-
-
-
-
-
     </section>
-
-    {{!-- Other Tabs use original SWADE partials --}}
     {{!-- Edges/Hindrances Tab --}}
     <section class="tab edges" data-group="primary" data-tab="edges">
       {{> "swade.character-tab-edges"}}

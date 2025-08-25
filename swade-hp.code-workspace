@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "C:/Users/lordm/Downloads/swade"
+		}
+	],
+	"settings": {
+		"powershell.cwd": "swade_health"
+	}
+}
