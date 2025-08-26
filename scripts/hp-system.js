@@ -10,24 +10,29 @@ console.log('SWADE HP Module: About to register ready hook');
 class SWADEHPSystem {
     constructor() {
         this.id = 'swade-hp-module';
+        this.HP_KEY = 'swade-hp-module-hitpoints'; // Reserved key for additional stats
     }
 
     init() {
-        console.log('SWADE HP Module: Initializing with MITM approach...');
+        console.log('SWADE HP Module: Initializing with additional stats approach...');
         
         // Register module settings
         this.registerSettings();
         console.log('SWADE HP Module: Settings registered');
         
-        // Implement Man-in-the-Middle approach for data injection
+        // Register HP stat in SWADE's settingFields
+        this.registerHPStat();
+        console.log('SWADE HP Module: HP stat registered in settingFields');
+        
+        // Implement data injection for UI
         this.extendDataSchema();
-        console.log('SWADE HP Module: MITM approach implemented');
+        console.log('SWADE HP Module: Data injection implemented');
         
         // Hook into SWADE system
         this.setupHooks();
         console.log('SWADE HP Module: Hooks set up');
         
-        // Initialize HP for existing actors (backup approach)
+        // Initialize HP for existing actors
         this.initializeExistingActors();
         console.log('SWADE HP Module: Initialization complete');
     }
@@ -43,6 +48,79 @@ class SWADEHPSystem {
         });
     }
 
+    registerHPStat() {
+        // Add HP stat to SWADE's settingFields to make it "official"
+        const settingFields = game.settings.get('swade', 'settingFields');
+        
+        // Only add if it doesn't already exist
+        if (!settingFields.actor[this.HP_KEY]) {
+            settingFields.actor[this.HP_KEY] = {
+                label: "Hit Points",
+                dtype: "Number",
+                hasMaxValue: true
+            };
+            
+            game.settings.set('swade', 'settingFields', settingFields);
+            console.log('SWADE HP Module: HP stat added to settingFields');
+        } else {
+            console.log('SWADE HP Module: HP stat already exists in settingFields');
+        }
+    }
+
+    // Get HP data from additional stats (primary) or flags (fallback)
+    getHPData(actor) {
+        if (!game.settings.get(this.id, 'enableHP')) {
+            return { current: 0, max: 0, hitDie: 0 };
+        }
+
+        // Try additional stats first
+        const additionalStatsHP = actor.system.additionalStats?.[this.HP_KEY];
+        if (additionalStatsHP) {
+            return {
+                current: additionalStatsHP.value || 0,
+                max: additionalStatsHP.max || 0,
+                hitDie: 0 // hitDie not stored in additional stats
+            };
+        }
+
+        // Fallback to flags
+        const flagsHP = actor.flags['swade-hp-module']?.hitPoints;
+        if (flagsHP) {
+            return flagsHP;
+        }
+
+        // Default values
+        return { current: 0, max: 0, hitDie: 0 };
+    }
+
+    // Set HP data to additional stats (primary) and flags (fallback)
+    async setHPData(actor, hpData) {
+        if (!game.settings.get(this.id, 'enableHP')) return;
+
+        const updateData = {};
+
+        // Update additional stats (primary storage)
+        if (!actor.system.additionalStats) {
+            updateData['system.additionalStats'] = {};
+        }
+        updateData[`system.additionalStats.${this.HP_KEY}`] = {
+            label: "Hit Points",
+            dtype: "Number",
+            hasMaxValue: true,
+            value: hpData.current || 0,
+            max: hpData.max || 0
+        };
+
+        // Also update flags as fallback
+        updateData['flags.swade-hp-module.hitPoints'] = {
+            current: hpData.current || 0,
+            max: hpData.max || 0,
+            hitDie: hpData.hitDie || 0
+        };
+
+        await actor.update(updateData);
+    }
+
     extendDataSchema() {
         console.log('SWADE HP Module: Setting up data injection...');
         
@@ -54,10 +132,10 @@ class SWADEHPSystem {
                 // Call SWADE's original getData
                 const data = await originalGetData.call(this);
                 
-                // Inject our HP data from flags into the template data
+                // Inject our HP data into the template data
                 if (data.actor && game.settings.get('swade-hp-module', 'enableHP')) {
-                    // Get HP data from flags instead of system
-                    const hpData = data.actor.flags['swade-hp-module']?.hitPoints || { current: 0, max: 0, hitDie: 0 };
+                    // Get HP data using the global instance
+                    const hpData = window.SWADEHPSystem?.instance?.getHPData(data.actor) || { current: 0, max: 0, hitDie: 0 };
                     data.actor.system.hitPoints = hpData;
                     console.log('SWADE HP Module: Injected HP data into SWADE getData:', data.actor.system.hitPoints);
                 }
@@ -78,9 +156,10 @@ class SWADEHPSystem {
                 // Call SWADE's original prepareData first
                 const result = originalPrepareData.call(this);
                 
-                // Get HP data from flags instead of system
+                // Get HP data and inject into system.hitPoints for UI
                 if (this.type === 'character' && game.settings.get('swade-hp-module', 'enableHP')) {
-                    const hpData = this.flags['swade-hp-module']?.hitPoints || { current: 0, max: 0, hitDie: 0 };
+                    // Get HP data using the global instance
+                    const hpData = window.SWADEHPSystem?.instance?.getHPData(this) || { current: 0, max: 0, hitDie: 0 };
                     this.system.hitPoints = hpData;
                     console.log('SWADE HP Module: Created HP data structure on actor:', this.name);
                 }
@@ -543,34 +622,62 @@ class SWADEHPSystem {
     onPreCreateActor(actor, createData, options, userId) {
         if (!game.settings.get(this.id, 'enableHP')) return;
         
-        // Initialize HP data structure
-        if (!createData.system.hitPoints) {
-            createData.system.hitPoints = {
-                current: 0,
-                max: 0,
-                hitDie: 0
-            };
+        // Initialize HP data structure in additional stats
+        if (!createData.system.additionalStats) {
+            createData.system.additionalStats = {};
         }
+        createData.system.additionalStats[this.HP_KEY] = {
+            label: "Hit Points",
+            dtype: "Number",
+            hasMaxValue: true,
+            value: 0,
+            max: 0
+        };
+        
+        // Also initialize in flags as fallback
+        if (!createData.flags) {
+            createData.flags = {};
+        }
+        if (!createData.flags['swade-hp-module']) {
+            createData.flags['swade-hp-module'] = {};
+        }
+        createData.flags['swade-hp-module'].hitPoints = {
+            current: 0,
+            max: 0,
+            hitDie: 0
+        };
     }
 
     onPreUpdateActor(actor, changeData, options, userId) {
         if (!game.settings.get(this.id, 'enableHP')) return;
         
-        // If HP values are being updated in system data, convert them to flags
+        // If HP values are being updated in system data, convert them to additional stats
         if (changeData.system && (changeData.system.hitPoints?.current !== undefined || changeData.system.hitPoints?.max !== undefined)) {
             console.log('SWADE HP Module: HP values being updated in system data:', changeData.system.hitPoints);
             
-            // Get current HP data from flags
-            const currentHPData = actor.flags['swade-hp-module']?.hitPoints || { current: 0, max: 0, hitDie: 0 };
+            // Get current HP data
+            const currentHPData = this.getHPData(actor);
             
-            // Create new HP data by merging current flags with system updates
+            // Create new HP data by merging current data with system updates
             const newHPData = {
                 current: changeData.system.hitPoints.current !== undefined ? changeData.system.hitPoints.current : currentHPData.current,
                 max: changeData.system.hitPoints.max !== undefined ? changeData.system.hitPoints.max : currentHPData.max,
                 hitDie: changeData.system.hitPoints.hitDie !== undefined ? changeData.system.hitPoints.hitDie : currentHPData.hitDie
             };
             
-            // Convert system update to flags update
+            // Convert system update to additional stats update
+            if (!changeData.system.additionalStats) {
+                changeData.system.additionalStats = {};
+            }
+            changeData.system.additionalStats[this.HP_KEY] = {
+                label: "Hit Points",
+                dtype: "Number",
+                hasMaxValue: true,
+                value: newHPData.current,
+                max: newHPData.max
+            };
+            
+            // Also update flags as fallback
             if (!changeData.flags) {
                 changeData.flags = {};
             }
@@ -582,7 +689,7 @@ class SWADEHPSystem {
             // Remove the system.hitPoints from the update to avoid conflicts
             delete changeData.system.hitPoints;
             
-            console.log('SWADE HP Module: Converted system update to flags update:', newHPData);
+            console.log('SWADE HP Module: Converted system update to additional stats update:', newHPData);
         }
     }
 
@@ -601,7 +708,7 @@ class SWADEHPSystem {
     }
 
     async rollHPForAdvance(actor) {
-        const hpData = actor.flags['swade-hp-module']?.hitPoints;
+        const hpData = this.getHPData(actor);
         if (!hpData) return;
         
         const vigorDie = actor.system.attributes.vigor.die.sides;
@@ -611,9 +718,11 @@ class SWADEHPSystem {
         const newMaxHP = hpData.max + result.total;
         const newCurrentHP = Math.min(hpData.current + result.total, newMaxHP);
         
-        await actor.update({
-            'flags.swade-hp-module.hitPoints.max': newMaxHP,
-            'flags.swade-hp-module.hitPoints.current': newCurrentHP
+        // Update using the new setHPData method
+        await this.setHPData(actor, {
+            current: newCurrentHP,
+            max: newMaxHP,
+            hitDie: hpData.hitDie
         });
         
         // Show roll result
@@ -651,21 +760,20 @@ class SWADEHPSystem {
             if (actor.type === 'character') {
                 console.log(`SWADE HP Module: Checking actor: ${actor.name}`);
                 
-                if (!actor.flags['swade-hp-module']?.hitPoints) {
+                const hpData = this.getHPData(actor);
+                if (!hpData || (hpData.current === 0 && hpData.max === 0)) {
                     console.log(`SWADE HP Module: Creating HP data structure for ${actor.name}`);
-                    actor.update({
-                        'flags.swade-hp-module.hitPoints': {
-                            current: 0,
-                            max: 0,
-                            hitDie: 0
-                        }
+                    this.setHPData(actor, {
+                        current: 0,
+                        max: 0,
+                        hitDie: 0
                     }).then(() => {
                         console.log(`SWADE HP Module: Successfully created HP data structure for ${actor.name}`);
                     }).catch(error => {
                         console.error(`SWADE HP Module: Failed to create HP data structure for ${actor.name}:`, error);
                     });
                 } else {
-                    console.log(`SWADE HP Module: HP data structure already exists for ${actor.name}:`, actor.flags['swade-hp-module'].hitPoints);
+                    console.log(`SWADE HP Module: HP data structure already exists for ${actor.name}:`, hpData);
                 }
             }
         });
@@ -678,19 +786,20 @@ class SWADEHPSystem {
         
         // Initialize HP data structure for existing characters that don't have it
         game.actors.forEach(actor => {
-            if (actor.type === 'character' && !actor.flags['swade-hp-module']?.hitPoints) {
-                console.log(`SWADE HP Module: Initializing HP data structure for ${actor.name}`);
-                actor.update({
-                    'flags.swade-hp-module.hitPoints': {
+            if (actor.type === 'character') {
+                const hpData = this.getHPData(actor);
+                if (!hpData || (hpData.current === 0 && hpData.max === 0)) {
+                    console.log(`SWADE HP Module: Initializing HP data structure for ${actor.name}`);
+                    this.setHPData(actor, {
                         current: 0,
                         max: 0,
                         hitDie: 0
-                    }
-                }).then(() => {
-                    console.log(`SWADE HP Module: Successfully initialized HP data structure for ${actor.name}`);
-                }).catch(error => {
-                    console.error(`SWADE HP Module: Failed to initialize HP data structure for ${actor.name}:`, error);
-                });
+                    }).then(() => {
+                        console.log(`SWADE HP Module: Successfully initialized HP data structure for ${actor.name}`);
+                    }).catch(error => {
+                        console.error(`SWADE HP Module: Failed to initialize HP data structure for ${actor.name}:`, error);
+                    });
+                }
             }
         });
     }
@@ -704,14 +813,26 @@ class SWADEHPSystem {
 
     // Utility function to calculate max HP for a character
     static calculateMaxHP(actor) {
+        // Try to get HP data from the module instance if available
+        if (window.SWADEHPSystem && window.SWADEHPSystem.instance) {
+            const hpData = window.SWADEHPSystem.instance.getHPData(actor);
+            if (hpData) {
+                const baseHP = hpData.hitDie || 0;
+                const advances = actor.system.advances?.value || 0;
+                
+                // For simplicity, we'll assume each advance adds the current Vigor die
+                // In practice, this should be tracked per advance
+                return baseHP + (advances * (actor.system.attributes?.vigor?.die?.sides || 6));
+            }
+        }
+        
+        // Fallback to flags if module instance not available
         const hpData = actor.flags['swade-hp-module']?.hitPoints;
         if (!hpData) return 0;
         
         const baseHP = hpData.hitDie || 0;
         const advances = actor.system.advances?.value || 0;
         
-        // For simplicity, we'll assume each advance adds the current Vigor die
-        // In practice, this should be tracked per advance
         return baseHP + (advances * (actor.system.attributes?.vigor?.die?.sides || 6));
     }
 }
@@ -721,7 +842,8 @@ Hooks.once('ready', () => {
     console.log('SWADE HP Module: Ready hook fired, initializing module...');
     const system = new SWADEHPSystem();
     system.init();
+    
+    // Store instance globally for utility functions
+    window.SWADEHPSystem = SWADEHPSystem;
+    window.SWADEHPSystem.instance = system;
 });
-
-// Export for potential use by other modules
-window.SWADEHPSystem = SWADEHPSystem;

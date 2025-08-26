@@ -2,7 +2,7 @@
   "id": "swade-hp-module",
   "title": "SWADE Classic HP System",
   "description": "Adds classic Hit Points to the SWADE system using Vigor as the hit die. HP starts at Vigor's max roll and increases with each advance.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "compatibility": {
     "minimum": 13,
     "verified": 13,
